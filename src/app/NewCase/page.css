@@ -1,0 +1,138 @@
+:root {
+    --primary-color: #28a745;
+    --secondary-color: #f0f0f0;
+    --text-color: #333;
+    --button-bg-color: #ffffff;
+    --button-hover-color: #e8f5e9;
+    --font-family: 'Arial', sans-serif;
+    --transition-time: 0.3s;
+  }
+  
+  .ngo-board {
+    font-family: var(--font-family);
+    background-color: #fff;
+    color: var(--text-color);
+    min-height: 100vh;
+  }
+  
+  header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 40px;
+    width: 100%;
+    height: 100px;
+    background-color: #ffffff;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    position: fixed;
+    top: 0;
+    z-index: 1000;
+  }
+  
+  header h1 {
+    margin-left: 10px;
+    font-size: 1.8em;
+    color: var(--primary-color);
+    font-weight: bold;
+  }
+  
+  nav a {
+    font-size: 1em;
+    font-weight: 600;
+    color: var(--primary-color);
+    text-decoration: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    transition: background-color var(--transition-time), color var(--transition-time);
+  }
+  
+  nav a:hover {
+    background-color: var(--button-hover-color);
+    color: var(--text-color);
+  }
+  
+  .main {
+    display: flex;
+    gap: 40px;
+    margin-top: 120px;
+    padding: 20px;
+    justify-content: center;
+  }
+  
+  .cases,
+  .details {
+    background-color: var(--secondary-color);
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  .cases h3,
+  .details h3 {
+    color: var(--primary-color);
+    font-size: 1.5em;
+    border-bottom: 2px solid var(--primary-color);
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+  }
+  
+  .case-button {
+    background-color: var(--button-bg-color);
+    border: 1px solid var(--primary-color);
+    color: var(--text-color);
+    font-size: 1.2em;
+    padding: 12px;
+    width: 100%;
+    text-align: left;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all var(--transition-time);
+  }
+  
+  .case-button:hover,
+  .case-id:hover {
+    background-color: var(--button-hover-color);
+    color: var(--primary-color);
+  }
+  
+  .details ul {
+    list-style: none;
+    padding: 0;
+  }
+  
+  .details ul li {
+    margin-bottom: 15px;
+  }
+  
+  .button {
+    display: inline-block;
+    background-color: var(--primary-color);
+    color: #fff;
+    border: none;
+    padding: 10px 15px;
+    font-size: 1em;
+    font-weight: bold;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color var(--transition-time);
+  }
+  
+  .button:hover {
+    background-color: #1e7e34;
+  }
+  
+  input[type="text"] {
+    width: calc(100% - 20px);
+    padding: 10px;
+    margin: 15px 0;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 1em;
+    box-sizing: border-box;
+  }
+  
+  input[type="text"]:focus {
+    border-color: var(--primary-color);
+    outline: none;
+  }
+  

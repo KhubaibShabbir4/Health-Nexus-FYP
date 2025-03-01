@@ -1,0 +1,147 @@
+/* General Styling */
+.about-container {
+    background: white;
+    padding: 40px;
+    text-align: center;
+}
+
+/* Hero Section */
+.hero-section {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 20px;
+    margin-bottom: 50px;
+}
+
+.hero-content {
+    max-width: 500px;
+    text-align: left;
+}
+
+.hero-content h1 {
+    font-size: 36px;
+    color: #28a745;
+    margin-bottom: 10px;
+}
+
+.hero-content p {
+    font-size: 16px;
+    color: #555;
+    line-height: 1.6;
+}
+
+.hero-image {
+    width: 100%; /* Ensures responsiveness */
+    max-width: 500px; /* Prevents oversized images */
+    height: auto; /* Maintains aspect ratio */
+    border-radius: 12px;
+    box-shadow: 0px 10px 30px rgba(0, 0, 0, 0.1);
+    object-fit: cover; /* Ensures image fills the space properly */
+}
+
+
+/* Who We Are Section */
+.who-we-are {
+    margin: 40px auto;
+    max-width: 700px;
+    text-align: center;
+}
+
+.who-we-are h2 {
+    font-size: 28px;
+    color: #28a745;
+    margin-bottom: 10px;
+}
+
+.who-we-are p {
+    font-size: 16px;
+    color: #555;
+    line-height: 1.6;
+}
+
+/* Features Section */
+.features-section {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 20px;
+    margin-top: 40px;
+}
+
+.feature-card {
+    background: #f9f9f9;
+    padding: 20px;
+    border-radius: 10px;
+    width: 280px;
+    text-align: center;
+    box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+}
+
+.feature-card:hover {
+    transform: scale(1.05);
+    box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+.feature-icon {
+    font-size: 40px;
+    color: #28a745;
+    margin-bottom: 10px;
+}
+
+.feature-card h2 {
+    font-size: 22px;
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.feature-card p {
+    font-size: 14px;
+    color: #555;
+}
+
+/* Our Team Section */
+.our-team {
+    margin-top: 50px;
+    padding: 20px;
+    background: #f8f8f8;
+    border-radius: 10px;
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.our-team h2 {
+    font-size: 28px;
+    color: #28a745;
+    margin-bottom: 10px;
+}
+
+.our-team p {
+    font-size: 16px;
+    color: #555;
+    line-height: 1.6;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .hero-section {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .hero-content {
+        text-align: center;
+    }
+
+    .features-section {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .our-team {
+        width: 90%;
+    }
+}

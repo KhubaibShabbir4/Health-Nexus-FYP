@@ -1,0 +1,210 @@
+/* Admin Dashboard Styles */
+.container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 20px;
+    background-color: #f4f4f4;
+    margin-top: 80px; /* To avoid overlap with the fixed header */
+  }
+  
+  .card {
+    background: #ffffff;
+    padding: 40px; /* Increased padding for a larger card */
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    max-width: 800px; /* Increased max-width to make the card bigger */
+    width: 100%;
+  }
+  
+  .title {
+    font-size: 2em; /* Increased font size for the title */
+    font-weight: bold;
+    color: #28a745;
+    margin-bottom: 10px;
+  }
+  
+  .description {
+    font-size: 1.2em; /* Increased font size for the description */
+    color: #555;
+    margin-bottom: 20px;
+  }
+  
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* Two columns instead of one for a more spacious layout */
+    gap: 30px; /* Increased gap between items */
+  }
+  
+  .link {
+    display: block;
+    padding: 12px 20px;
+    background-color: #28a745;
+    color: white;
+    text-decoration: none;
+    font-size: 1em;
+    font-weight: bold;
+    border-radius: 5px;
+    transition: background 0.3s ease;
+  }
+  
+  .link:hover {
+    background-color: #218838;
+  }
+  
+  /* Responsive Design */
+  
+  /* Small devices (Phones in portrait mode, 600px and below) */
+  @media (max-width: 600px) {
+    .container {
+      padding: 10px;
+    }
+  
+    .card {
+      padding: 20px; /* Reduced padding for smaller screens */
+    }
+  
+    .title {
+      font-size: 1.5em; /* Smaller title font */
+    }
+  
+    .description {
+      font-size: 1em; /* Smaller description font */
+    }
+  
+    .grid {
+      grid-template-columns: 1fr; /* One column for smaller screens */
+      gap: 15px; /* Reduced gap between grid items */
+    }
+  
+    .link {
+      font-size: 0.9em;
+      padding: 10px; /* Reduced padding for smaller screens */
+    }
+  }
+  
+  /* Medium devices (Tablets in landscape mode, 768px and below) */
+  @media (max-width: 768px) {
+    .container {
+      padding: 15px; /* Slightly smaller padding */
+    }
+  
+    .grid {
+      grid-template-columns: 1fr 1fr; /* Two columns for medium screens */
+    }
+  
+    .link {
+      font-size: 1em; /* Font size adjustment for medium screens */
+    }
+  }
+  
+  /* Large devices (Desktops, 1024px and above) */
+  @media (min-width: 1024px) {
+    .container {
+      padding: 20px; /* Regular padding */
+    }
+  
+    .card {
+      padding: 40px; /* Regular padding */
+    }
+  
+    .title {
+      font-size: 2em; /* Larger font size for larger screens */
+    }
+  
+    .description {
+      font-size: 1.2em; /* Larger font size for larger screens */
+    }
+  
+    .grid {
+      grid-template-columns: 1fr 1fr; /* Two columns for larger screens */
+      gap: 30px; /* Increased gap between grid items */
+    }
+  }
+  /* Responsive Design for Header Title */
+  .header-title {
+    font-size: 1.5em; /* Default size */
+  }
+  
+  /* Small devices (Phones in portrait mode, 600px and below) */
+  @media (max-width: 600px) {
+    .header-title {
+      font-size: 1.2em; /* Smaller font size for smaller screens */
+    }
+  }
+  
+  /* Medium devices (Tablets in landscape mode, 768px and below) */
+  @media (max-width: 768px) {
+    .header-title {
+      font-size: 1.3em; /* Slightly smaller for tablets */
+    }
+  }
+  
+  /* Large devices (Desktops, 1024px and above) */
+  @media (min-width: 1024px) {
+    .header-title {
+      font-size: 1.7em; /* Larger size for desktop screens */
+    }
+  }
+  
+  
+  /* Floating Add Admin Button */
+  .floating-add-admin-button {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: linear-gradient(135deg, #28a745, #218838); /* Green Gradient */
+    color: white;
+    border: none;
+    padding: 14px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    border-radius: 50%; /* Initial round shape */
+    transition: all 0.3s ease-in-out;
+    box-shadow: 0px 4px 15px rgba(40, 167, 69, 0.5); /* Green glow */
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    white-space: nowrap;
+  }
+  
+  /* Icon and Text Styling */
+  .button-icon {
+    font-size: 20px;
+  }
+  
+  .button-text {
+    display: none; /* Hide text initially */
+    margin-left: 10px;
+  }
+  
+  /* Hover Effect - Expands the button */
+  .floating-add-admin-button:hover {
+    width: 150px; /* Expands */
+    border-radius: 50px; /* Soft pill shape */
+    padding: 14px 20px;
+    justify-content: space-between;
+    box-shadow: 0px 6px 20px rgba(40, 167, 69, 0.7);
+  }
+  
+  /* Show text on hover */
+  .floating-add-admin-button:hover .button-text {
+    display: inline;
+  }
+  
+  /* Bounce Animation */
+  @keyframes bounce {
+    0%, 100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-5px);
+    }
+  }
+  

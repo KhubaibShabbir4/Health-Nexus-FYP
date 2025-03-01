@@ -1,0 +1,96 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["driverAdapters"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id       Int    @id @default(autoincrement())
+  email    String @unique
+  password String
+}
+
+model Case {
+  id              Int      @id @default(autoincrement())
+  caseId          String   @unique
+  patientName     String
+  requestedAmount Float
+  requestDate     DateTime
+  status          String
+  actions         String
+}
+
+model FundsTransfer {
+  id        Int      @id @default(autoincrement())
+  category  String   // 'Pharmacy' or 'Doctor'
+  month     String   // Month name, e.g., 'January'
+  amount    Float    // Funds transferred
+  createdAt DateTime @default(now())
+}
+
+model Status {
+  id         Int     @id @default(autoincrement())
+  status     String  // e.g., "fulfilled", "active", "rejected"
+}
+
+model Funds {
+  id         Int     @id @default(autoincrement())
+  month      String  // e.g., "Jan", "Feb", etc.
+  amount     Float
+}
+
+model CaseStatus {
+  id                Int      @id @default(autoincrement()) // Unique case identifier
+  patientName       String   // Name of the patient
+  age               Int      // Age of the patient
+  gender            String   // Gender of the patient
+  diagnosis         String   // Diagnosis
+  treatment         String   // Treatment prescribed
+  status            String   // Case status: 'accepted', 'rejected', 'under_review'
+  prescribedMedicine String? // Medicines prescribed (e.g., names of medicines)
+  dosage            String?  // Dosage of the medicines
+}
+
+model GigDetails {
+  id          Int      @id @default(autoincrement())
+  gigAmount   Int
+  caseId      Int
+  patientName String
+  createdAt   DateTime @default(now())
+}
+model patients {
+  patient_id     Int        @id @default(autoincrement()) // Make patient_id the primary key
+  patient_name   String
+  email          String
+  gender         String
+  time_slot      String
+  appointment_date String
+
+  // Add an opposite relation field to link with PendingAppointment model
+  pendingAppointments PendingAppointment[]
+}
+
+model PendingAppointment {
+  id             Int      @id @default(autoincrement())
+  patient_id     Int
+  patient_name   String
+  appointment_id String   @unique
+  appointment_date String
+  status         String
+  patient        patients @relation(fields: [patient_id], references: [patient_id])
+
+  // Additional fields related to PendingAppointment...
+}
+
+model ratings {
+  id             Int     @id @default(autoincrement())
+  satisfaction   Int
+  diagnosis      Int
+  staffBehaviour Int
+  environment    Int
+}
+

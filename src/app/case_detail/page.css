@@ -1,0 +1,101 @@
+.pageWrapper {
+    padding: 100px;
+    font-family: Arial, sans-serif;
+
+    /* Dynamic width adjustments */
+    max-width: 1200px; /* Sets a maximum width for large screens */
+    width: 90%; /* Takes 90% of the viewport width */
+    margin: 0 auto; /* Centers the container horizontally */
+    background-color: #f9f9f9; /* Subtle background color */
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Slight shadow for better visibility */
+}
+
+/* Header Section Styling */
+.headerSection {
+    font-size: 24px;
+    font-weight: bold;
+    background: linear-gradient(90deg, #4CAF50, #8BC34A);
+    padding: 15px;
+    text-align: center;
+    color: #fff;
+    animation: fadeIn 1s ease;
+    border-radius: 10px;
+    margin-bottom: 30px;
+
+    /* Full width adjustments */
+    max-width: 100%;
+    width: 100%;
+}
+
+/* Report Section Styling */
+.reportSection {
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    animation: slideIn 0.5s ease;
+}
+
+/* Report Title Styling */
+.reportTitle {
+    text-align: center;
+    color: #333;
+    margin-bottom: 20px;
+}
+
+/* Information Section Styling */
+.informationSection {
+    margin-top: 20px;
+}
+
+.informationSection h3 {
+    color: #66bb6a;
+    font-size: 1.2em;
+}
+
+/* Button Group Styling */
+.buttonGroup {
+    display: flex;
+    justify-content: center;
+    margin-top: 30px;
+}
+
+.actionButton {
+    padding: 10px 20px;
+    margin: 0 10px;
+    border: none;
+    border-radius: 4px;
+    color: white;
+    cursor: pointer;
+    font-size: 1em;
+    transition: transform 0.2s, background-color 0.2s;
+}
+
+.rejectButton {
+    background-color: #e57373;
+}
+
+.acceptButton {
+    background-color: #4caf50;
+}
+
+.reviewButton {
+    background-color: #ffb74d;
+}
+
+.actionButton:hover {
+    transform: scale(1.05);
+    filter: brightness(1.1);
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideIn {
+    from { transform: translateY(20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}

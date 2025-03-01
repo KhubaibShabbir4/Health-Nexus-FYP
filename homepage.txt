@@ -1,0 +1,66 @@
+import Image from 'next/image';
+import Link from 'next/link';
+
+export default function HomePharma() {
+  return (
+    <div className="ngo-board">
+      <header style={{
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        padding: '30px 20px', // Increased padding to make the header taller
+        width: '100%',
+        position: 'relative',
+        height: '120px', // You can also adjust this if you want a fixed height for the header
+      }}>
+        {/* Logo on the left */}
+        <div style={{ position: 'absolute', left: '20px' }}>
+          <Image 
+            src="/images/logo.png" 
+            alt="Akhuwat" 
+            width={120}  
+            height={120} 
+            style={{ flexShrink: 0 }} 
+          />
+        </div>
+
+        {/* Navigation links centered */}
+        <nav style={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          gap: '40px',
+          marginLeft: '140px',
+        }}>
+          <a href="#" style={{ fontSize: '1.8em', padding: '8px 15px', fontWeight: '500' }}>About</a>
+          <a href="#" style={{ fontSize: '1.8em', padding: '8px 15px', fontWeight: '500' }}>Home</a>
+          <a href="#" style={{ fontSize: '1.8em', padding: '8px 15px', fontWeight: '500' }}>Contact</a>
+          <a href="#" style={{ fontSize: '1.8em', padding: '8px 15px', fontWeight: '500' }}>How it Works</a>
+        </nav>
+      </header>
+
+      <main>
+        <h2 className="animated-text" style={{ fontSize: '4em' }}>Welcome Company Name</h2>
+
+        <h3 style={{ fontSize: '2em', color: 'black' }}>NGO'S ON BOARD</h3>
+
+        <div className="logos-container">
+          <div className="logos">
+            <Image src="/images/akhuwat.png" alt="Akhuwat" width={200} height={200} />
+            <Image src="/images/saylani.png" alt="Saylani" width={200} height={200} />
+            <Image src="/images/JDC.png" alt="JDC Foundation" width={200} height={200} />
+            <Image src="/images/MAA.jpg" alt="MAA" width={200} height={200} />
+            <Image src="/images/edhi-foundation.png" alt="Edhi Foundation" width={200} height={200} />
+            
+            <Link href="/al-khidmat">
+              <Image src="/images/al-khidmat.png" alt="Al-Khidmat" width={200} height={200} style={{ cursor: 'pointer' }} />
+            </Link>
+            
+            <Image src="/images/chippa.png" alt="Chhipa" width={200} height={200} />
+            <Image src="/images/sahara.png" alt="Sahara" width={200} height={200} />
+          </div>
+        </div>
+      </main>
+    </div>
+  );
+}

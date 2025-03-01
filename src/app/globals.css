@@ -1,0 +1,1069 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #ffffff;
+  --foreground: #f3eeee;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #f7f7f7;
+    --foreground: #fcfbfb;
+  }
+}
+
+body {
+  color: var(--foreground);
+  background-color: var(--background);
+  font-family: Arial, Helvetica, sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+.ngo-board {
+  text-align: center;
+  font-family: Arial, sans-serif;
+  
+}
+
+/* Header Styling */
+header {
+  display: flex;
+  justify-content: space-between; /* Aligns content to the sides */
+  align-items: center; /* Vertically centers the content */
+  padding: 30px 40px; /* Space inside the header */
+  height: 120px; /* Height of the header */
+  border-bottom: 1px solid #ccc; /* Bottom border for a sleek look */
+  background-color: #fcfffd; /* Light background color */
+  color: #28a745; /* Text color matching your theme */
+  position: fixed; /* Makes the header fixed at the top */
+  top: 0; /* Aligns the header to the top of the page */
+  left: 0; /* Ensures it starts from the left edge */
+  width: 100%; /* Full width to cover the screen */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Adds a subtle shadow */
+  z-index: 1000; /* Keeps the header on top of other content */
+}
+
+/* Reset Body Margin (if not already included) */
+body {
+  margin: 0;
+  padding: 0;
+}
+
+/* Reset the margin of the body */
+
+
+nav a {
+  margin: 0 30px;
+  color: #28a745; 
+  text-decoration: none;
+  font-weight: bold;
+  font-size: large;
+  font-weight: 50;
+}
+
+h2 {
+  color: green;
+  margin-top: 20px;
+}
+
+.logos-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 40px;
+  color: black;
+  min-height: 50vh; /* Center container vertically */
+  width: 100%; /* Make container width full */
+}
+
+.logos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px; /* Space between images */
+  justify-content: center; /* Center images horizontally */
+  align-items: center; /* Center images vertically */
+  margin: 0 auto; /* Center the container itself */
+  padding: 20px;
+  max-width: 900px; /* Optionally limit the width */
+}
+
+.logo-image {
+  width: 180px;
+  height: 180px;
+  object-fit: contain;
+  cursor: pointer;
+  border-radius: 20px; /* More pronounced curved borders */
+  border: 2px solid transparent; /* Transparent border for gradient effect */
+  background-image: linear-gradient(white, white), 
+                    linear-gradient(135deg, #7f8283, #818486); /* Gradient border */
+  background-origin: border-box;
+  background-clip: content-box, border-box; /* Gradient border effect */
+  box-shadow: 0 8px 15px rgba(11, 202, 75, 0.3); /* Soft shadow for depth */
+  transition: transform 0.3s ease, box-shadow 0.3s ease; /* Smooth hover animation */
+}
+
+.logo-image:hover {
+  transform: translateY(-10px) scale(1.05); /* Lift and zoom on hover */
+  box-shadow: 0 12px 24px rgba(11, 230, 22, 0.4); /* Enhanced shadow on hover */
+  filter: brightness(1.1); /* Brighten the image slightly on hover */
+}
+
+/* Optional ripple effect on click */
+.logo-image:active {
+  transform: scale(0.95); /* Slight shrink on click */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2); /* Softer shadow on click */
+}
+
+
+
+.logos > a {
+  flex: 0 1 calc(25% - 20px); /* 25% width for each image (4 per row), minus the gap */
+  display: flex;
+  justify-content: center;
+}
+
+
+.animated-text {
+  animation: fadeInScale 4s ease-in-out forwards;
+  opacity: 1;
+}
+
+/* Define the animation */
+@keyframes fadeInScale {
+  0% {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+/* Cases Details section */
+.cases {
+  flex: 1;
+  padding: 10px;
+  border-right: 1px solid #ccc;
+}
+
+.cases h3 {
+  font-size: 1.2rem;
+  margin-bottom: 15px;
+  font-weight: bold;
+  text-align: center;
+}
+
+.cases ul {
+  list-style: none;
+  padding: 0;
+}
+
+.case-button {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 15px;
+  background-color: #f0f0f0;
+  border: 1px solid #ddd;
+  cursor: pointer;
+  margin-bottom: 10px;
+  font-size: 1rem;
+  text-align: left;
+  border-radius: 8px;
+  font-weight: bold;
+}
+
+.case-button .icon {
+  font-size: 1.5rem;
+  color: #4caf50;
+  margin-right: 10px;
+}
+
+.case-button .more {
+  font-size: 0.8rem;
+  color: #0070f3;
+  font-weight: bold;
+  text-decoration: none;
+  margin-left: auto;
+}
+
+/* Details section */
+.details {
+  flex: 2;
+  padding: 20px;
+}
+
+.details h3 {
+  font-size: 1.2rem;
+  margin-bottom: 15px;
+  font-weight: bold;
+  text-align: center;
+}
+
+.details p {
+  font-size: 1rem;
+  margin: 5px 0;
+}
+
+.details p strong {
+  font-weight: bold;
+}
+
+/* Placeholder image styles */
+.image-container {
+  width: 100px;
+  height: 120px;
+  margin: 15px auto;
+  background-color: #e6e6e6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  overflow: hidden;
+  
+}
+
+/* Button styles */
+.supplied-button {
+  display: block;
+  padding: 10px;
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  width: 100%;
+  text-align: center;
+  border-radius: 8px;
+  margin-top: 20px;
+  transition: background-color 0.3s;
+}
+
+.supplied-button:hover {
+  background-color: #45a049;
+}
+
+.dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.dropdown-button {
+  display: block;
+  padding: 10px;
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  width: 100%;
+  text-align: center;
+  border-radius: 8px;
+  transition: background-color 0.3s;
+}
+
+.dropdown-button:hover {
+  background-color: #45a049;
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background-color: #ffffff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  width: 100%;
+  margin-top: 5px;
+  padding: 5px 0;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+}
+
+.dropdown-menu li {
+  padding: 10px;
+  font-size: 0.9rem;
+  color: #333;
+  cursor: pointer;
+  text-align: center;
+}
+
+.dropdown-menu li:hover {
+  background-color: #f0f0f0;
+}
+/*New Case CSS*/
+
+/* Home.css */
+
+.ngo-board {
+  width: 100%;
+  padding: 20px;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+}
+
+.logo {
+  position: absolute;
+  left: 20px;
+}
+
+.navbar {
+  display: flex;
+  gap: 40px;
+  margin-left: 140px;
+}
+
+.navbar a {
+  font-size: 1.8em;
+  padding: 8px 15px;
+  font-weight: 500;
+}
+
+.main {
+  display: flex;
+  gap: 40px;
+  margin-top: 80px;
+  justify-content: center;
+}
+
+.cases {
+  flex: 1;
+  background-color: #f0f0f0;
+  padding: 20px;
+  border-radius: 8px;
+}
+
+.cases h3 {
+  color: #28a745;
+}
+
+.case-button {
+  background: transparent;
+  border: none;
+  color: #333;
+  font-size: 1.2em;
+  padding: 10px;
+  cursor: pointer;
+  width: 100%;
+  text-align: left;
+  transition: color 0.3s, transform 0.2s;
+}
+
+/* Hover effect for case IDs */
+.case-button:hover {
+  color: #28a745;
+  transform: scale(1.05);
+}
+
+.more {
+  color: #28a745;
+}
+
+.details {
+  flex: 2;
+  background-color: #f0f0f0;
+  padding: 20px;
+  border-radius: 8px;
+  transition: transform 0.8s, opacity 0.5s;
+}
+
+.animate {
+  animation: fadeInScale 0.8s ease-in-out;
+}
+
+@keyframes fadeInScale {
+  0% {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.patient-info {
+  display: flex;
+  align-items: center;
+}
+
+.medicines {
+  background-color: #7fd35a;
+  padding: 10px;
+  border-radius: 8px;
+  margin-top: 20px;
+}
+
+.medicines button {
+  background: none;
+  border: none;
+  color: #006400;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+/* Hover effect for medicine buttons */
+.medicines button:hover {
+  color: #28a745;
+}
+
+input {
+  width: 48%;
+  padding: 10px;
+  margin-top: 10px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+}
+
+button {
+  width: 48%;
+  padding: 10px;
+  background-color: #000;
+  color: #fff;
+  font-size: 1em;
+  margin-top: 10px;
+  border-radius: 5px;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+/* Hover effect for the main button */
+button:hover {
+  background-color: #28a745;
+}
+*{
+  font-family: "Montserrat", sans-serif;
+  font-optical-sizing: auto;
+  font-weight:100;
+  font-style: normal;
+}
+/* home.css */
+.fade-in {
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.dropdown-menu {
+  list-style-type: none;
+  padding-left: 0;
+  margin: 10px 0;
+}
+
+.dropdown-menu li {
+  padding: 5px 0;
+}
+
+.dropdown-button {
+  cursor: pointer;
+  padding: 5px 10px;
+  background-color: #28a745;
+  color: white;
+  border: none;
+  border-radius: 5px;
+}
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  overflow-x: hidden;
+}
+
+.footer {
+  width: 100vw; /* Ensures the footer spans the full viewport width */
+  margin: 0;
+  padding: 0px 0;
+  background-color: #24262b;
+  color: #ffffff;
+  text-align: center;
+  box-sizing: border-box;
+  position: relative; /* Optional, ensures alignment */
+}
+
+.container {
+  width: 100%; /* Full width of its parent */
+  margin: 0 auto;
+  padding :20;
+  box-sizing: border-box;  /*Prevent padding from adding extra width*/ 
+  height: 45%;
+}
+
+.row {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 20px;
+  margin: 0;
+}
+
+.footer-col {
+  flex: 1 1 200px;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.footer-col h4 {
+  font-size: 16px;
+  color: #ffffff;
+  text-transform: capitalize;
+  margin-bottom: 20px;
+  font-weight: 500;
+  position: relative;
+}
+
+.footer-col ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.footer-col ul li {
+  margin-bottom: 8px;
+}
+
+.footer-col ul li a {
+  font-size: 14px;
+  color: #bbbbbb;
+  text-decoration: none;
+  font-weight: 300;
+  display: block;
+  transition: all 0.3s ease;
+}
+
+.footer-col ul li a:hover {
+  color: #ffffff;
+  padding-left: 8px;
+}
+
+.social-links {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.social-links a {
+  display: inline-block;
+  height: 35px;
+  width: 35px;
+  background-color: rgba(255, 255, 255, 0.2);
+  text-align: center;
+  line-height: 35px;
+  border-radius: 50%;
+  color: #ffffff;
+  transition: all 0.5s ease;
+}
+
+.social-links a:hover {
+  color: #24262b;
+  background-color: #ffffff;
+}
+
+@media (max-width: 767px) {
+  .row {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .footer-col {
+    flex: 1 1 100%;
+  }
+}
+
+/* Reset any default padding/margin */
+body {
+  margin: 0;
+  padding: 0;
+}
+
+/*CSS for the landing page */
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+h1, h2, h3 {
+  font-weight: bold;
+}
+a {
+  text-decoration: none;
+  color: inherit;
+}
+img {
+  max-width: 100%;
+  height: auto;
+}
+.Group258 {
+  position: relative;
+  width: 464px;
+  height: 456px;
+}
+
+.Ellipse2 {
+  background-color: rgba(94, 178, 41, 0.8);
+  border-radius: 9999px; /* Full circle */
+}
+
+.PakMapRemovebgPreview1 {
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.container {
+  display: flex;
+  flex-wrap: wrap;
+  height: 45%vh;
+  font-family: Arial, sans-serif;
+}
+
+.leftPanel {
+  flex: 1;
+  background-color: #a9e79c;
+  padding: 40px;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.leftPanel h1 {
+  font-size: 24px;
+  line-height: 1.5;
+}
+
+.rightPanel {
+  flex: 1;
+  background-color: white;
+  padding: 40px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.rightPanel h2 {
+  font-size: 24px;
+  color: #4caf50;
+  margin-bottom: 20px;
+}
+
+.facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.fact {
+  flex: 1 1 30%;
+  text-align: center;
+}
+
+.fact img {
+  width: 50px;
+  height: 50px;
+  margin-bottom: 10px;
+}
+
+.fact p {
+  margin: 0;
+  font-size: 14px;
+  color: #333;
+}
+
+
+/* Wrapper for scrolling effect */
+#partners {
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  padding: 0 20px;
+  background-color: #f8f9fa; /* Light background for contrast */
+}
+
+.partners-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+
+.partners-container {
+  display: flex;
+  gap: 30px; /* Space between logos */
+  animation: slide 20s linear infinite;
+}
+
+.partner {
+  background-color: #fff; /* White background for logos */
+  padding: 15px;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+  transition: transform 0.3s ease-in-out;
+}
+
+.partner img {
+  object-fit: contain;
+  max-width: 100%;
+  max-height: 100px; /* Larger size for images */
+  border-radius: 8px; /* Slightly rounded corners */
+}
+
+/* Keyframe animation for continuous sliding */
+@keyframes slide {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+/* Hover effect on partner logos */
+.partner:hover {
+  transform: scale(1.05); /* Slight zoom effect on hover */
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2); /* More prominent shadow on hover */
+}
+
+/* Optional: Title Styling */
+#partners h2 {
+  font-size: 2.5rem;
+  color: #333;
+  font-weight: 600;
+  margin-bottom: 20px;
+  letter-spacing: 1px;
+}
+
+
+#important-facts {
+  background-color: #f7fafc; /* Light gray background */
+  padding-top: 2rem;
+  padding-bottom: 2rem;
+}
+
+#important-facts .fact-card {
+  background-color: white;
+  padding: 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  transition: box-shadow 0.3s ease;
+}
+
+#important-facts .fact-card:hover {
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+}
+
+#important-facts .fact-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  color: #38a169; /* Green color */
+}
+
+#important-facts .fact-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #2d3748; /* Darker text */
+}
+
+#important-facts .fact-description {
+  color: #4a5568; /* Slightly lighter gray */
+  font-size: 1rem;
+}
+
+#important-facts h2 {
+  font-size: 2.5rem;
+  font-weight: 600;
+  color: #38a169; /* Green color */
+  margin-bottom: 1.5rem;
+}
+
+/*SOBAN CSS @tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Global variables for light and dark modes */
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+body {
+  color: var(--foreground);
+  background: var(--background);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+/* General Styles */
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+}
+
+.main {
+  padding-top: 120px; /* Adjust for the fixed header */
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.centerContent {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  max-width: 800px;
+}
+
+.footerText {
+  margin-top: 20px;
+  text-align: center;
+  max-width: 700px;
+  color: #666;
+}
+
+/* Header Styles */
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 40px;
+  width: 100%;
+  height: 100px;
+  background-color: #ffffff;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  position: fixed;
+  top: 0;
+  z-index: 1000;
+}
+
+header .logo {
+  display: flex;
+  align-items: center;
+}
+
+header .logo img {
+  object-fit: cover;
+  cursor: pointer;
+}
+
+header .logo h1 {
+  margin-left: 10px;
+  font-size: 1.5em;
+  color: #28a745;
+  font-weight: bold;
+}
+
+nav {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 20px;
+}
+
+nav a {
+  font-size: 1.2em;
+  font-weight: 600;
+  color: #28a745;
+  text-decoration: none;
+  padding: 10px 15px;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+nav a:hover {
+  background-color: #e9f7ef;
+  color: #1e7a3c;
+}
+
+/* Footer Styles */
+footer {
+  width: 100%;
+  background-color: #000;
+  color: #fff;
+  text-align: center;
+  padding: 20px 0;
+  position: relative;
+  margin-top: auto;
+}
+
+footer p {
+  font-size: 1rem;
+  color: #ccc;
+}
+
+.footer-links {
+  margin: 10px 0;
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+}
+
+.footer-links a {
+  color: #28a745;
+  text-decoration: none;
+  font-size: 1rem;
+  transition: color 0.3s ease;
+}
+
+.footer-links a:hover {
+  color: #1e7a3c;
+}
+
+/* Login Form */
+.login-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: #f1f5fa;
+}
+
+.login-box {
+  background-color: white;
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+  max-width: 400px;
+  width: 100%;
+  text-align: center;
+}
+
+.input-group label,
+.navLink {
+  color: #333;
+  font-weight: bold;
+}
+
+.input-group input,
+input {
+  width: 100%;
+  padding: 0.5rem;
+  font-size: 1rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.login-button,
+.button {
+  width: 100%;
+  padding: 0.75rem;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.login-button {
+  background-color: #56bb64;
+}
+
+.button {
+  background-color: #0070f3;
+}
+
+.login-button:hover {
+  background-color: #35c852;
+}
+
+.button:hover {
+  background-color: #005bb5;
+}
+
+/* Navbar Animations */
+nav a {
+  font-size: 1.8em;
+  padding: 8px 15px;
+  font-weight: 500;
+  color: #333;
+  text-decoration: none;
+  transition: color 0.3s ease, transform 0.3s ease; /* Smooth color and scale transition */
+}
+
+nav a:hover {
+  color: #4CAF50; /* Change color on hover */
+  transform: scale(1.1); /* Slightly enlarge the item */
+}
+
+/* Bell Icon Button */
+.userIcon {
+  background: none;
+  border: none;
+  font-size: 1.8em;
+  color: #333;
+  transition: color 0.3s ease, transform 0.3s ease; /* Smooth color and scale transition */
+  padding-left: 50px;
+  cursor: pointer;
+}
+
+.userIcon:hover {
+  color: #4CAF50; /* Change color on hover */
+  transform: scale(1.2); /* Slightly enlarge the icon */
+}
+
+/* Bell icon dropdown menu */
+.dropdownMenu {
+  position: absolute;
+  top: 40px;
+  right: 10px;
+  background-color: white;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  z-index: 10;
+}
+
+.dropdownMenu ul {
+  list-style-type: none;
+  padding: 10px;
+  margin: 0;
+}
+
+.dropdownMenu li {
+  padding: 8px 12px;
+}
+
+.dropdownMenu li a {
+  text-decoration: none;
+  color: #333;
+}
+
+.dropdownMenu li:hover {
+  background-color: #f0f0f0;
+}
+
+/* Additional Styles */
+h2 {
+  font-size: 1.8em;
+  font-weight: bold;
+  color: #333;
+}

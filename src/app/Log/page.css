@@ -1,0 +1,111 @@
+/* General Styling */
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Roboto', sans-serif;
+    background: linear-gradient(135deg, #cbfcce, #43a047); /* Vibrant green gradient */
+    color: #fff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+  }
+  
+  /* Login Container */
+  .login-container {
+    width: 90%;
+    max-width: 900px;
+    background: rgba(255, 255, 255, 0.1); /* Glassmorphism effect */
+    border-radius: 15px;
+    padding: 30px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+    text-align: center;
+    backdrop-filter: blur(15px); /* Adds the glass effect */
+  }
+  
+  /* Intro Section */
+  .intro-section h1 {
+    font-size: 2.8rem;
+    font-weight: bold;
+    margin: 0;
+    color: #ffffff;
+  }
+  
+  .sub-text {
+    font-size: 1.2rem;
+    color: #e0e0e0;
+  }
+  
+  /* Login Grid */
+  .login-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: center;
+    margin-top: 20px;
+  }
+  
+  .login-card {
+    width: 250px;
+    padding: 20px;
+    border-radius: 15px;
+    background: #ffffff;
+    color: #388e3c;
+    text-align: center;
+    border-top: 5px solid transparent;
+    transition: transform 0.3s, box-shadow 0.3s, border-color 0.3s;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  }
+  
+  .login-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+    border-top-color: #388e3c;
+  }
+  
+  .icon-container img {
+    width: 60px;
+    margin-bottom: 15px;
+  }
+  
+  .login-card h2 {
+    font-size: 1.5rem;
+    margin-bottom: 10px;
+  }
+  
+  .login-card p {
+    font-size: 1rem;
+    color: #4caf50;
+  }
+  
+  /* Role-Specific Highlights */
+  .doctor:hover {
+    border-top-color: #43a047;
+  }
+  
+  .pharma:hover {
+    border-top-color: #66bb6a;
+  }
+  
+  .ngo:hover {
+    border-top-color: #81c784;
+  }
+  
+  /* Footer */
+  .footer-section {
+    margin-top: 30px;
+    font-size: 0.9rem;
+    color: #e0e0e0;
+  }
+  
+  .footer-section a {
+    color: #ffffff;
+    text-decoration: underline;
+    font-weight: bold;
+  }
+  
+  .footer-section a:hover {
+    color: #a5d6a7;
+  }
+  
