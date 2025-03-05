@@ -1,56 +1,256 @@
+/* Reset default margins */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Poppins', sans-serif;
+  scroll-behavior: smooth;
+}
+
+/* Background gradient */
 .container {
-    min-height: 100vh;
-    background-color: #f3f4f6;
-    padding: 24px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+  min-height: 100vh;
+  background: linear-gradient(to right, #e0f7fa, #e3f2fd);
+  padding: 24px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Centering the Card */
+.card {
+  max-width: 640px;
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+  border-radius: 12px;
+  padding: 30px;
+  text-align: center;
+  transform: translateY(0);
+  transition: all 0.3s ease-in-out;
+}
+
+/* Smooth hover effect */
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 25px rgba(0, 0, 0, 0.2);
+}
+
+/* Title Styling */
+.title {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #047857;
+  letter-spacing: 1px;
+  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* Description */
+.description {
+  color: #4b5563;
+  margin-bottom: 18px;
+  font-size: 1.1rem;
+  opacity: 0.9;
+}
+
+/* Fixing button alignment */
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  justify-content: center;
+  align-items: center;
+  margin-top: 10px;
+}
+
+/* Button Styling */
+.link {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: linear-gradient(90deg, #10b981, #059669);
+  color: white;
+  padding: 14px;
+  border-radius: 8px;
+  text-align: center;
+  text-decoration: none;
+  font-weight: bold;
+  text-transform: uppercase;
+  transition: all 0.3s ease-in-out;
+  position: relative;
+  overflow: hidden;
+}
+
+.link:hover {
+  background: linear-gradient(90deg, #059669, #047857);
+  transform: scale(1.05);
+  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+}
+
+/* Header Fix */
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 40px;
+  width: 100%;
+  height: 80px;
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  position: fixed;
+  top: 0;
+  z-index: 1000;
+  backdrop-filter: blur(10px);
+}
+
+nav {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 20px;
+}
+
+/* Fix Overflowing Login Button */
+nav div {
+  display: flex;
+  align-items: center;
+}
+
+/* 🔥 Chatbot Floating Button with Glow Effect */
+.chatbot-btn {
+  position: fixed;
+  bottom: 20px;
+  right: 90px;
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: white;
+  border: none;
+  border-radius: 50px;
+  padding: 14px 22px;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease-in-out;
+  box-shadow: 0px 5px 15px rgba(16, 185, 129, 0.4);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  outline: none;
+  transform: translateY(0);
+  animation: pulseEffect 2.5s infinite alternate ease-in-out;
+}
+
+/* Hover Effect */
+.chatbot-btn:hover {
+  background: linear-gradient(135deg, #059669, #047857);
+  transform: scale(1.1);
+  box-shadow: 0px 8px 20px rgba(16, 185, 129, 0.6);
+}
+
+/* Chatbot Glow Animation */
+@keyframes pulseEffect {
+  0% {
+    box-shadow: 0px 0px 10px rgba(16, 185, 129, 0.6);
   }
-  
-  .card {
-    max-width: 640px;
-    background-color: white;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    border-radius: 8px;
-    padding: 24px;
-    text-align: center;
+  100% {
+    box-shadow: 0px 0px 25px rgba(16, 185, 129, 0.8);
   }
-  
-  .title {
-    font-size: 1.5rem;
-    font-weight: 600;
-    color: #047857;
-  }
-  
-  .description {
-    color: #4b5563;
-    margin-bottom: 16px;
-  }
-  
-  .grid {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 12px;
-  }
-  
-  @media (min-width: 768px) {
-    .grid {
-      grid-template-columns: 1fr 1fr;
-    }
-  }
-  
-  .link {
-    display: block;
-    background-color: #10b981;
-    color: white;
-    padding: 12px;
-    border-radius: 6px;
-    text-align: center;
-    text-decoration: none;
-    transition: background-color 0.2s ease-in-out;
-  }
-  
-  .link:hover {
-    background-color: #059669;
-  }
-  
+}
+
+/* Chatbox Popup */
+.chatbox {
+  position: fixed;
+  bottom: 80px;
+  right: 20px;
+  width: 400px;
+  height: 450px;
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  border-radius: 15px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  opacity: 0;
+  transform: translateY(50px);
+  transition: all 0.5s ease-in-out;
+}
+
+.chatbox.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Chat Header */
+.chatbox-header {
+  background: linear-gradient(90deg, #10b981, #059669);
+  color: white;
+  padding: 12px;
+  text-align: center;
+  font-weight: bold;
+  border-top-left-radius: 15px;
+  border-top-right-radius: 15px;
+  cursor: pointer;
+}
+
+/* Chat Messages */
+.chatbox-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 10px;
+}
+
+/* Chat Message Bubbles */
+.chat-message {
+  max-width: 80%;
+  padding: 10px 15px;
+  border-radius: 10px;
+  margin: 5px 0;
+  font-size: 1rem;
+  display: inline-block;
+}
+
+.user-message {
+  background: #10b981;
+  color: white;
+  text-align: right;
+  align-self: flex-end;
+}
+
+.bot-message {
+  background: #ddd;
+  color: black;
+  text-align: left;
+  align-self: flex-start;
+}
+
+/* Chat Input */
+.chatbox-input {
+  display: flex;
+  padding: 8px;
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(8px);
+}
+
+.chatbox-input input {
+  flex: 1;
+  padding: 10px;
+  border: none;
+  border-radius: 10px;
+  outline: none;
+  font-size: 1rem;
+}
+
+.send-btn {
+  background: #10b981;
+  color: white;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.3s ease-in-out;
+  margin-left: 8px;
+}
+
+.send-btn:hover {
+  background: #059669;
+  transform: scale(1.1);
+}

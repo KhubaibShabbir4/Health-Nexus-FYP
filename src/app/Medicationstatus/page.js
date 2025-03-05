@@ -3,15 +3,22 @@
 import { useState, useEffect } from 'react';
 
 const MedicationStatus = () => {
-    const [medications, setMedications] = useState([
-        { id: 1, name: 'Paracetamol', stock: 5, total: 30, dosageTime: '08:00 AM' },
-        { id: 2, name: 'Ibuprofen', stock: 2, total: 20, dosageTime: '02:00 PM' },
-        { id: 3, name: 'Metformin', stock: 10, total: 60, dosageTime: '06:00 PM' },
-        { id: 4, name: 'Aspirin', stock: 25, total: 50, dosageTime: '10:00 AM' },
-        { id: 5, name: 'Amoxicillin', stock: 15, total: 40, dosageTime: '01:00 PM' },
-        { id: 6, name: 'Losartan', stock: 7, total: 30, dosageTime: '09:00 PM' },
+    const [medications, setMedications] = useState([]);
 
-    ]);
+    useEffect(() => {
+        const fetchMedications = async () => {
+            try {
+                const res = await fetch('/api/auth/Medications'); // Fetch data from DB
+                if (!res.ok) throw new Error("Failed to fetch data");
+                const data = await res.json();
+                setMedications(data);
+            } catch (err) {
+                console.error("Error fetching medications:", err);
+            }
+        };
+
+        fetchMedications();
+    }, []);
 
     useEffect(() => {
         const checkReminders = () => {
@@ -23,7 +30,7 @@ const MedicationStatus = () => {
                 }
             });
         };
-        
+
         const interval = setInterval(checkReminders, 60000);
         return () => clearInterval(interval);
     }, [medications]);
@@ -31,7 +38,7 @@ const MedicationStatus = () => {
     return (
         <div className="p-8 max-w-6xl mx-auto">
             <h2 className="text-3xl font-bold text-green-700 text-center mb-8">💊 Medication Status</h2>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {medications.map(med => (
                     <div key={med.id} className="bg-white shadow-lg rounded-lg p-6 border border-gray-300 hover:shadow-2xl transition-all">

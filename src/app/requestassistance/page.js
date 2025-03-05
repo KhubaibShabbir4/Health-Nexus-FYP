@@ -16,7 +16,7 @@ export default function RequestAssistance() {
         additionalMessage: ''
     });
 
-    const ngos = ['Al-Khidmat', 'Edhi Foundation', 'Shaukat Khanum', 'Saylani Welfare'];
+    const ngos = ['Al-Khidmat', 'Edhi Foundation', 'Chippa', 'Saylani Welfare'];
     const assistanceTypes = ['Financial Aid', 'Medication', 'Consultation', 'Other'];
 
     const handleChange = (e) => {
@@ -28,11 +28,42 @@ export default function RequestAssistance() {
         setFormData({ ...formData, medicalReport: e.target.files[0] });
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        alert('Assistance request submitted successfully!');
-        router.push('/patient');
-    };
+      
+        const formDataToSend = new FormData();
+        formDataToSend.append('fullName', formData.fullName);
+        formDataToSend.append('cnic', formData.cnic);
+        formDataToSend.append('contact', formData.contact);
+        formDataToSend.append('medicalCondition', formData.medicalCondition);
+        formDataToSend.append('assistanceType', formData.assistanceType);
+        formDataToSend.append('preferredNgo', formData.preferredNgo);
+        if (formData.medicalReport) {
+          formDataToSend.append('medicalReport', formData.medicalReport);
+        }
+        formDataToSend.append('additionalMessage', formData.additionalMessage);
+      
+        try {
+          const response = await fetch('/api/auth/requestAssistance', {
+            method: 'POST',
+            // Notice we do NOT set 'Content-Type' here; the browser will do it automatically
+            body: formDataToSend,
+          });
+      
+          const data = await response.json();
+          if (response.ok) {
+            alert(data.message || 'Request submitted successfully!');
+            router.push('/patient');
+          } else {
+            console.error('Error:', data.error);
+            alert('Error submitting request.');
+          }
+        } catch (error) {
+          console.error('Fetch error:', error);
+          alert('An error occurred. Please try again.');
+        }
+      };
+      
 
     return (
         
