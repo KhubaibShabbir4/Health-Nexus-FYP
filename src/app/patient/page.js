@@ -25,8 +25,9 @@ export default function PatientDashboard() {
     setDropdownVisible(!dropdownVisible);
   };
 
+  // ✅ Fixing Chatbot Toggle Issue
   const toggleChat = () => {
-    setChatVisible(!chatVisible);
+    setChatVisible(prevState => !prevState);
   };
 
   const sendMessage = async () => {
@@ -86,20 +87,38 @@ export default function PatientDashboard() {
           <Link href="/" style={navLinkStyle}>Home</Link>
           <Link href="/contact" style={navLinkStyle}>Contact</Link>
           <div style={{ position: "relative" }}>
-            <button
-              onClick={toggleDropdown}
-              style={{
-                background: "none",
-                border: "none",
-                color: "#28a745",
-                fontSize: "1em",
-                fontWeight: "bold",
-                cursor: "pointer",
-                textDecoration: "none",
-              }}
-            >
-              Login
-            </button>
+          <button
+  onClick={toggleDropdown}
+  style={{
+    background: "white",
+    border: "2px solid #28a745",
+    color: "#28a745",
+    fontSize: "1em",
+    fontWeight: "bold",
+    cursor: "pointer",
+    textDecoration: "none",
+    padding: "10px 20px",  // ✅ Fixed padding for full border
+    borderRadius: "8px",
+    transition: "all 0.3s ease-in-out",
+    position: "relative",
+    left: "-15px",
+    display: "inline-block",  // ✅ Ensures proper button shape
+    minWidth: "80px",  // ✅ Prevents text from being cut
+    textAlign: "center"
+  }}
+  onMouseOver={(e) => {
+    e.target.style.background = "#28a745";
+    e.target.style.color = "white";
+  }}
+  onMouseOut={(e) => {
+    e.target.style.background = "white";
+    e.target.style.color = "#28a745";
+  }}
+>
+  Login
+</button>
+
+
             {dropdownVisible && (
               <div style={{
                 position: "absolute",
@@ -136,76 +155,38 @@ export default function PatientDashboard() {
       </div>
 
       {/* AI Chatbot */}
-      <div style={{ position: "fixed", bottom: "40px", right: "140px", zIndex: 1000 }}>
-        <button
-          onClick={toggleChat}
-          style={{
-            padding: "10px",
-            width: "150px",
-            backgroundColor: "#28a745",
-            color: "#fff",
-            border: "none",
-            borderRadius: "40px",
-            cursor: "pointer",
-          }}
-        >
-          Chat with AI
+      <div className="chatbot-container">
+        {/* ✅ Reduced Button Width */}
+        <button onClick={toggleChat} className="chatbot-btn" style={{ width: "110px" }}>
+          Chat 💬
         </button>
+
         {chatVisible && (
-          <div
-            style={{
-              width: "400px",
-              height: "400px",
-              backgroundColor: "#fff",
-              boxShadow: "0 4px 8px rgba(0, 0, 0, 0.2)",
-              borderRadius: "10px",
-              position: "relative",
-              bottom: "40px",
-              right: "0",
-              display: "flex",
-              flexDirection: "column",
-            }}
-          >
-            <div
-              onClick={toggleChat}
-              style={{
-                backgroundColor: "#28a745",
-                color: "#fff",
-                padding: "10px",
-                textAlign: "center",
-                fontWeight: "bold",
-                cursor: "pointer",
-              }}
-            >
+          <div className="chatbox visible">
+            {/* Chat Header */}
+            <div className="chatbox-header" onClick={toggleChat}>
               How can I help you?
             </div>
-            <div style={{ flex: 1, overflowY: "auto", padding: "10px" }}>
+
+            {/* Chat Messages */}
+            <div className="chatbox-messages">
               {messages.map((msg, index) => (
-                <div key={index} style={{ textAlign: msg.sender === "user" ? "right" : "left", margin: "5px 0" }}>
-                  <span
-                    style={{
-                      backgroundColor: msg.sender === "user" ? "#28a745" : "#ddd",
-                      color: msg.sender === "user" ? "#fff" : "#000",
-                      padding: "5px 10px",
-                      borderRadius: "10px",
-                      display: "inline-block",
-                      maxWidth: "80%",
-                    }}
-                  >
-                    {msg.text}
-                  </span>
+                <div key={index} className={msg.sender === "user" ? "chat-message user-message" : "chat-message bot-message"}>
+                  {msg.text}
                 </div>
               ))}
             </div>
-            <div style={{ display: "flex", padding: "5px" }}>
+
+            {/* Chat Input */}
+            <div className="chatbox-input">
               <input
                 type="text"
                 value={chatInput}
                 onChange={(e) => setChatInput(e.target.value)}
+                onKeyDown={(e) => { if (e.key === "Enter") sendMessage(); }}
                 placeholder="Type your message..."
-                style={{ flex: 1, padding: "5px" }}
               />
-              <button onClick={sendMessage} style={{ padding: "5px", backgroundColor: "#28a745", color: "#fff", border: "none" }}>
+              <button onClick={sendMessage} className="send-btn">
                 Send
               </button>
             </div>

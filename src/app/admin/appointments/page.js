@@ -1,74 +1,145 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import AdminHeader from "../AdminHeader/page.js";
 import './page.css';
 
+const API_URL = "/api/auth/appointments"; // ✅ Correct API Path
+
 export default function ManageAppointments() {
   const [searchQuery, setSearchQuery] = useState('');
-  const [searchBy, setSearchBy] = useState('name'); // Default search by name
-  const [appointments, setAppointments] = useState([
-    { id: 1, name: 'John Doe', date: '2025-02-15', status: 'Pending' },
-    { id: 2, name: 'Jane Smith', date: '2025-02-16', status: 'Confirmed' },
-    { id: 3, name: 'Michael Brown', date: '2025-02-17', status: 'Cancelled' }
-  ]);
-
+  const [searchBy, setSearchBy] = useState('name');
+  const [appointments, setAppointments] = useState([]);
   const [selectedAppointment, setSelectedAppointment] = useState(null);
   const [showAddModal, setShowAddModal] = useState(false);
   const [newAppointment, setNewAppointment] = useState({ name: '', date: '', status: 'Pending' });
 
-  const handleSearch = (e) => {
-    setSearchQuery(e.target.value);
-  };
+  // ✅ State for Undo Functionality
+  const [deletedAppointment, setDeletedAppointment] = useState(null);
+  const [undoTimer, setUndoTimer] = useState(null);
 
-  const filteredAppointments = appointments.filter((appointment) => {
-    if (searchBy === 'name') {
-      return appointment.name.toLowerCase().includes(searchQuery.toLowerCase());
-    } else if (searchBy === 'id') {
-      return appointment.id.toString().includes(searchQuery);
+  // 📌 Fetch all appointments from the database
+  useEffect(() => {
+    fetchAppointments();
+  }, []);
+
+  const fetchAppointments = async () => {
+    try {
+      const response = await fetch(API_URL);
+      if (!response.ok) throw new Error("Failed to fetch data");
+
+      const data = await response.json();
+      setAppointments(data);
+    } catch (error) {
+      console.error("Error fetching appointments:", error);
     }
-    return appointment;
-  });
-
-  const handleEdit = (appointment) => {
-    setSelectedAppointment(appointment);
   };
 
-  const handleCloseModal = () => {
-    setSelectedAppointment(null);
-  };
+  const handleSearch = (e) => setSearchQuery(e.target.value);
 
-  const handleStatusChange = (e) => {
+  const filteredAppointments = appointments.filter((appointment) =>
+    searchBy === 'name'
+      ? appointment.name.toLowerCase().includes(searchQuery.toLowerCase())
+      : appointment.id.toString().includes(searchQuery)
+  );
+
+  const handleEdit = (appointment) => setSelectedAppointment({ ...appointment });
+
+  const handleCloseModal = () => setSelectedAppointment(null);
+
+  const handleStatusChange = (e) =>
     setSelectedAppointment({ ...selectedAppointment, status: e.target.value });
-  };
 
-  const handleSave = () => {
-    setAppointments((prevAppointments) =>
-      prevAppointments.map((appt) =>
-        appt.id === selectedAppointment.id ? selectedAppointment : appt
-      )
-    );
-    handleCloseModal();
-  };
+  // 📌 Save Updated Appointment to DB
+  const handleSave = async () => {
+    if (!selectedAppointment) return;
 
-  const handleDelete = () => {
-    const confirmDelete = window.confirm("Are you sure you want to delete this appointment?");
-    if (confirmDelete) {
-      setAppointments(appointments.filter(appt => appt.id !== selectedAppointment.id));
-      handleCloseModal();
+    try {
+      const response = await fetch(API_URL, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(selectedAppointment),
+      });
+
+      if (response.ok) {
+        fetchAppointments();
+        handleCloseModal();
+      }
+    } catch (error) {
+      console.error("Error updating appointment:", error);
     }
   };
 
-  const handleAddAppointment = () => {
-    if (newAppointment.name && newAppointment.date) {
-      setAppointments([...appointments, { id: appointments.length + 1, ...newAppointment }]);
-      setShowAddModal(false);
-      setNewAppointment({ name: '', date: '', status: 'Pending' });
+  // 📌 Handle Appointment Deletion with Undo Feature
+  const handleDelete = async () => {
+    if (!selectedAppointment) return;
+
+    if (window.confirm("Are you sure you want to delete this appointment?")) {
+      try {
+        await fetch(API_URL, {
+          method: 'DELETE',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id: selectedAppointment.id }),
+        });
+
+        setDeletedAppointment(selectedAppointment);
+        setAppointments(appointments.filter(appt => appt.id !== selectedAppointment.id));
+        handleCloseModal();
+
+        // Set Undo Timer (5 Minutes)
+        const timer = setTimeout(() => {
+          setDeletedAppointment(null);
+        }, 300000);
+
+        setUndoTimer(timer);
+      } catch (error) {
+        console.error("Error deleting appointment:", error);
+      }
+    }
+  };
+
+  // 📌 Undo Deletion
+  const handleUndoDelete = async () => {
+    if (!deletedAppointment) return;
+
+    try {
+      await fetch(API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(deletedAppointment),
+      });
+
+      fetchAppointments();
+      setDeletedAppointment(null);
+      clearTimeout(undoTimer);
+    } catch (error) {
+      console.error("Error restoring appointment:", error);
+    }
+  };
+
+  // 📌 Add New Appointment to DB
+  const handleAddAppointment = async () => {
+    if (!newAppointment.name || !newAppointment.date) return;
+
+    try {
+      const response = await fetch(API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newAppointment),
+      });
+
+      if (response.ok) {
+        fetchAppointments();
+        setShowAddModal(false);
+        setNewAppointment({ name: '', date: '', status: 'Pending' });
+      }
+    } catch (error) {
+      console.error("Error adding appointment:", error);
     }
   };
 
   return (
     <>
-      <AdminHeader /> {/* ✅ Added Header Component */}
+      <AdminHeader />
 
       <div className="appointments-container">
         <h1>Manage Appointments</h1>
@@ -78,14 +149,16 @@ export default function ManageAppointments() {
             <option value="name">Search by Name</option>
             <option value="id">Search by ID</option>
           </select>
-          <input
-            type="text"
-            placeholder={`Search by ${searchBy}...`}
-            value={searchQuery}
-            onChange={handleSearch}
-          />
+          <input type="text" placeholder={`Search by ${searchBy}...`} value={searchQuery} onChange={handleSearch} />
           <button className="add-btn" onClick={() => setShowAddModal(true)}>+ Add Appointment</button>
         </div>
+
+        {/* ✅ Floating Undo Button (Now same as ManageAccounts) */}
+        {deletedAppointment && (
+          <button className="undo-floating-btn" onClick={handleUndoDelete}>
+            Undo
+          </button>
+        )}
 
         <table className="appointments-table">
           <thead>
@@ -98,25 +171,15 @@ export default function ManageAppointments() {
             </tr>
           </thead>
           <tbody>
-            {filteredAppointments.length > 0 ? (
-              filteredAppointments.map((appointment) => (
-                <tr key={appointment.id}>
-                  <td>{appointment.id}</td>
-                  <td>{appointment.name}</td>
-                  <td>{appointment.date}</td>
-                  <td className={`status ${appointment.status.toLowerCase()}`}>
-                    {appointment.status}
-                  </td>
-                  <td>
-                    <button className="edit-btn" onClick={() => handleEdit(appointment)}>Edit</button>
-                  </td>
-                </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan="5">No appointments found</td>
+            {filteredAppointments.map((appointment) => (
+              <tr key={appointment.id}>
+                <td>{appointment.id}</td>
+                <td>{appointment.name}</td>
+                <td>{new Date(appointment.date).toLocaleDateString()}</td>
+                <td>{appointment.status}</td>
+                <td><button className="edit-btn" onClick={() => handleEdit(appointment)}>Edit</button></td>
               </tr>
-            )}
+            ))}
           </tbody>
         </table>
       </div>

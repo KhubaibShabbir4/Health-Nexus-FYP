@@ -83,20 +83,38 @@ export default function Page() {
 
           {/* Dropdown Button */}
           <div style={{ position: 'relative' }}>
-            <button
-              onClick={toggleDropdown}
-              style={{
-                background: 'none',
-                border: 'none',
-                color: '#28a745',
-                fontSize: '1em',
-                fontWeight: 'bold',
-                cursor: 'pointer',
-                textDecoration: 'none',
-              }}
-            >
-              Login
-            </button>
+          <button
+  onClick={toggleDropdown}
+  style={{
+    background: "white",
+    border: "2px solid #28a745",
+    color: "#28a745",
+    fontSize: "1em",
+    fontWeight: "bold",
+    cursor: "pointer",
+    textDecoration: "none",
+    padding: "10px 20px",  // ✅ Fixed padding for full border
+    borderRadius: "8px",
+    transition: "all 0.3s ease-in-out",
+    position: "relative",
+    left: "-15px",
+    display: "inline-block",  // ✅ Ensures proper button shape
+    minWidth: "80px",  // ✅ Prevents text from being cut
+    textAlign: "center"
+  }}
+  onMouseOver={(e) => {
+    e.target.style.background = "#28a745";
+    e.target.style.color = "white";
+  }}
+  onMouseOut={(e) => {
+    e.target.style.background = "white";
+    e.target.style.color = "#28a745";
+  }}
+>
+  Login
+</button>
+
+
             {dropdownVisible && (
               <div
                 style={{
