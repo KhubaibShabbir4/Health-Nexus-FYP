@@ -17,7 +17,7 @@ export default function LoginPage() {
     setErrorMessage(""); // Clear any existing error messages
 
     try {
-      const response = await fetch("/api/auth/login", {
+      const response = await fetch("/api/auth/PharmaLogin", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

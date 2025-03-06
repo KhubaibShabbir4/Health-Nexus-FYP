@@ -1,8 +1,5 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
 .pending-appointments {
+  margin-top: 100px;
   font-family: 'Arial', sans-serif;
   display: flex;
   flex-direction: column;
@@ -177,3 +174,210 @@
     padding-right: 0;
   }
 }
+
+/* Status Buttons */
+.status-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.status-button {
+  padding: 10px 15px;
+  border: none;
+  border-radius: 5px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.3s ease-in-out;
+}
+
+.status-button:nth-child(1) {
+  background-color: #f0ad4e; /* Pending - Orange */
+  color: white;
+}
+
+.status-button:nth-child(2) {
+  background-color: #28a745; /* Confirm - Green */
+  color: white;
+}
+
+.status-button:nth-child(3) {
+  background-color: #dc3545; /* Cancel - Red */
+  color: white;
+}
+
+.status-button:hover {
+  opacity: 0.8;
+}
+
+/* Active Status Button */
+.status-button.active {
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+  transform: scale(1.05);
+}
+
+.appointment-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between; /* Ensures space between text and image */
+  gap: 20px;
+}
+
+.image-container {
+  flex-shrink: 0; /* Prevents the image from shrinking */
+}
+
+.profile-image {
+  border-radius: 10px;
+  border: 2px solid #ccc;
+  object-fit: cover;
+}
+/* General Styles */
+.pending-appointments {
+  font-family: 'Poppins', sans-serif;
+  background-color: #f4f4f9;
+  min-height: 100vh;
+  padding: 20px;
+}
+
+/* Main Layout */
+.main {
+  display: flex;
+  gap: 20px;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+/* Appointments List */
+.appointments {
+  flex: 1;
+  max-width: 400px;
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.appointments-title {
+  text-align: center;
+  color: #333;
+  font-size: 20px;
+  margin-bottom: 15px;
+}
+
+.appointments-list {
+  list-style: none;
+  padding: 0;
+}
+
+.appointment-item {
+  margin-bottom: 15px;
+}
+
+.appointment-button {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  background: #ffffff;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  padding: 12px 16px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.appointment-button:hover {
+  background: #f3f3f3;
+}
+
+.icon {
+  font-size: 20px;
+  color: #4caf50;
+}
+
+.appointment-id {
+  font-weight: 600;
+}
+
+.more {
+  color: #777;
+  font-size: 14px;
+}
+
+/* Appointment Details */
+.details {
+  flex: 2;
+  background: white;
+  padding: 25px;
+  border-radius: 12px;
+  box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.1);
+  width: 60%;
+}
+
+.details-title {
+  font-size: 22px;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 15px;
+}
+
+.appointment-details {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.appointment-info {
+  font-size: 16px;
+  color: #333;
+}
+
+.appointment-info p {
+  margin-bottom: 10px;
+}
+
+/* Profile Image */
+.image-container {
+  flex-shrink: 0;
+}
+
+.profile-image {
+  width: 130px;
+  height: 130px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 4px solid #ddd;
+  box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Status Buttons */
+.status-buttons {
+  display: flex;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+.status-button {
+  padding: 10px 16px;
+  border: none;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.status-button.active {
+  background: #4caf50;
+  color: white;
+}
+
+.status-button:hover {
+  transform: scale(1.05);
+}
+
+.status-button:nth-child(1) { background: #ffcc00; color: black; }  /* Pending */
+.status-button:nth-child(2) { background: #4caf50; color: white; }  /* Confirmed */
+.status-button:nth-child(3) { background: #e74c3c; color: white; }  /* Cancelled */
