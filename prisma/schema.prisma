@@ -8,12 +8,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id       Int    @id @default(autoincrement())
-  email    String @unique
-  password String
-}
-
 model Case {
   id              Int      @id @default(autoincrement())
   caseId          String   @unique
@@ -26,33 +20,33 @@ model Case {
 
 model FundsTransfer {
   id        Int      @id @default(autoincrement())
-  category  String   // 'Pharmacy' or 'Doctor'
-  month     String   // Month name, e.g., 'January'
-  amount    Float    // Funds transferred
+  category  String
+  month     String
+  amount    Float
   createdAt DateTime @default(now())
 }
 
 model Status {
-  id         Int     @id @default(autoincrement())
-  status     String  // e.g., "fulfilled", "active", "rejected"
+  id     Int    @id @default(autoincrement())
+  status String
 }
 
 model Funds {
-  id         Int     @id @default(autoincrement())
-  month      String  // e.g., "Jan", "Feb", etc.
-  amount     Float
+  id     Int    @id @default(autoincrement())
+  month  String
+  amount Float
 }
 
 model CaseStatus {
-  id                Int      @id @default(autoincrement()) // Unique case identifier
-  patientName       String   // Name of the patient
-  age               Int      // Age of the patient
-  gender            String   // Gender of the patient
-  diagnosis         String   // Diagnosis
-  treatment         String   // Treatment prescribed
-  status            String   // Case status: 'accepted', 'rejected', 'under_review'
-  prescribedMedicine String? // Medicines prescribed (e.g., names of medicines)
-  dosage            String?  // Dosage of the medicines
+  id                 Int     @id @default(autoincrement())
+  patientName        String
+  age                Int
+  gender             String
+  diagnosis          String
+  treatment          String
+  status             String
+  dosage             String?
+  prescribedMedicine String?
 }
 
 model GigDetails {
@@ -62,35 +56,189 @@ model GigDetails {
   patientName String
   createdAt   DateTime @default(now())
 }
-model patients {
-  patient_id     Int        @id @default(autoincrement()) // Make patient_id the primary key
-  patient_name   String
-  email          String
-  gender         String
-  time_slot      String
-  appointment_date String
 
-  // Add an opposite relation field to link with PendingAppointment model
+model patients {
+  patient_id          Int                  @id @default(autoincrement())
+  patient_name        String
+  email               String
+  gender              String
+  time_slot           String
+  appointment_date    String
   pendingAppointments PendingAppointment[]
 }
 
 model PendingAppointment {
-  id             Int      @id @default(autoincrement())
-  patient_id     Int
-  patient_name   String
-  appointment_id String   @unique
+  id               Int      @id @default(autoincrement())
+  patient_id       Int
+  patient_name     String
+  appointment_id   String   @unique
   appointment_date String
-  status         String
-  patient        patients @relation(fields: [patient_id], references: [patient_id])
-
-  // Additional fields related to PendingAppointment...
+  status           String
+  patient          patients @relation(fields: [patient_id], references: [patient_id])
 }
 
 model ratings {
-  id             Int     @id @default(autoincrement())
+  id             Int @id @default(autoincrement())
   satisfaction   Int
   diagnosis      Int
   staffBehaviour Int
   environment    Int
 }
 
+model Admin {
+  id        Int      @id @default(autoincrement())
+  firstName String
+  lastName  String
+  dob       DateTime
+  email     String   @unique
+  password  String
+  role      String   @default("admin")
+  createdAt DateTime @default(now())
+}
+
+model AidRequest {
+  id            Int      @id @default(autoincrement())
+  patientId     Int
+  patientName   String
+  medicineName  String
+  requestStatus String
+  ngoName       String?
+  response      String?
+  createdAt     DateTime @default(now())
+}
+
+model Appointment {
+  id            Int      @id @default(autoincrement())
+  name          String
+  date          DateTime
+  status        String   @default("Pending")
+  appointmentId String   @unique
+  time          String
+  profileImage  String?
+  email         String?
+  phoneNumber   String?
+}
+
+model AssistanceRequest {
+  id                Int            @id @default(autoincrement())
+  fullName          String
+  cnic              String         @unique
+  contact           String
+  medicalCondition  String
+  assistanceType    AssistanceType
+  preferredNgo      PreferredNGO
+  medicalReport     String?
+  additionalMessage String?
+  createdAt         DateTime       @default(now())
+}
+
+model Medication {
+  id         Int      @id @default(autoincrement())
+  name       String
+  stock      Int
+  total      Int
+  dosageTime String
+  createdAt  DateTime @default(now())
+}
+
+model PatientLogin {
+  patient_id                 Int       @id @default(autoincrement())
+  full_name                  String
+  gender                     String
+  dob                        DateTime
+  email                      String    @unique
+  phone                      String?
+  cnic                       String?
+  cnic_expiry                DateTime?
+  address                    String?
+  city                       String?
+  province                   String?
+  country                    String?
+  medical_condition          String
+  current_medications        String?
+  allergies                  String?
+  prescription_file          String?
+  health_reports             String?
+  financial_support          String
+  monthly_income             String?
+  occupation                 String?
+  dependents                 Int?
+  financial_proof            String?
+  emergency_contact_name     String
+  emergency_contact_relation String
+  emergency_contact_phone    String
+  preferred_ngo              String?
+  preferred_city             String?
+  password_hash              String
+  created_at                 DateTime  @default(now())
+  updated_at                 DateTime
+}
+
+model patients_signup {
+  patient_id       Int    @id @default(autoincrement())
+  patient_name     String
+  patient_email    String @unique
+  password         String
+  email            String
+  phone            String
+  cnic             String
+  address          String
+  city             String
+  gender           String
+  time_slot        String
+  appointment_date String
+}
+
+model Doctor {
+  id             Int      @id @default(autoincrement())
+  firstName      String
+  lastName       String
+  dob            DateTime
+  email          String   @unique
+  password       String
+  specialization String
+  licenseNumber  String   @unique
+  experience     Int
+  role           String   @default("doctor")
+  createdAt      DateTime @default(now())
+}
+
+model NGO {
+  id                 Int      @id @default(autoincrement())
+  name               String
+  email              String   @unique
+  password           String
+  registrationNumber String   @unique
+  phone              String
+  address            String
+  mission            String
+  role               String   @default("ngo")
+  createdAt          DateTime @default(now())
+}
+
+model Pharmacy {
+  id            Int      @id @default(autoincrement())
+  name          String
+  email         String   @unique
+  password      String
+  licenseNumber String   @unique
+  phone         String
+  address       String
+  services      String
+  role          String   @default("pharmacy")
+  createdAt     DateTime @default(now())
+}
+
+enum AssistanceType {
+  FINANCIAL_AID
+  MEDICATION
+  CONSULTATION
+  OTHER
+}
+
+enum PreferredNGO {
+  AL_KHIDMAT
+  EDHI_FOUNDATION
+  SHAUKAT_KHANUM
+  SAYLANI_WELFARE
+}
