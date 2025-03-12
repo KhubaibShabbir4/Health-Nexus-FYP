@@ -3,15 +3,24 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  font-family: 'Poppins', sans-serif;
+  font-family: "Poppins", sans-serif;
   scroll-behavior: smooth;
 }
 
 /* Background gradient */
 .container {
+  padding-top: 100px;
   min-height: 100vh;
-  background: linear-gradient(to right, #e0f7fa, #e3f2fd);
-  padding: 24px;
+  min-width: 100vw !important;
+  background: linear-gradient(135deg, #e0f7fa, #e3f2fd);
+  background-image: 
+    url('/images/dash.png'),
+    radial-gradient(circle at 25px 25px, rgba(255,255,255,0.2) 2%, transparent 0%),
+    radial-gradient(circle at 75px 75px, rgba(255,255,255,0.2) 2%, transparent 0%);
+  background-size: cover, 100px 100px, 100px 100px;
+  background-position: center;
+  background-repeat: no-repeat, repeat, repeat;
+  margin: 0;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -55,7 +64,7 @@
 /* Fixing button alignment */
 .grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(2, 1fr);
   gap: 16px;
   justify-content: center;
   align-items: center;
@@ -86,7 +95,7 @@
   box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
 }
 
-/* Header Fix */
+/* Header Styling */
 header {
   display: flex;
   justify-content: space-between;
@@ -94,12 +103,19 @@ header {
   padding: 0 40px;
   width: 100%;
   height: 80px;
-  background: rgba(255, 255, 255, 0.9);
+  background: rgba(255, 255, 255, 0.95);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   position: fixed;
   top: 0;
+  left: 0;
   z-index: 1000;
   backdrop-filter: blur(10px);
+}
+
+.header-logo {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #047857;
 }
 
 nav {
@@ -115,34 +131,98 @@ nav div {
   align-items: center;
 }
 
-/* 🔥 Chatbot Floating Button with Glow Effect */
-.chatbot-btn {
+/* Updated Bottom Controls Position */
+.bottom-right-controls {
   position: fixed;
   bottom: 20px;
-  right: 90px;
+  right: 80px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: flex-end;
+  z-index: 998;
+}
+
+/* Updated Chatbot Button */
+.chatbot-btn {
   background: linear-gradient(135deg, #10b981, #059669);
   color: white;
   border: none;
   border-radius: 50px;
-  padding: 14px 22px;
-  font-size: 1rem;
+  padding: 16px 32px;
+  font-size: 1.1rem;
   font-weight: bold;
   cursor: pointer;
   transition: all 0.3s ease-in-out;
   box-shadow: 0px 5px 15px rgba(16, 185, 129, 0.4);
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   outline: none;
   transform: translateY(0);
   animation: pulseEffect 2.5s infinite alternate ease-in-out;
+  min-width: 180px;
+  justify-content: center;
+  opacity: 1;
+  visibility: visible;
 }
 
-/* Hover Effect */
-.chatbot-btn:hover {
-  background: linear-gradient(135deg, #059669, #047857);
-  transform: scale(1.1);
-  box-shadow: 0px 8px 20px rgba(16, 185, 129, 0.6);
+.chatbot-btn.hidden {
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(20px);
+}
+
+.logout-btn {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  color: white;
+  padding: 16px 32px; /* Same padding as chatbot button */
+  border-radius: 50px;
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 1.1rem;
+  min-width: 180px; /* Same as chatbot button */
+  justify-content: center;
+  opacity: 1;
+  visibility: visible;
+}
+
+.logout-btn:hover {
+  background: linear-gradient(135deg, #dc2626, #b91c1c);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(239, 68, 68, 0.4);
+}
+
+.logout-btn i {
+  font-size: 1.2rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .bottom-right-controls {
+    gap: 10px;
+    right: 20px;
+  }
+
+  .chatbox {
+    right: 20px;
+    width: calc(100% - 40px);
+    max-width: 400px;
+    bottom: 120px;
+  }
+
+  .chatbot-btn,
+  .logout-btn {
+    padding: 14px 28px;
+    font-size: 1rem;
+    min-width: 160px;
+  }
 }
 
 /* Chatbot Glow Animation */
@@ -155,14 +235,14 @@ nav div {
   }
 }
 
-/* Chatbox Popup */
+/* Chatbox position update */
 .chatbox {
   position: fixed;
-  bottom: 80px;
-  right: 20px;
+  bottom: 90px;
+  right: 80px;
   width: 400px;
   height: 450px;
-  background: rgba(255, 255, 255, 0.9);
+  background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(10px);
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
   border-radius: 15px;
@@ -170,12 +250,15 @@ nav div {
   display: flex;
   flex-direction: column;
   opacity: 0;
-  transform: translateY(50px);
-  transition: all 0.5s ease-in-out;
+  visibility: hidden;
+  transform: translateY(20px);
+  transition: all 0.3s ease-in-out;
+  z-index: 997;
 }
 
 .chatbox.visible {
   opacity: 1;
+  visibility: visible;
   transform: translateY(0);
 }
 

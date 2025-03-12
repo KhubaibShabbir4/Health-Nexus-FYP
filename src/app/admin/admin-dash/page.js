@@ -1,138 +1,78 @@
 'use client';
+import Link from "next/link";
 import { useState } from "react";
-import { FaEye, FaEyeSlash } from "react-icons/fa";
-import "./page.css";
+import AdminHeader from "../AdminHeader/page.js"; // Import the AdminHeader component
+import './page.css';
 
-const API_URL = "/api/auth/createAdmin"; // ✅ API Route for storing Admin data
-
-export default function CreateAdmin() {
-  const [admin, setAdmin] = useState({
-    firstName: "",
-    lastName: "",
-    dob: "",
-    email: "",
-    password: "",
-    role: "admin",
-  });
-
-  const [error, setError] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
-  const [successMessage, setSuccessMessage] = useState("");
-
-  const handleChange = (e) => {
-    setAdmin({ ...admin, [e.target.name]: e.target.value });
-    setError("");
-    setSuccessMessage("");
-  };
-
-  // ✅ Input Validations
-  const validateInputs = () => {
-    const { firstName, lastName, dob, email, password } = admin;
-
-    if (!firstName || !lastName || !dob || !email || !password) {
-      return "All fields are required!";
-    }
-
-    // ✅ Check if email format is valid
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      return "Please enter a valid email address.";
-    }
-
-    // ✅ Ensure password has a minimum length
-    if (password.length < 6) {
-      return "Password must be at least 6 characters long.";
-    }
-
-    // ✅ Ensure date of birth is in the past
-    const today = new Date().toISOString().split("T")[0];
-    if (dob >= today) {
-      return "Date of birth must be in the past.";
-    }
-
-    return null; // No errors
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const validationError = validateInputs();
-    if (validationError) {
-      setError(validationError);
-      return;
-    }
-
-    try {
-      const response = await fetch(API_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(admin),
-      });
-
-      if (response.ok) {
-        setAdmin({ firstName: "", lastName: "", dob: "", email: "", password: "", role: "admin" });
-        setSuccessMessage("Admin successfully created!");
-      } else {
-        const data = await response.json();
-        setError(data.error || "Failed to create admin.");
-      }
-    } catch (error) {
-      console.error("Error creating admin:", error);
-      setError("Something went wrong. Please try again.");
-    }
-  };
+export default function AdminDashboard() {
+  const [showDropdown, setShowDropdown] = useState(false);
 
   return (
-    <div className="admin-container">
-      <div className="admin-card">
-        <h2 className="admin-title">Create Admin</h2>
-        <p className="admin-subtitle">Fill in the details to add a new admin</p>
+    <>
+      <AdminHeader /> {/* Use the extracted header */}
 
-        {error && <p className="error-message">{error}</p>}
-        {successMessage && <p className="success-message">{successMessage}</p>}
+      {/* Admin Dashboard Section */}
+      <div className="container">
+        <div className="card">
+          <h1 className="title">Admin Dashboard</h1>
+          <p className="description">
+            Welcome to the admin panel. Manage appointments, chatbot, accounts, and affordable healthcare solutions.
+          </p>
 
-        <form onSubmit={handleSubmit} className="admin-form">
-          <div className="form-group">
-            <label>First Name</label>
-            <input type="text" name="firstName" value={admin.firstName} onChange={handleChange} placeholder="Enter first name" required />
-          </div>
+          <div className="grid">
+            <Link href="/admin/appointments" className="link">
+              Manage Appointments
+            </Link>
 
-          <div className="form-group">
-            <label>Last Name</label>
-            <input type="text" name="lastName" value={admin.lastName} onChange={handleChange} placeholder="Enter last name" required />
-          </div>
+            <Link href="/admin/manage-accounts" className="link">
+              Manage Accounts
+            </Link>
 
-          <div className="form-group">
-            <label>Date of Birth</label>
-            <input type="date" name="dob" value={admin.dob} onChange={handleChange} required />
-          </div>
+            <Link href="/admin/affordable-gigs" className="link">
+              Select Affordable Gigs
+            </Link>
 
-          <div className="form-group">
-            <label>Email</label>
-            <input type="email" name="email" value={admin.email} onChange={handleChange} placeholder="Enter admin email" required />
-          </div>
+            {/* Dropdown Menu for "Want to register?" */}
+            <div className="dropdown-container">
+              <button 
+                className="dropdown-button"
+                onClick={() => setShowDropdown(!showDropdown)}
+              >
+                Want to register? 
+              </button>
 
-          {/* Password Field with Eye Icon */}
-          <div className="form-group password-group">
-            <label>Password</label>
-            <div className="password-wrapper">
-              <input type={showPassword ? "text" : "password"} name="password" value={admin.password} onChange={handleChange} placeholder="Enter password" required />
-              <span className="toggle-password" onClick={() => setShowPassword(!showPassword)}>
-                {showPassword ? <FaEyeSlash /> : <FaEye />}
-              </span>
+              {showDropdown && (
+                <div className="dropdown-menu">
+                  <Link href="/admin/DoctorSignup" className="dropdown-item">
+                    Doctor Signup
+                  </Link>
+                  <Link href="/admin/PharmacySignup" className="dropdown-item">
+                    Pharmacy Signup
+                  </Link>
+                  <Link href="/admin/NGOSignup" className="dropdown-item">
+                    NGO Signup
+                  </Link>
+                </div>
+              )}
             </div>
           </div>
-
-          <button type="submit" className="admin-submit">Create Admin</button>
-
-          {/* ✅ "Already have an account?" - Navigate to Admin Login Page */}
-          <p className="login-text">
-            Already have an account?{" "}
-            <span className="login-link" onClick={() => window.location.href = "/admin/AdminLogin"}>
-              Log in
-            </span>
-          </p>
-        </form>
+        </div>
       </div>
-    </div>
+
+      {/* Floating Buttons Container */}
+      <div className="floating-buttons-container">
+        <Link href="/admin/create-admin">
+          <button className="floating-add-admin-button">
+            <span className="button-icon">+</span>
+            <span className="button-text">Add Admin</span>
+          </button>
+        </Link>
+        <Link href="/components/Landing">
+          <button className="floating-logout-button">
+          <span className=".button-log">Logout</span>
+          </button>
+        </Link>
+      </div>
+    </>
   );
 }

@@ -1,33 +1,82 @@
-'use client';
+"use client";
 
-import Image from "next/image";
+import ReactMarkdown from "react-markdown";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { fetchGeminiResponse } from "../services/geminiAPI"; // Import Gemini API service
-import Header from "../Header/page";
-import Footer from "../footer/page";
+import Header from "../components/Header/page";
+import Footer from "../components/footer/page";
 import "./page.css";
-
-const navLinkStyle = {
-  textDecoration: "none",
-  color: "#28a745",
-  fontSize: "1em",
-  fontWeight: "bold",
-};
-
+import { useRouter } from "next/navigation";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+// import Landing from "./components/Landing/page";
+import Landing from "../components/Landing/page";
 export default function PatientDashboard() {
-  const [dropdownVisible, setDropdownVisible] = useState(false);
   const [chatVisible, setChatVisible] = useState(false);
   const [chatInput, setChatInput] = useState("");
   const [messages, setMessages] = useState([]);
+  const [patient, setPatient] = useState({});
+  const [loading, setLoading] = useState(true);
+  const router = useRouter();
 
-  const toggleDropdown = () => {
-    setDropdownVisible(!dropdownVisible);
+  const getUser = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch("/api/auth/getUser", {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setPatient(data.patient);
+
+        // Store patient ID in localStorage for backup access
+        if (data.patient && data.patient.patient_id) {
+          localStorage.setItem("patientId", data.patient.patient_id.toString());
+        }
+      } else router.push("/patient/login");
+    } catch (error) {
+      router.push("/patient/login");
+      console.error("Error fetching user data:", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  // ✅ Fixing Chatbot Toggle Issue
+  const handleLogout = () => {
+    // Clear all cookies
+    document.cookie.split(";").forEach((c) => {
+      document.cookie = c
+        .replace(/^ +/, "")
+        .replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
+    });
+
+    // Clear storage
+    localStorage.clear();
+    sessionStorage.clear();
+
+    // Show message
+    toast.success("Logged out successfully");
+
+    // Hard redirect
+    window.location.href = "/";
+  };
+
+  // ✅ Updated Chatbot Toggle with button visibility
   const toggleChat = () => {
-    setChatVisible(prevState => !prevState);
+    setChatVisible((prevState) => !prevState);
+    // Toggle button class
+    const chatbotBtn = document.querySelector(".chatbot-btn");
+    if (chatbotBtn) {
+      if (!chatVisible) {
+        chatbotBtn.classList.add("hidden");
+      } else {
+        setTimeout(() => {
+          chatbotBtn.classList.remove("hidden");
+        }, 300); // Match the transition duration
+      }
+    }
   };
 
   const sendMessage = async () => {
@@ -48,151 +97,134 @@ export default function PatientDashboard() {
         const botMessage = botResponse || "Sorry, I couldn't understand that.";
 
         // Add bot response to chat messages
-        setMessages((prevMessages) => [...prevMessages, { text: botMessage, sender: "bot" }]);
+        setMessages((prevMessages) => [
+          ...prevMessages,
+          { text: botMessage, sender: "bot" },
+        ]);
       } catch (error) {
         console.error("Chatbot Error:", error);
 
         // Handle API failure with an error message
         setMessages((prevMessages) => [
           ...prevMessages,
-          { text: "Sorry, I am having trouble responding right now.", sender: "bot" },
+          {
+            text: "Sorry, I am having trouble responding right now.",
+            sender: "bot",
+          },
         ]);
       }
     }
   };
 
+  useEffect(() => {
+    getUser();
+  }, []);
+
   return (
     <>
-      <header
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          padding: "0 40px",
-          width: "100%",
-          height: "80px",
-          backgroundColor: "#ffffff",
-          boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
-          position: "fixed",
-          top: 0,
-          zIndex: 1000,
-        }}
-      >
-        <div style={{ display: "flex", alignItems: "center" }}>
-          <Image src="/images/logo.png" alt="Health Nexus" width={80} height={80} style={{ objectFit: "cover", cursor: "pointer" }} />
-          <h1 style={{ marginLeft: "10px", fontSize: "1.5em", color: "#28a745", fontWeight: "bold" }}>Health Nexus</h1>
+      <ToastContainer />
+      <Header />
+
+      {loading && (
+        <div className="loading-overlay">
+          <div className="loading-spinner"></div>
         </div>
-        <nav style={{ display: "flex", justifyContent: "flex-end", alignItems: "center", gap: "20px" }}>
-          <Link href="/about" style={navLinkStyle}>About</Link>
-          <Link href="/" style={navLinkStyle}>Home</Link>
-          <Link href="/contact" style={navLinkStyle}>Contact</Link>
-          <div style={{ position: "relative" }}>
-          <button
-  onClick={toggleDropdown}
-  style={{
-    background: "white",
-    border: "2px solid #28a745",
-    color: "#28a745",
-    fontSize: "1em",
-    fontWeight: "bold",
-    cursor: "pointer",
-    textDecoration: "none",
-    padding: "10px 20px",  // ✅ Fixed padding for full border
-    borderRadius: "8px",
-    transition: "all 0.3s ease-in-out",
-    position: "relative",
-    left: "-15px",
-    display: "inline-block",  // ✅ Ensures proper button shape
-    minWidth: "80px",  // ✅ Prevents text from being cut
-    textAlign: "center"
-  }}
-  onMouseOver={(e) => {
-    e.target.style.background = "#28a745";
-    e.target.style.color = "white";
-  }}
-  onMouseOut={(e) => {
-    e.target.style.background = "white";
-    e.target.style.color = "#28a745";
-  }}
->
-  Login
-</button>
-
-
-            {dropdownVisible && (
-              <div style={{
-                position: "absolute",
-                top: "100%",
-                right: 0,
-                backgroundColor: "#ffffff",
-                boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
-                borderRadius: "4px",
-                zIndex: 1000,
-                padding: "10px"
-              }}>
-                <Link href="/NGO_login" style={navLinkStyle}>NGO</Link>
-                <Link href="/doc_login" style={navLinkStyle}>Doctor</Link>
-                <Link href="/Pharma_Login" style={navLinkStyle}>Pharma Company</Link>
-              </div>
-            )}
-          </div>
-        </nav>
-      </header>
+      )}
 
       <div className="container">
         <div className="card">
-          <h1 className="title">Patient Dashboard</h1>
-          <p className="description">
-            Welcome to your dashboard. Manage your profile, request assistance, and track your medication.
-          </p>
+          <div className="welcome-section">
+            <h1 className="title">Patient Dashboard</h1>
+            <h2 className="welcome-text">Welcome, {patient.full_name}</h2>
+            <p className="description">
+              Manage your profile, request assistance, and track your medication
+              all in one place. We're here to help you with your healthcare
+              journey.
+            </p>
+          </div>
+
           <div className="grid">
-            <Link href="/patientprofile" className="link">View Profile</Link>
-            <Link href="/requestassistance" className="link">Request Assistance</Link>
-            <Link href="/Medicationstatus" className="link">Medication Status</Link>
-            <Link href="/ngopharma" className="link">NGO & Pharma Responses</Link>
+            <Link href="/patient/profile" className="link">
+              <span>👤 View Profile</span>
+            </Link>
+            <Link href="/patient/requestassistance" className="link">
+              <span>🤝 Request Assistance</span>
+            </Link>
+            <Link href="/patient/Medicationstatus" className="link">
+              <span>💊 Medication Status</span>
+            </Link>
+            <Link
+              href={`/NGO/pharma?id=${patient.patient_id}`}
+              className="link"
+            >
+              <span>🏥 NGO & Pharma Responses</span>
+            </Link>
+            <Link
+              href={`/patient/appointments?id=${patient.patient_id}`}
+              className="link"
+            >
+              <span>📅 Appointments</span>
+            </Link>
+            <Link href="/appointment/book" className="link">
+              <span>🗓️ Book Appointment</span>
+            </Link>
           </div>
         </div>
       </div>
 
-      {/* AI Chatbot */}
-      <div className="chatbot-container">
-        {/* ✅ Reduced Button Width */}
-        <button onClick={toggleChat} className="chatbot-btn" style={{ width: "110px" }}>
-          Chat 💬
+      {/* Bottom Controls */}
+      <div className="bottom-right-controls">
+        <button
+          onClick={toggleChat}
+          className={`chatbot-btn ${chatVisible ? "hidden" : ""}`}
+        >
+          Need Help? 💬
         </button>
 
-        {chatVisible && (
-          <div className="chatbox visible">
-            {/* Chat Header */}
-            <div className="chatbox-header" onClick={toggleChat}>
-              How can I help you?
-            </div>
-
-            {/* Chat Messages */}
-            <div className="chatbox-messages">
-              {messages.map((msg, index) => (
-                <div key={index} className={msg.sender === "user" ? "chat-message user-message" : "chat-message bot-message"}>
-                  {msg.text}
-                </div>
-              ))}
-            </div>
-
-            {/* Chat Input */}
-            <div className="chatbox-input">
-              <input
-                type="text"
-                value={chatInput}
-                onChange={(e) => setChatInput(e.target.value)}
-                onKeyDown={(e) => { if (e.key === "Enter") sendMessage(); }}
-                placeholder="Type your message..."
-              />
-              <button onClick={sendMessage} className="send-btn">
-                Send
-              </button>
-            </div>
-          </div>
-        )}
+        <button onClick={handleLogout} className="logout-btn">
+          Logout
+        </button>
       </div>
+
+      {chatVisible && (
+        <div className="chatbox visible">
+          <div className="chatbox-header" onClick={toggleChat}>
+            How can I help you today?
+          </div>
+
+          <div className="chatbox-messages">
+            {messages.map((msg, index) => (
+              <div
+                key={index}
+                className={`chat-message ${
+                  msg.sender === "user" ? "user-message" : "bot-message"
+                }`}
+              >
+                {msg.sender === "user" ? (
+                  msg.text
+                ) : (
+                  <ReactMarkdown>{msg.text}</ReactMarkdown>
+                )}
+              </div>
+            ))}
+          </div>
+
+          <div className="chatbox-input">
+            <input
+              type="text"
+              value={chatInput}
+              onChange={(e) => setChatInput(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") sendMessage();
+              }}
+              placeholder="Type your message..."
+            />
+            <button onClick={sendMessage} className="send-btn">
+              Send
+            </button>
+          </div>
+        </div>
+      )}
     </>
   );
 }

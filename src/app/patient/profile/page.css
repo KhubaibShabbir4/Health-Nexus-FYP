@@ -1,0 +1,241 @@
+/* Modern Profile Page Styling */
+.profile-container {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f0f9f6 0%, #e6fffa 100%);
+  padding: 2rem;
+}
+
+.profile-card {
+  max-width: 1200px;
+  margin: 2rem auto;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 20px;
+  box-shadow: 0 8px 32px rgba(31, 135, 83, 0.15);
+  backdrop-filter: blur(4px);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  overflow: hidden;
+  transition: transform 0.3s ease;
+}
+
+.profile-header {
+  background: linear-gradient(135deg, #047857 0%, #065f46 100%);
+  padding: 2rem;
+  text-align: center;
+  color: white;
+}
+
+.profile-avatar {
+  width: 120px;
+  height: 120px;
+  margin: 0 auto 1rem;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 60px;
+  padding: 1rem;
+}
+
+.profile-avatar svg {
+  width: 100%;
+  height: 100%;
+  stroke: white;
+}
+
+.profile-name {
+  font-size: 2rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.profile-content {
+  padding: 2rem;
+}
+
+.section {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  transition: transform 0.2s ease;
+}
+
+.section:hover {
+  transform: translateY(-2px);
+}
+
+.section-title {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #065f46;
+  margin-bottom: 1.5rem;
+}
+
+.section-title svg {
+  width: 24px;
+  height: 24px;
+  stroke: #047857;
+}
+
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1rem;
+}
+
+.info-item {
+  padding: 1rem;
+  background: #f0fdf9;
+  border-radius: 8px;
+  transition: background-color 0.2s ease;
+}
+
+.info-item:hover {
+  background: #ecfdf5;
+}
+
+.info-label {
+  font-size: 0.875rem;
+  color: #065f46;
+  margin-bottom: 0.25rem;
+}
+
+.info-value {
+  font-size: 1rem;
+  color: #064e3b;
+  font-weight: 500;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 1rem;
+  margin-top: 2rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.action-button {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  min-width: 160px;
+  justify-content: center;
+}
+
+.action-button svg {
+  width: 20px;
+  height: 20px;
+}
+
+.primary-button {
+  background: #047857;
+  color: white;
+  border: none;
+}
+
+.primary-button:hover {
+  background: #065f46;
+  transform: translateY(-1px);
+}
+
+.secondary-button {
+  background: white;
+  color: #047857;
+  border: 2px solid #047857;
+}
+
+.secondary-button:hover {
+  background: #f0fdf9;
+  transform: translateY(-1px);
+}
+
+.edit-button {
+  background: #059669;
+  color: white;
+  border: none;
+}
+
+.edit-button:hover {
+  background: #047857;
+  transform: translateY(-1px);
+}
+
+.cancel-button {
+  background: #dc2626;
+  color: white;
+  border: none;
+}
+
+.cancel-button:hover {
+  background: #b91c1c;
+  transform: translateY(-1px);
+}
+
+.edit-input {
+  width: 100%;
+  padding: 0.5rem;
+  border: 2px solid #047857;
+  border-radius: 6px;
+  font-size: 1rem;
+  color: #064e3b;
+  background: white;
+  transition: border-color 0.2s ease;
+}
+
+.edit-input:focus {
+  outline: none;
+  border-color: #059669;
+  box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.1);
+}
+
+.edit-input::placeholder {
+  color: #94a3b8;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .profile-container {
+    padding: 1rem;
+  }
+  
+  .profile-card {
+    margin: 1rem auto;
+  }
+  
+  .info-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .action-buttons {
+    flex-direction: column;
+  }
+  
+  .action-button {
+    width: 100%;
+  }
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.section {
+  animation: fadeIn 0.5s ease forwards;
+}
+
+.section:nth-child(2) { animation-delay: 0.1s; }
+.section:nth-child(3) { animation-delay: 0.2s; }
+.section:nth-child(4) { animation-delay: 0.3s; }

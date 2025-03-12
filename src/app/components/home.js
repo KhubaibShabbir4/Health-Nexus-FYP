@@ -29,7 +29,7 @@ export default function LoginPage() {
 
       if (response.ok) {
         // Redirect to PharmaHome on successful login
-        router.push("/PharmaHome");
+        router.push("/Pharma/Home");
       } else {
         setErrorMessage(data.error || "Login failed. Please try again.");
       }
@@ -66,7 +66,10 @@ export default function LoginPage() {
           <form onSubmit={handleLogin}>
             {/* Email Input */}
             <div className="input-group mb-4">
-              <label htmlFor="email" className="block mb-1 font-medium text-gray-700">
+              <label
+                htmlFor="email"
+                className="block mb-1 font-medium text-gray-700"
+              >
                 E-mail address
               </label>
               <input
@@ -82,7 +85,10 @@ export default function LoginPage() {
 
             {/* Password Input */}
             <div className="input-group mb-4">
-              <label htmlFor="password" className="block mb-1 font-medium text-gray-700">
+              <label
+                htmlFor="password"
+                className="block mb-1 font-medium text-gray-700"
+              >
                 Password
               </label>
               <input

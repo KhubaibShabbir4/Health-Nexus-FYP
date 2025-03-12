@@ -1,0 +1,698 @@
+NGOS/Ngo_givingLoan/page.js:
+
+"use client";
+
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import Footer from "../footer/page";
+import NgoHeader from "../../NGOS/NgoHeader/page";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
+export default function NgoGivingLoan() {
+  const router = useRouter();
+  const [cases, setCases] = useState([]);
+  const [Reason, setReason] = useState("");
+  const [showDeclineModal, setShowDeclineModal] = useState(false);
+  const [selectedCase, setSelectedCase] = useState(null);
+  const [selectedStatus, setSelectedStatus] = useState("");
+  const [responseMessages, setResponseMessages] = useState({});
+  const [ngoContribution, setNgoContribution] = useState("");
+  const [showContributionModal, setShowContributionModal] = useState(false);
+  const [successMessage, setSuccessMessage] = useState("");
+
+  const handleStatusUpdate = (status, request) => {
+    setSelectedCase(request);
+    setSelectedStatus(status);
+    if (status === "Accepted") {
+      setShowContributionModal(true);
+    } else {
+      setShowDeclineModal(true);
+    }
+  };
+
+  const calculateRemainingExpense = (totalExpense, expenseBearable, ngoContribution) => {
+    const remaining = totalExpense - expenseBearable - ngoContribution;
+    return remaining > 0 ? remaining : 0;
+  };
+
+  const sendContribution = async () => {
+    if (!selectedCase || !ngoContribution) return;
+
+    const contributionAmount = parseInt(ngoContribution);
+    if (isNaN(contributionAmount) || contributionAmount <= 0) {
+      setSuccessMessage("Please enter a valid contribution amount.");
+      return;
+    }
+
+    if (contributionAmount > selectedCase.totalExpense - selectedCase.expenseBearable) {
+      setSuccessMessage("NGO contribution cannot exceed the required assistance amount.");
+      return;
+    }
+
+    try {
+      const res = await fetch("/api/auth/update-request-status", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          id: selectedCase.id,
+          status: "Accepted",
+          reason: `NGO will contribute Rs. ${ngoContribution}. Patient's contribution: Rs. ${selectedCase.expenseBearable}. Remaining expense: Rs. ${calculateRemainingExpense(selectedCase.totalExpense, selectedCase.expenseBearable, parseInt(ngoContribution))}`,
+          ngoContribution: parseInt(ngoContribution)
+        }),
+      });
+
+      if (!res.ok) throw new Error("Failed to update status");
+
+      setSuccessMessage(`✅ Request accepted successfully! Patient has been notified of your contribution of Rs. ${ngoContribution}.`);
+
+      setCases((prevCases) =>
+        prevCases.filter((caseItem) => caseItem.id !== selectedCase.id)
+      );
+
+      setTimeout(() => {
+        setSuccessMessage("");
+      }, 5000);
+    } catch (error) {
+      console.error("Error updating status:", error);
+      setSuccessMessage("❌ Failed to update status. Please try again.");
+    } finally {
+      setShowContributionModal(false);
+      setNgoContribution("");
+      setSelectedCase(null);
+    }
+  };
+
+  const sendReason = async () => {
+    if (!selectedCase || !selectedStatus) return;
+
+    try {
+      const res = await fetch("/api/auth/update-request-status", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          id: selectedCase.id,
+          status: selectedStatus,
+          reason: Reason,
+        }),
+      });
+
+      if (!res.ok) throw new Error("Failed to update status");
+
+      let statusEmoji = selectedStatus === "Under Review" ? "⏳" : "❌";
+      let statusMessage = selectedStatus === "Under Review" ? "placed under review" : "declined";
+
+      setSuccessMessage(`${statusEmoji} Request ${statusMessage} successfully! Patient has been notified of your decision.`);
+
+      setCases((prevCases) =>
+        prevCases.filter((caseItem) => caseItem.id !== selectedCase.id)
+      );
+
+      setTimeout(() => {
+        setSuccessMessage("");
+      }, 5000);
+    } catch (error) {
+      console.error("Error updating status:", error);
+      setSuccessMessage("❌ Failed to update status. Please try again.");
+    } finally {
+      setShowDeclineModal(false);
+      setReason("");
+      setSelectedCase(null);
+      setSelectedStatus("");
+    }
+  };
+
+  useEffect(() => {
+    const fetchRequests = async () => {
+      try {
+        const res = await fetch("/api/auth/get-assistance-requests", {
+          cache: "no-store",
+        });
+        if (!res.ok) throw new Error("Failed to fetch data");
+
+        const data = await res.json();
+        console.log(data);
+        setCases(data);
+      } catch (err) {
+        console.error("Error fetching requests:", err);
+        setResponseMessages((prev) => ({
+          ...prev,
+          fetch: "Failed to fetch aid requests.",
+        }));
+      }
+    };
+
+    fetchRequests();
+  }, []);
+
+  return (
+    <div className="min-h-screen flex flex-col bg-gray-100">
+      <NgoHeader onBellClick={() => router.push("/Ngo_givingLoan")} />
+
+      {successMessage && (
+        <div className="fixed top-20 left-1/2 transform -translate-x-1/2 z-50">
+          <div className="bg-white shadow-lg rounded-lg px-8 py-4 border-l-4 border-green-500">
+            <p className="text-lg font-semibold text-gray-800">
+              {successMessage}
+            </p>
+          </div>
+        </div>
+      )}
+
+      <main className="flex-grow p-6 md:p-10 flex flex-col items-center">
+        <h1 className="text-3xl font-bold text-green-700 mb-6">
+          Recent Fund Requests
+        </h1>
+
+        {Object.values(responseMessages).map((msg, index) => (
+          <p
+            key={index}
+            className="text-lg text-center text-blue-600 font-semibold mb-4"
+          >
+            {msg}
+          </p>
+        ))}
+
+        <div className="w-full max-w-4xl bg-white shadow-md rounded-lg p-6">
+          {cases.length > 0 ? (
+            cases.map((request) => (
+              <div key={request.id} className="p-4 border-b border-gray-200">
+                <h2 className="text-xl font-semibold text-gray-800">
+                  {request.fullName}
+                </h2>
+                <p className="text-gray-600">
+                  <strong>CNIC:</strong> {request.cnic}
+                </p>
+                <p className="text-gray-600">
+                  <strong>Contact:</strong> {request.contact}
+                </p>
+                <p className="text-gray-600">
+                  <strong>Condition:</strong> {request.medicalCondition}
+                </p>
+                <p className="text-gray-600">
+                  <strong>Assistance Type:</strong> {request.assistanceType}
+                </p>
+                <p className="text-gray-600">
+                  <strong>Preferred NGO:</strong> {request.preferredNgo}
+                </p>
+                <p className="text-gray-600">
+                  <strong>Status:</strong> {request.Status}
+                </p>
+                <p className="text-gray-600">
+                  <strong>Reason:</strong> {request.Reason}
+                </p>
+                <p className="text-gray-600">
+                  <strong>Total Expense:</strong> Rs. {request.totalExpense}
+                </p>
+                <p className="text-gray-600">
+                  <strong>Patient Can Pay:</strong> Rs. {request.expenseBearable}
+                </p>
+                <p className="text-gray-600">
+                  <strong>Required Assistance:</strong> Rs. {request.totalExpense - request.expenseBearable}
+                </p>
+                {request.medicalReport && (
+                  <p className="text-gray-600">
+                    <strong>Medical Report:</strong>{" "}
+                    <a
+                      href="#"
+                      className="text-blue-500 underline hover:text-blue-700"
+                      onClick={async (e) => {
+                        e.preventDefault();
+                        try {
+                          // Extract file name from the path
+                          const fileName = request.medicalReport.split('/').pop();
+                          
+                          // Make request to get the file
+                          const response = await fetch(`/api/auth/download-medical-report/${fileName}`);
+                          
+                          if (!response.ok) {
+                            throw new Error('File not found');
+                          }
+                          
+                          // Get the blob from response
+                          const blob = await response.blob();
+                          
+                          // Create object URL
+                          const url = window.URL.createObjectURL(blob);
+                          
+                          // Create temporary link and click it
+                          const link = document.createElement('a');
+                          link.href = url;
+                          link.download = fileName;
+                          document.body.appendChild(link);
+                          link.click();
+                          
+                          // Clean up
+                          document.body.removeChild(link);
+                          window.URL.revokeObjectURL(url);
+                        } catch (error) {
+                          console.error('Error downloading file:', error);
+                          toast.error('Failed to download the medical report. Please try again.', {
+                            position: "top-center",
+                            autoClose: 5000,
+                            hideProgressBar: false,
+                            closeOnClick: true,
+                            pauseOnHover: true,
+                            draggable: true,
+                            progress: undefined,
+                            theme: "colored",
+                            style: {
+                              backgroundColor: '#EF4444',
+                              color: 'white',
+                              fontSize: '16px',
+                              fontWeight: 'bold',
+                              borderRadius: '8px',
+                              padding: '16px',
+                            }
+                          });
+                        }
+                      }}
+                    >
+                      Download Report
+                    </a>
+                  </p>
+                )}
+                {request.additionalMessage && (
+                  <p className="text-gray-600">
+                    <strong>Message:</strong> {request.additionalMessage}
+                  </p>
+                )}
+                <p className="text-gray-500 text-sm">
+                  <strong>Requested On:</strong>{" "}
+                  {new Date(request.createdAt).toLocaleDateString()}
+                </p>
+
+                <div className="mt-4 flex gap-4">
+                  <button
+                    onClick={() => handleStatusUpdate("Accepted", request)}
+                    className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition-colors duration-200"
+                  >
+                    Accept
+                  </button>
+                  <button
+                    onClick={() => handleStatusUpdate("Under Review", request)}
+                    className="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600 transition-colors duration-200"
+                  >
+                    Under Review
+                  </button>
+                  <button
+                    onClick={() => handleStatusUpdate("Declined", request)}
+                    className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition-colors duration-200"
+                  >
+                    Decline
+                  </button>
+                </div>
+              </div>
+            ))
+          ) : (
+            <p className="text-gray-600 text-center">No recent cases available.</p>
+          )}
+        </div>
+      </main>
+
+      {showContributionModal && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+          <div className="bg-white p-6 rounded-lg shadow-md w-96">
+            <h2 className="text-xl font-semibold text-gray-800 mb-4">Specify NGO Contribution</h2>
+            <div className="mb-4">
+              <p className="text-gray-600 mb-2">
+                <strong>Total Expense:</strong> Rs. {selectedCase.totalExpense}
+              </p>
+              <p className="text-gray-600 mb-2">
+                <strong>Patient's Contribution:</strong> Rs. {selectedCase.expenseBearable}
+              </p>
+              <p className="text-gray-600 mb-2">
+                <strong>Required Assistance:</strong> Rs. {selectedCase.totalExpense - selectedCase.expenseBearable}
+              </p>
+            </div>
+            <input
+              type="number"
+              className="w-full border p-2 rounded-md focus:outline-none focus:ring focus:ring-green-300 mb-4"
+              placeholder="Enter NGO contribution amount"
+              value={ngoContribution}
+              onChange={(e) => setNgoContribution(e.target.value)}
+              min="0"
+              max={selectedCase.totalExpense - selectedCase.expenseBearable}
+            />
+            {ngoContribution && (
+              <p className="text-gray-600 mb-4">
+                <strong>Remaining Expense:</strong> Rs. {calculateRemainingExpense(
+                  selectedCase.totalExpense,
+                  selectedCase.expenseBearable,
+                  parseInt(ngoContribution) || 0
+                )}
+              </p>
+            )}
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => {
+                  setShowContributionModal(false);
+                  setNgoContribution("");
+                }}
+                className="bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-500 transition-colors duration-200"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={sendContribution}
+                className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition-colors duration-200"
+                disabled={!ngoContribution || parseInt(ngoContribution) <= 0}
+              >
+                Confirm
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showDeclineModal && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-white p-6 rounded-lg shadow-md w-96">
+            <h2 className="text-xl font-semibold text-gray-800 mb-4">
+              Provide a reason
+            </h2>
+            <textarea
+              className="w-full border p-2 rounded-md focus:outline-none focus:ring focus:ring-red-300"
+              rows="3"
+              placeholder="Enter reason..."
+              value={Reason}
+              onChange={(e) => setReason(e.target.value)}
+            ></textarea>
+            <div className="mt-4 flex justify-end gap-3">
+              <button
+                onClick={() => setShowDeclineModal(false)}
+                className="bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-500"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={sendReason}
+                className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
+              >
+                OK
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <ToastContainer />
+      <Footer />
+    </div>
+  );
+}
+
+
+
+
+
+
+
+
+
+auth/upate-request-status.js
+
+
+
+import { PrismaClient } from "@prisma/client";
+
+const prisma = new PrismaClient();
+
+export default async function handler(req, res) {
+  if (req.method === "POST") {
+    const { id, status, reason, ngoContribution } = req.body;
+
+    try {
+      const updatedRequest = await prisma.assistanceRequest.update({
+        where: { id: parseInt(id) },
+        data: {
+          Status: status,
+          Reason: reason,
+          ngoContribution: ngoContribution || undefined,
+        },
+      });
+
+      return res.status(200).json(updatedRequest);
+    } catch (error) {
+      console.error("Error updating request status:", error);
+      return res.status(500).json({ error: "Internal Server Error" });
+    }
+  } else {
+    return res.status(405).json({ error: "Method not allowed" });
+  }
+}
+
+
+
+
+
+auth/get-assistance-request.js:
+
+
+
+
+
+
+import { PrismaClient } from "@prisma/client";
+
+const prisma = new PrismaClient();
+
+export default async function handler(req, res) {
+  if (req.method === "GET") {
+    const { id } = req.query;
+
+    try {
+      if (id) {
+        // Fetch a specific request by user ID
+        const request = await prisma.assistanceRequest.findMany({
+          where: { user_id: parseInt(id) },
+        });
+
+        if (!request) {
+          return res.status(404).json({ error: "Request not found" });
+        }
+
+        return res.status(200).json(request);
+      } else {
+        // Fetch all requests
+        const requests = await prisma.assistanceRequest.findMany({
+          orderBy: { createdAt: "desc" },
+        });
+
+        return res.status(200).json(requests);
+      }
+    } catch (error) {
+      console.error("Error fetching assistance requests:", error);
+      return res.status(500).json({ error: "Internal Server Error" });
+    }
+  } else {
+    return res.status(405).json({ error: "Method not allowed" });
+  }
+}
+
+
+
+
+
+NGO/Pharma/page.js:
+
+
+
+
+
+"use client";
+
+import { useState, useEffect } from "react";
+import Header from "../../components/Header/page"; // Importing Header component
+import { useSearchParams, useRouter } from "next/navigation";
+import Link from "next/link";
+
+const NgoPharmaResponses = () => {
+  const params = useSearchParams();
+  const id = params.get("id");
+  const router = useRouter();
+  const [Requests, setRequests] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchRequest = async () => {
+      try {
+        const res = await fetch(`/api/auth/get-assistance-requests?id=${id}`, {
+          cache: "no-store",
+        });
+
+        if (!res.ok) throw new Error("Failed to fetch data");
+
+        const data = await res.json();
+        console.log("Fetched Data:", data); // Debugging line
+
+        if (data.length === 0) {
+          setError("No requests available.");
+          return;
+        }
+
+        setRequests(data); // Assuming the response is an array
+      } catch (err) {
+        console.error("Error fetching request:", err);
+        setError("Failed to fetch aid request.");
+        router.push("/patient/profile");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchRequest();
+  }, [id, router]);
+
+  // Helper function to format currency
+  const formatCurrency = (amount) => {
+    return new Intl.NumberFormat('en-PK', {
+      style: 'currency',
+      currency: 'PKR',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0
+    }).format(amount);
+  };
+
+  return (
+    <>
+      {/* Header Component */}
+      <Header />
+      <div className="w-full h-screen bg-white">
+        <div className="p-8 max-w-4xl mx-auto mt-16 ">
+          <h2 className="text-3xl font-bold text-green-700 text-center mb-6">
+            🏥 NGO Assistance Request Status
+          </h2>
+
+          {loading ? (
+            <p className="text-center text-gray-600">
+              ⏳ Loading aid request details...
+            </p>
+          ) : error ? (
+            <p className="text-center text-red-600 font-bold">{error}</p>
+          ) : (
+            <div className="flex flex-col gap-3">
+              {Requests.map((request) => (
+                <div 
+                  key={request.id} 
+                  className="bg-white shadow-lg rounded-lg p-6 border border-gray-300 hover:shadow-2xl transition-all"
+                >
+                  <h3 className="text-xl font-semibold text-gray-900">
+                    {request.fullName}
+                  </h3>
+                  {/* Status Label */}
+                  <p className="text-gray-700 mt-2">
+                    <span className="font-medium">Status:</span>
+                    <span
+                      className={`px-3 py-1 ml-2 font-bold rounded-full 
+                        ${
+                          request.Status?.toLowerCase() === "accepted"
+                            ? "bg-green-500 text-white"
+                            : request.Status?.toLowerCase() === "declined"
+                            ? "bg-red-500 text-white"
+                            : request.Status?.toLowerCase() === "pending"
+                            ? "bg-orange-500 text-white"
+                            : request.Status?.toLowerCase() === "under review" &&
+                              "bg-blue-500 text-white"
+                        }`}
+                    >
+                      {request.Status?.charAt(0).toUpperCase() +
+                        request.Status?.slice(1)}
+                    </span>
+                  </p>
+                  {/* Status Progress Bar */}
+                  <div className="w-full bg-gray-200 rounded-full h-4 mt-4">
+                    <div
+                      className={`h-4 rounded-full transition-all ${
+                        request.Status?.toLowerCase() === "accepted"
+                          ? "bg-green-500 w-full"
+                          : request.Status?.toLowerCase() === "pending"
+                          ? "bg-yellow-500 w-2/3"
+                          : "bg-red-500 w-1/3"
+                      }`}
+                    ></div>
+                  </div>
+                  {/* NGO Response Section */}
+                  <div className="mt-4">
+                    {request.Status?.toLowerCase() === "accepted" ? (
+                      <>
+                        <p className="text-gray-800 font-semibold">
+                          🏥 Response from NGO: <span className="text-green-600">{request.preferredNgo}</span>
+                        </p>
+                        <div className="mt-3 bg-green-50 p-4 rounded-lg">
+                          <p className="text-gray-700">
+                            <span className="font-semibold">NGO Contribution:</span> {formatCurrency(request.ngoContribution || 0)}
+                          </p>
+                          <p className="text-gray-700">
+                            <span className="font-semibold">Patient's Contribution:</span> {formatCurrency(request.expenseBearable || 0)}
+                          </p>
+                          <p className="text-gray-700">
+                            <span className="font-semibold">Remaining Expense:</span> {formatCurrency((request.totalExpense || 0) - (request.ngoContribution || 0) - (request.expenseBearable || 0))}
+                          </p>
+                        </div>
+                      </>
+                    ) : (
+                      <p className="mt-4 text-gray-800 font-semibold">
+                        🏥 Response from NGO:{" "}
+                        <span className="text-gray-600">
+                          Not assigned yet
+                        </span>
+                      </p>
+                    )}
+                  </div>
+                  {/* Response Messages */}
+                  {request.Status?.toLowerCase() === "accepted" && request.Reason && (
+                    <p className="mt-3 text-gray-700 italic">
+                      ✅ {request.Reason}
+                    </p>
+                  )}
+                  {request.Status?.toLowerCase() === "declined" && (
+                    <div className="mt-3 p-4 bg-red-100 border-l-4 border-red-500 rounded-lg">
+                      <p className="text-red-700 font-bold">
+                        🚫 Request Declined
+                      </p>
+                      <p className="text-gray-700 mt-1">
+                        <strong>Reason:</strong>{" "}
+                        {request.Reason || "No reason provided"}
+                      </p>
+                    </div>
+                  )}
+                  {request.Status?.toLowerCase() === "pending" && (
+                    <p className="mt-3 text-gray-600">
+                      ⏳ Awaiting response from{" "}
+                      <strong>{request.preferredNgo}</strong>...
+                    </p>
+                  )}
+                  {/* Action Buttons */}
+                  {request.Status?.toLowerCase() === "declined" && (
+                    <div className="flex flex-row justify-center my-2">
+                      <Link
+                        className="bg-yellow-500 p-3 text-white rounded-full"
+                        href="/patient/requestassistance"
+                      >
+                        Re-Apply
+                      </Link>
+                    </div>
+                  )}
+                  {request.Status?.toLowerCase() === "accepted" && (
+                    <div className="flex flex-row justify-center my-2">
+                      <Link
+                        className="bg-blue-500 p-3 text-white rounded-full"
+                        href="/appointment/book"
+                      >
+                        Book an Appointment
+                      </Link>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    </>
+  );
+};
+
+export default NgoPharmaResponses;

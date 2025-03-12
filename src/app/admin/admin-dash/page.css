@@ -1,209 +1,373 @@
 /* Admin Dashboard Styles */
 .container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 20px;
+    background-color: #f4f4f4;
+    margin-top: 80px; /* To avoid overlap with the fixed header */
+  }
+  
+  .card {
+    background: #ffffff;
+    padding: 40px; /* Increased padding for a larger card */
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    max-width: 800px; /* Increased max-width to make the card bigger */
+    width: 100%;
+  }
+  
+  .title {
+    font-size: 2em; /* Increased font size for the title */
+    font-weight: bold;
+    color: #28a745;
+    margin-bottom: 10px;
+  }
+  
+  .description {
+    font-size: 1.2em; /* Increased font size for the description */
+    color: #555;
+    margin-bottom: 20px;
+  }
+  
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* Two columns instead of one for a more spacious layout */
+    gap: 30px; /* Increased gap between items */
+  }
+  
+  .link {
+    display: block;
+    padding: 12px 20px;
+    background-color: #28a745;
+    color: white;
+    text-decoration: none;
+    font-size: 1em;
+    font-weight: bold;
+    border-radius: 5px;
+    transition: background 0.3s ease;
+  }
+  
+  .link:hover {
+    background-color: #218838;
+  }
+  
+  /* Responsive Design */
+  
+  /* Small devices (Phones in portrait mode, 600px and below) */
+  @media (max-width: 600px) {
+    .container {
+      padding: 10px;
+    }
+  
+    .card {
+      padding: 20px; /* Reduced padding for smaller screens */
+    }
+  
+    .title {
+      font-size: 1.5em; /* Smaller title font */
+    }
+  
+    .description {
+      font-size: 1em; /* Smaller description font */
+    }
+  
+    .grid {
+      grid-template-columns: 1fr; /* One column for smaller screens */
+      gap: 15px; /* Reduced gap between grid items */
+    }
+  
+    .link {
+      font-size: 0.9em;
+      padding: 10px; /* Reduced padding for smaller screens */
+    }
+  }
+  
+  /* Medium devices (Tablets in landscape mode, 768px and below) */
+  @media (max-width: 768px) {
+    .container {
+      padding: 15px; /* Slightly smaller padding */
+    }
+  
+    .grid {
+      grid-template-columns: 1fr 1fr; /* Two columns for medium screens */
+    }
+  
+    .link {
+      font-size: 1em; /* Font size adjustment for medium screens */
+    }
+  }
+  
+  /* Large devices (Desktops, 1024px and above) */
+  @media (min-width: 1024px) {
+    .container {
+      padding: 20px; /* Regular padding */
+    }
+  
+    .card {
+      padding: 40px; /* Regular padding */
+    }
+  
+    .title {
+      font-size: 2em; /* Larger font size for larger screens */
+    }
+  
+    .description {
+      font-size: 1.2em; /* Larger font size for larger screens */
+    }
+  
+    .grid {
+      grid-template-columns: 1fr 1fr; /* Two columns for larger screens */
+      gap: 30px; /* Increased gap between grid items */
+    }
+  }
+  /* Responsive Design for Header Title */
+  .header-title {
+    font-size: 1.5em; /* Default size */
+  }
+  
+  /* Small devices (Phones in portrait mode, 600px and below) */
+  @media (max-width: 600px) {
+    .header-title {
+      font-size: 1.2em; /* Smaller font size for smaller screens */
+    }
+  }
+  
+  /* Medium devices (Tablets in landscape mode, 768px and below) */
+  @media (max-width: 768px) {
+    .header-title {
+      font-size: 1.3em; /* Slightly smaller for tablets */
+    }
+  }
+  
+  /* Large devices (Desktops, 1024px and above) */
+  @media (min-width: 1024px) {
+    .header-title {
+      font-size: 1.7em; /* Larger size for desktop screens */
+    }
+  }
+  
+  
+  /* Floating Add Admin Button */
+  .floating-add-admin-button {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: linear-gradient(135deg, #28a745, #218838); /* Green Gradient */
+    color: white;
+    border: none;
+    padding: 14px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    border-radius: 50%; /* Initial round shape */
+    transition: all 0.3s ease-in-out;
+    box-shadow: 0px 4px 15px rgba(40, 167, 69, 0.5); /* Green glow */
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    white-space: nowrap;
+  }
+
+  /*logout button*/
+  .floating-logout-button {
+    position: fixed;
+    bottom: 20px; /* Align with the add admin button */
+    right: 80px; /* Move to the left side */
+    background: linear-gradient(135deg, #28a745, #218838); /* Green Gradient */
+    color: white;
+    border: none;
+    padding: 14px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    border-radius: 50%; /* Initial round shape */
+    transition: all 0.3s ease-in-out;
+    box-shadow: 0px 4px 15px rgba(40, 167, 69, 0.5); /* Green glow */
+    width: 100px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    white-space: nowrap;
+  }
+  
+  /* Icon and Text Styling */
+  .button-icon {
+    font-size: 20px;
+  }
+  
+  .button-log {
+    font-size: 15px;
+  }
+  .button-text {
+    display: none; /* Hide text initially */
+    margin-left: 10px;
+  }
+  
+  /* Hover Effect - Expands the button */
+  .floating-add-admin-button:hover {
+    width: 150px; /* Expands */
+    border-radius: 50px; /* Soft pill shape */
+    padding: 14px 20px;
+    justify-content: space-between;
+    box-shadow: 0px 6px 20px rgba(40, 167, 69, 0.7);
+  }
+  
+  /* Show text on hover */
+  .floating-add-admin-button:hover .button-text {
+    display: inline;
+  }
+  
+  /* Bounce Animation */
+  @keyframes bounce {
+    0%, 100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-5px);
+    }
+  }
+  
+  /* General Styles */
+.container {
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 100vh;
-  padding: 20px;
-  background-color: #f4f4f4;
-  margin-top: 80px; /* To avoid overlap with the fixed header */
+  height: 100vh;
 }
 
 .card {
-  background: #ffffff;
-  padding: 40px; /* Increased padding for a larger card */
-  border-radius: 10px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  background: #fff;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
   text-align: center;
-  max-width: 800px; /* Increased max-width to make the card bigger */
-  width: 100%;
+  width: 400px;
 }
 
 .title {
-  font-size: 2em; /* Increased font size for the title */
+  font-size: 28px;
   font-weight: bold;
   color: #28a745;
   margin-bottom: 10px;
 }
 
 .description {
-  font-size: 1.2em; /* Increased font size for the description */
+  font-size: 16px;
   color: #555;
   margin-bottom: 20px;
 }
 
 .grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr; /* Two columns instead of one for a more spacious layout */
-  gap: 30px; /* Increased gap between items */
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
 }
 
 .link {
   display: block;
-  padding: 12px 20px;
-  background-color: #28a745;
+  padding: 12px;
+  background: #28a745;
   color: white;
   text-decoration: none;
-  font-size: 1em;
-  font-weight: bold;
-  border-radius: 5px;
-  transition: background 0.3s ease;
+  border-radius: 6px;
+  transition: all 0.3s;
 }
 
 .link:hover {
-  background-color: #218838;
+  background: #218838;
 }
 
-/* Responsive Design */
-
-/* Small devices (Phones in portrait mode, 600px and below) */
-@media (max-width: 600px) {
-  .container {
-    padding: 10px;
-  }
-
-  .card {
-    padding: 20px; /* Reduced padding for smaller screens */
-  }
-
-  .title {
-    font-size: 1.5em; /* Smaller title font */
-  }
-
-  .description {
-    font-size: 1em; /* Smaller description font */
-  }
-
-  .grid {
-    grid-template-columns: 1fr; /* One column for smaller screens */
-    gap: 15px; /* Reduced gap between grid items */
-  }
-
-  .link {
-    font-size: 0.9em;
-    padding: 10px; /* Reduced padding for smaller screens */
-  }
+/* Dropdown Menu */
+.dropdown-container {
+  position: relative;
+  display: inline-block;
+  width: 100%;
 }
 
-/* Medium devices (Tablets in landscape mode, 768px and below) */
-@media (max-width: 768px) {
-  .container {
-    padding: 15px; /* Slightly smaller padding */
-  }
-
-  .grid {
-    grid-template-columns: 1fr 1fr; /* Two columns for medium screens */
-  }
-
-  .link {
-    font-size: 1em; /* Font size adjustment for medium screens */
-  }
+.dropdown-button {
+  width: 100%;
+  padding: 12px;
+  background: #ff9800;
+  color: white;
+  font-size: 16px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.3s;
 }
 
-/* Large devices (Desktops, 1024px and above) */
-@media (min-width: 1024px) {
-  .container {
-    padding: 20px; /* Regular padding */
-  }
-
-  .card {
-    padding: 40px; /* Regular padding */
-  }
-
-  .title {
-    font-size: 2em; /* Larger font size for larger screens */
-  }
-
-  .description {
-    font-size: 1.2em; /* Larger font size for larger screens */
-  }
-
-  .grid {
-    grid-template-columns: 1fr 1fr; /* Two columns for larger screens */
-    gap: 30px; /* Increased gap between grid items */
-  }
-}
-/* Responsive Design for Header Title */
-.header-title {
-  font-size: 1.5em; /* Default size */
+.dropdown-button:hover {
+  background: #e68900;
 }
 
-/* Small devices (Phones in portrait mode, 600px and below) */
-@media (max-width: 600px) {
-  .header-title {
-    font-size: 1.2em; /* Smaller font size for smaller screens */
-  }
+.dropdown-menu {
+  position: absolute;
+  width: 100%;
+  background: #fff;
+  border-radius: 6px;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+  margin-top: 5px;
+  z-index: 100;
 }
 
-/* Medium devices (Tablets in landscape mode, 768px and below) */
-@media (max-width: 768px) {
-  .header-title {
-    font-size: 1.3em; /* Slightly smaller for tablets */
-  }
+.dropdown-item {
+  display: block;
+  padding: 10px;
+  color: #333;
+  text-decoration: none;
+  transition: all 0.3s;
 }
 
-/* Large devices (Desktops, 1024px and above) */
-@media (min-width: 1024px) {
-  .header-title {
-    font-size: 1.7em; /* Larger size for desktop screens */
-  }
+.dropdown-item:hover {
+  background: #f1f1f1;
 }
-
 
 /* Floating Add Admin Button */
 .floating-add-admin-button {
   position: fixed;
   bottom: 20px;
   right: 20px;
-  background: linear-gradient(135deg, #28a745, #218838); /* Green Gradient */
+  background: #28a745;
   color: white;
   border: none;
-  padding: 14px;
-  font-size: 16px;
-  font-weight: bold;
-  cursor: pointer;
-  border-radius: 50%; /* Initial round shape */
-  transition: all 0.3s ease-in-out;
-  box-shadow: 0px 4px 15px rgba(40, 167, 69, 0.5); /* Green glow */
-  width: 50px;
-  height: 50px;
+  padding: 12px 20px;
+  border-radius: 50px;
   display: flex;
   align-items: center;
-  justify-content: center;
-  overflow: hidden;
-  white-space: nowrap;
+  gap: 10px;
+  cursor: pointer;
+  transition: all 0.3s;
 }
 
-/* Icon and Text Styling */
+.floating-add-admin-button:hover {
+  background: #218838;
+}
+
 .button-icon {
   font-size: 20px;
+  font-weight: bold;
 }
 
 .button-text {
-  display: none; /* Hide text initially */
-  margin-left: 10px;
+  font-size: 14px;
 }
 
-/* Hover Effect - Expands the button */
-.floating-add-admin-button:hover {
-  width: 150px; /* Expands */
-  border-radius: 50px; /* Soft pill shape */
-  padding: 14px 20px;
-  justify-content: space-between;
-  box-shadow: 0px 6px 20px rgba(40, 167, 69, 0.7);
-}
-
-/* Show text on hover */
-.floating-add-admin-button:hover .button-text {
-  display: inline;
-}
-
-/* Bounce Animation */
-@keyframes bounce {
-  0%, 100% {
-    transform: translateY(0);
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .card {
+    width: 90%;
+    padding: 20px;
   }
-  50% {
-    transform: translateY(-5px);
+
+  .floating-add-admin-button {
+    font-size: 14px;
   }
 }

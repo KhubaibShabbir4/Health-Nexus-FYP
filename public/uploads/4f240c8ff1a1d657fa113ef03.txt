@@ -1,0 +1,1371 @@
+NGOS/Ngo_givingLoan/page.js:
+
+"use client";
+
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import Footer from "../footer/page";
+import NgoHeader from "../../NGOS/NgoHeader/page";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
+export default function NgoGivingLoan() {
+  const router = useRouter();
+  const [cases, setCases] = useState([]);
+  const [Reason, setReason] = useState("");
+  const [showDeclineModal, setShowDeclineModal] = useState(false);
+  const [selectedCase, setSelectedCase] = useState(null);
+  const [selectedStatus, setSelectedStatus] = useState("");
+  const [responseMessages, setResponseMessages] = useState({});
+  const [ngoContribution, setNgoContribution] = useState("");
+  const [showContributionModal, setShowContributionModal] = useState(false);
+  const [successMessage, setSuccessMessage] = useState("");
+
+  const handleStatusUpdate = (status, request) => {
+    setSelectedCase(request);
+    setSelectedStatus(status);
+    if (status === "Accepted") {
+      setShowContributionModal(true);
+    } else {
+      setShowDeclineModal(true);
+    }
+  };
+
+  const calculateRemainingExpense = (totalExpense, expenseBearable, ngoContribution) => {
+    const remaining = totalExpense - expenseBearable - ngoContribution;
+    return remaining > 0 ? remaining : 0;
+  };
+
+  const sendContribution = async () => {
+    if (!selectedCase || !ngoContribution) return;
+
+    const contributionAmount = parseInt(ngoContribution);
+    if (isNaN(contributionAmount) || contributionAmount <= 0) {
+      setSuccessMessage("Please enter a valid contribution amount.");
+      return;
+    }
+
+    if (contributionAmount > selectedCase.totalExpense - selectedCase.expenseBearable) {
+      setSuccessMessage("NGO contribution cannot exceed the required assistance amount.");
+      return;
+    }
+
+    try {
+      const res = await fetch("/api/auth/update-request-status", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          id: selectedCase.id,
+          status: "Accepted",
+          reason: `NGO will contribute Rs. ${ngoContribution}. Patient's contribution: Rs. ${selectedCase.expenseBearable}. Remaining expense: Rs. ${calculateRemainingExpense(selectedCase.totalExpense, selectedCase.expenseBearable, parseInt(ngoContribution))}`,
+          ngoContribution: parseInt(ngoContribution)
+        }),
+      });
+
+      if (!res.ok) throw new Error("Failed to update status");
+
+      setSuccessMessage(`✅ Request accepted successfully! Patient has been notified of your contribution of Rs. ${ngoContribution}.`);
+
+      setCases((prevCases) =>
+        prevCases.filter((caseItem) => caseItem.id !== selectedCase.id)
+      );
+
+      setTimeout(() => {
+        setSuccessMessage("");
+      }, 5000);
+    } catch (error) {
+      console.error("Error updating status:", error);
+      setSuccessMessage("❌ Failed to update status. Please try again.");
+    } finally {
+      setShowContributionModal(false);
+      setNgoContribution("");
+      setSelectedCase(null);
+    }
+  };
+
+  const sendReason = async () => {
+    if (!selectedCase || !selectedStatus) return;
+
+    try {
+      const res = await fetch("/api/auth/update-request-status", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          id: selectedCase.id,
+          status: selectedStatus,
+          reason: Reason,
+        }),
+      });
+
+      if (!res.ok) throw new Error("Failed to update status");
+
+      let statusEmoji = selectedStatus === "Under Review" ? "⏳" : "❌";
+      let statusMessage = selectedStatus === "Under Review" ? "placed under review" : "declined";
+
+      setSuccessMessage(`${statusEmoji} Request ${statusMessage} successfully! Patient has been notified of your decision.`);
+
+      setCases((prevCases) =>
+        prevCases.filter((caseItem) => caseItem.id !== selectedCase.id)
+      );
+
+      setTimeout(() => {
+        setSuccessMessage("");
+      }, 5000);
+    } catch (error) {
+      console.error("Error updating status:", error);
+      setSuccessMessage("❌ Failed to update status. Please try again.");
+    } finally {
+      setShowDeclineModal(false);
+      setReason("");
+      setSelectedCase(null);
+      setSelectedStatus("");
+    }
+  };
+
+  useEffect(() => {
+    const fetchRequests = async () => {
+      try {
+        const res = await fetch("/api/auth/get-assistance-requests", {
+          cache: "no-store",
+        });
+        if (!res.ok) throw new Error("Failed to fetch data");
+
+        const data = await res.json();
+        console.log(data);
+        setCases(data);
+      } catch (err) {
+        console.error("Error fetching requests:", err);
+        setResponseMessages((prev) => ({
+          ...prev,
+          fetch: "Failed to fetch aid requests.",
+        }));
+      }
+    };
+
+    fetchRequests();
+  }, []);
+
+  return (
+    <div className="min-h-screen flex flex-col bg-gray-100">
+      <NgoHeader onBellClick={() => router.push("/Ngo_givingLoan")} />
+
+      {successMessage && (
+        <div className="fixed top-20 left-1/2 transform -translate-x-1/2 z-50">
+          <div className="bg-white shadow-lg rounded-lg px-8 py-4 border-l-4 border-green-500">
+            <p className="text-lg font-semibold text-gray-800">
+              {successMessage}
+            </p>
+          </div>
+        </div>
+      )}
+
+      <main className="flex-grow p-6 md:p-10 flex flex-col items-center">
+        <h1 className="text-3xl font-bold text-green-700 mb-6">
+          Recent Fund Requests
+        </h1>
+
+        {Object.values(responseMessages).map((msg, index) => (
+          <p
+            key={index}
+            className="text-lg text-center text-blue-600 font-semibold mb-4"
+          >
+            {msg}
+          </p>
+        ))}
+
+        <div className="w-full max-w-4xl bg-white shadow-md rounded-lg p-6">
+          {cases.length > 0 ? (
+            cases.map((request) => (
+              <div key={request.id} className="p-4 border-b border-gray-200">
+                <h2 className="text-xl font-semibold text-gray-800">
+                  {request.fullName}
+                </h2>
+                <p className="text-gray-600">
+                  <strong>CNIC:</strong> {request.cnic}
+                </p>
+                <p className="text-gray-600">
+                  <strong>Contact:</strong> {request.contact}
+                </p>
+                <p className="text-gray-600">
+                  <strong>Condition:</strong> {request.medicalCondition}
+                </p>
+                <p className="text-gray-600">
+                  <strong>Assistance Type:</strong> {request.assistanceType}
+                </p>
+                <p className="text-gray-600">
+                  <strong>Preferred NGO:</strong> {request.preferredNgo}
+                </p>
+                <p className="text-gray-600">
+                  <strong>Status:</strong> {request.Status}
+                </p>
+                <p className="text-gray-600">
+                  <strong>Reason:</strong> {request.Reason}
+                </p>
+                <p className="text-gray-600">
+                  <strong>Total Expense:</strong> Rs. {request.totalExpense}
+                </p>
+                <p className="text-gray-600">
+                  <strong>Patient Can Pay:</strong> Rs. {request.expenseBearable}
+                </p>
+                <p className="text-gray-600">
+                  <strong>Required Assistance:</strong> Rs. {request.totalExpense - request.expenseBearable}
+                </p>
+                {request.medicalReport && (
+                  <p className="text-gray-600">
+                    <strong>Medical Report:</strong>{" "}
+                    <a
+                      href="#"
+                      className="text-blue-500 underline hover:text-blue-700"
+                      onClick={async (e) => {
+                        e.preventDefault();
+                        try {
+                          // Extract file name from the path
+                          const fileName = request.medicalReport.split('/').pop();
+                          
+                          // Make request to get the file
+                          const response = await fetch(`/api/auth/download-medical-report/${fileName}`);
+                          
+                          if (!response.ok) {
+                            throw new Error('File not found');
+                          }
+                          
+                          // Get the blob from response
+                          const blob = await response.blob();
+                          
+                          // Create object URL
+                          const url = window.URL.createObjectURL(blob);
+                          
+                          // Create temporary link and click it
+                          const link = document.createElement('a');
+                          link.href = url;
+                          link.download = fileName;
+                          document.body.appendChild(link);
+                          link.click();
+                          
+                          // Clean up
+                          document.body.removeChild(link);
+                          window.URL.revokeObjectURL(url);
+                        } catch (error) {
+                          console.error('Error downloading file:', error);
+                          toast.error('Failed to download the medical report. Please try again.', {
+                            position: "top-center",
+                            autoClose: 5000,
+                            hideProgressBar: false,
+                            closeOnClick: true,
+                            pauseOnHover: true,
+                            draggable: true,
+                            progress: undefined,
+                            theme: "colored",
+                            style: {
+                              backgroundColor: '#EF4444',
+                              color: 'white',
+                              fontSize: '16px',
+                              fontWeight: 'bold',
+                              borderRadius: '8px',
+                              padding: '16px',
+                            }
+                          });
+                        }
+                      }}
+                    >
+                      Download Report
+                    </a>
+                  </p>
+                )}
+                {request.additionalMessage && (
+                  <p className="text-gray-600">
+                    <strong>Message:</strong> {request.additionalMessage}
+                  </p>
+                )}
+                <p className="text-gray-500 text-sm">
+                  <strong>Requested On:</strong>{" "}
+                  {new Date(request.createdAt).toLocaleDateString()}
+                </p>
+
+                <div className="mt-4 flex gap-4">
+                  <button
+                    onClick={() => handleStatusUpdate("Accepted", request)}
+                    className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition-colors duration-200"
+                  >
+                    Accept
+                  </button>
+                  <button
+                    onClick={() => handleStatusUpdate("Under Review", request)}
+                    className="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600 transition-colors duration-200"
+                  >
+                    Under Review
+                  </button>
+                  <button
+                    onClick={() => handleStatusUpdate("Declined", request)}
+                    className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition-colors duration-200"
+                  >
+                    Decline
+                  </button>
+                </div>
+              </div>
+            ))
+          ) : (
+            <p className="text-gray-600 text-center">No recent cases available.</p>
+          )}
+        </div>
+      </main>
+
+      {showContributionModal && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+          <div className="bg-white p-6 rounded-lg shadow-md w-96">
+            <h2 className="text-xl font-semibold text-gray-800 mb-4">Specify NGO Contribution</h2>
+            <div className="mb-4">
+              <p className="text-gray-600 mb-2">
+                <strong>Total Expense:</strong> Rs. {selectedCase.totalExpense}
+              </p>
+              <p className="text-gray-600 mb-2">
+                <strong>Patient's Contribution:</strong> Rs. {selectedCase.expenseBearable}
+              </p>
+              <p className="text-gray-600 mb-2">
+                <strong>Required Assistance:</strong> Rs. {selectedCase.totalExpense - selectedCase.expenseBearable}
+              </p>
+            </div>
+            <input
+              type="number"
+              className="w-full border p-2 rounded-md focus:outline-none focus:ring focus:ring-green-300 mb-4"
+              placeholder="Enter NGO contribution amount"
+              value={ngoContribution}
+              onChange={(e) => setNgoContribution(e.target.value)}
+              min="0"
+              max={selectedCase.totalExpense - selectedCase.expenseBearable}
+            />
+            {ngoContribution && (
+              <p className="text-gray-600 mb-4">
+                <strong>Remaining Expense:</strong> Rs. {calculateRemainingExpense(
+                  selectedCase.totalExpense,
+                  selectedCase.expenseBearable,
+                  parseInt(ngoContribution) || 0
+                )}
+              </p>
+            )}
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => {
+                  setShowContributionModal(false);
+                  setNgoContribution("");
+                }}
+                className="bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-500 transition-colors duration-200"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={sendContribution}
+                className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition-colors duration-200"
+                disabled={!ngoContribution || parseInt(ngoContribution) <= 0}
+              >
+                Confirm
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showDeclineModal && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-white p-6 rounded-lg shadow-md w-96">
+            <h2 className="text-xl font-semibold text-gray-800 mb-4">
+              Provide a reason
+            </h2>
+            <textarea
+              className="w-full border p-2 rounded-md focus:outline-none focus:ring focus:ring-red-300"
+              rows="3"
+              placeholder="Enter reason..."
+              value={Reason}
+              onChange={(e) => setReason(e.target.value)}
+            ></textarea>
+            <div className="mt-4 flex justify-end gap-3">
+              <button
+                onClick={() => setShowDeclineModal(false)}
+                className="bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-500"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={sendReason}
+                className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
+              >
+                OK
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <ToastContainer />
+      <Footer />
+    </div>
+  );
+}
+
+
+
+
+
+
+
+
+
+auth/upate-request-status.js
+
+
+
+import { PrismaClient } from "@prisma/client";
+
+const prisma = new PrismaClient();
+
+export default async function handler(req, res) {
+  if (req.method === "POST") {
+    const { id, status, reason, ngoContribution } = req.body;
+
+    try {
+      const updatedRequest = await prisma.assistanceRequest.update({
+        where: { id: parseInt(id) },
+        data: {
+          Status: status,
+          Reason: reason,
+          ngoContribution: ngoContribution || undefined,
+        },
+      });
+
+      return res.status(200).json(updatedRequest);
+    } catch (error) {
+      console.error("Error updating request status:", error);
+      return res.status(500).json({ error: "Internal Server Error" });
+    }
+  } else {
+    return res.status(405).json({ error: "Method not allowed" });
+  }
+}
+
+
+
+
+
+auth/get-assistance-request.js:
+
+
+
+
+
+
+import { PrismaClient } from "@prisma/client";
+
+const prisma = new PrismaClient();
+
+export default async function handler(req, res) {
+  if (req.method === "GET") {
+    const { id } = req.query;
+
+    try {
+      if (id) {
+        // Fetch a specific request by user ID
+        const request = await prisma.assistanceRequest.findMany({
+          where: { user_id: parseInt(id) },
+        });
+
+        if (!request) {
+          return res.status(404).json({ error: "Request not found" });
+        }
+
+        return res.status(200).json(request);
+      } else {
+        // Fetch all requests
+        const requests = await prisma.assistanceRequest.findMany({
+          orderBy: { createdAt: "desc" },
+        });
+
+        return res.status(200).json(requests);
+      }
+    } catch (error) {
+      console.error("Error fetching assistance requests:", error);
+      return res.status(500).json({ error: "Internal Server Error" });
+    }
+  } else {
+    return res.status(405).json({ error: "Method not allowed" });
+  }
+}
+
+
+
+
+
+NGO/Pharma/page.js:
+
+
+
+
+
+"use client";
+
+import { useState, useEffect } from "react";
+import Header from "../../components/Header/page"; // Importing Header component
+import { useSearchParams, useRouter } from "next/navigation";
+import Link from "next/link";
+
+const NgoPharmaResponses = () => {
+  const params = useSearchParams();
+  const id = params.get("id");
+  const router = useRouter();
+  const [Requests, setRequests] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchRequest = async () => {
+      try {
+        const res = await fetch(`/api/auth/get-assistance-requests?id=${id}`, {
+          cache: "no-store",
+        });
+
+        if (!res.ok) throw new Error("Failed to fetch data");
+
+        const data = await res.json();
+        console.log("Fetched Data:", data); // Debugging line
+
+        if (data.length === 0) {
+          setError("No requests available.");
+          return;
+        }
+
+        setRequests(data); // Assuming the response is an array
+      } catch (err) {
+        console.error("Error fetching request:", err);
+        setError("Failed to fetch aid request.");
+        router.push("/patient/profile");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchRequest();
+  }, [id, router]);
+
+  // Helper function to format currency
+  const formatCurrency = (amount) => {
+    return new Intl.NumberFormat('en-PK', {
+      style: 'currency',
+      currency: 'PKR',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0
+    }).format(amount);
+  };
+
+  return (
+    <>
+      {/* Header Component */}
+      <Header />
+      <div className="w-full h-screen bg-white">
+        <div className="p-8 max-w-4xl mx-auto mt-16 ">
+          <h2 className="text-3xl font-bold text-green-700 text-center mb-6">
+            🏥 NGO Assistance Request Status
+          </h2>
+
+          {loading ? (
+            <p className="text-center text-gray-600">
+              ⏳ Loading aid request details...
+            </p>
+          ) : error ? (
+            <p className="text-center text-red-600 font-bold">{error}</p>
+          ) : (
+            <div className="flex flex-col gap-3">
+              {Requests.map((request) => (
+                <div 
+                  key={request.id} 
+                  className="bg-white shadow-lg rounded-lg p-6 border border-gray-300 hover:shadow-2xl transition-all"
+                >
+                  <h3 className="text-xl font-semibold text-gray-900">
+                    {request.fullName}
+                  </h3>
+                  {/* Status Label */}
+                  <p className="text-gray-700 mt-2">
+                    <span className="font-medium">Status:</span>
+                    <span
+                      className={`px-3 py-1 ml-2 font-bold rounded-full 
+                        ${
+                          request.Status?.toLowerCase() === "accepted"
+                            ? "bg-green-500 text-white"
+                            : request.Status?.toLowerCase() === "declined"
+                            ? "bg-red-500 text-white"
+                            : request.Status?.toLowerCase() === "pending"
+                            ? "bg-orange-500 text-white"
+                            : request.Status?.toLowerCase() === "under review" &&
+                              "bg-blue-500 text-white"
+                        }`}
+                    >
+                      {request.Status?.charAt(0).toUpperCase() +
+                        request.Status?.slice(1)}
+                    </span>
+                  </p>
+                  {/* Status Progress Bar */}
+                  <div className="w-full bg-gray-200 rounded-full h-4 mt-4">
+                    <div
+                      className={`h-4 rounded-full transition-all ${
+                        request.Status?.toLowerCase() === "accepted"
+                          ? "bg-green-500 w-full"
+                          : request.Status?.toLowerCase() === "pending"
+                          ? "bg-yellow-500 w-2/3"
+                          : "bg-red-500 w-1/3"
+                      }`}
+                    ></div>
+                  </div>
+                  {/* NGO Response Section */}
+                  <div className="mt-4">
+                    {request.Status?.toLowerCase() === "accepted" ? (
+                      <>
+                        <p className="text-gray-800 font-semibold">
+                          🏥 Response from NGO: <span className="text-green-600">{request.preferredNgo}</span>
+                        </p>
+                        <div className="mt-3 bg-green-50 p-4 rounded-lg">
+                          <p className="text-gray-700">
+                            <span className="font-semibold">NGO Contribution:</span> {formatCurrency(request.ngoContribution || 0)}
+                          </p>
+                          <p className="text-gray-700">
+                            <span className="font-semibold">Patient's Contribution:</span> {formatCurrency(request.expenseBearable || 0)}
+                          </p>
+                          <p className="text-gray-700">
+                            <span className="font-semibold">Remaining Expense:</span> {formatCurrency((request.totalExpense || 0) - (request.ngoContribution || 0) - (request.expenseBearable || 0))}
+                          </p>
+                        </div>
+                      </>
+                    ) : (
+                      <p className="mt-4 text-gray-800 font-semibold">
+                        🏥 Response from NGO:{" "}
+                        <span className="text-gray-600">
+                          Not assigned yet
+                        </span>
+                      </p>
+                    )}
+                  </div>
+                  {/* Response Messages */}
+                  {request.Status?.toLowerCase() === "accepted" && request.Reason && (
+                    <p className="mt-3 text-gray-700 italic">
+                      ✅ {request.Reason}
+                    </p>
+                  )}
+                  {request.Status?.toLowerCase() === "declined" && (
+                    <div className="mt-3 p-4 bg-red-100 border-l-4 border-red-500 rounded-lg">
+                      <p className="text-red-700 font-bold">
+                        🚫 Request Declined
+                      </p>
+                      <p className="text-gray-700 mt-1">
+                        <strong>Reason:</strong>{" "}
+                        {request.Reason || "No reason provided"}
+                      </p>
+                    </div>
+                  )}
+                  {request.Status?.toLowerCase() === "pending" && (
+                    <p className="mt-3 text-gray-600">
+                      ⏳ Awaiting response from{" "}
+                      <strong>{request.preferredNgo}</strong>...
+                    </p>
+                  )}
+                  {/* Action Buttons */}
+                  {request.Status?.toLowerCase() === "declined" && (
+                    <div className="flex flex-row justify-center my-2">
+                      <Link
+                        className="bg-yellow-500 p-3 text-white rounded-full"
+                        href="/patient/requestassistance"
+                      >
+                        Re-Apply
+                      </Link>
+                    </div>
+                  )}
+                  {request.Status?.toLowerCase() === "accepted" && (
+                    <div className="flex flex-row justify-center my-2">
+                      <Link
+                        className="bg-blue-500 p-3 text-white rounded-full"
+                        href="/appointment/book"
+                      >
+                        Book an Appointment
+                      </Link>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    </>
+  );
+};
+
+export default NgoPharmaResponses;
+
+
+
+
+
+patient/requestassistance/page.js:
+
+
+
+
+"use client";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { ToastContainer, toast, Bounce } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import Header from "../../components/Header/page";
+import PhoneInput from 'react-phone-input-2';
+import 'react-phone-input-2/lib/style.css';
+
+export default function RequestAssistance() {
+  const router = useRouter();
+  const [userId, setUserId] = useState(null);
+  const [formData, setFormData] = useState({
+    fullName: "",
+    cnic: "",
+    contact: "",
+    medicalCondition: "",
+    assistanceType: "",
+    preferredNgo: "",
+    medicalReport: null,
+    additionalMessage: "",
+    totalExpense: "",
+    expenseBearable: "",
+  });
+
+  const [errors, setErrors] = useState({});
+
+  useEffect(() => {
+    import('react-phone-input-2/lib/style.css');
+  }, []);
+
+  const ngos = ["AL_KHIDMAT", "EDHI_FOUNDATION", "CHIPPA", "SAYLANI_WELFARE"];
+  const assistanceTypes = [
+    "FINANCIAL_AID",
+    "MEDICATION",
+    "CONSULTATION",
+    "OTHER",
+  ];
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const response = await fetch("/api/auth/getUser", {
+          method: "GET",
+          headers: { "Content-Type": "application/json" },
+        });
+        if (response.ok) {
+          const data = await response.json();
+          setUserId(data.patient.patient_id);
+        } else {
+          throw new Error("Failed to fetch user");
+        }
+      } catch (error) {
+        toast.error("Please log in to request assistance.", {
+          position: "top-right",
+          autoClose: 3000,
+          hideProgressBar: false,
+          closeOnClick: false,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "light",
+          transition: Bounce,
+        });
+        router.push("/patient/login");
+      }
+    };
+
+    fetchUser();
+  }, [router]);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+
+    // Name validation - only allow letters and spaces
+    if (name === "fullName") {
+      // Remove any non-letter characters except spaces
+      const sanitizedValue = value.replace(/[^A-Za-z\s]/g, '');
+
+      if (value !== sanitizedValue) {
+        setErrors({ ...errors, fullName: "Only alphabets and spaces are allowed" });
+        // Update with sanitized value
+        setFormData({ ...formData, fullName: sanitizedValue });
+        return;
+      }
+
+      // Clear error if value is valid
+      setErrors({ ...errors, fullName: "" });
+      setFormData({ ...formData, fullName: sanitizedValue });
+      return;
+    }
+
+    // Existing expense validation
+    if (name === "totalExpense" || name === "expenseBearable") {
+      if (!/^\d*$/.test(value)) {
+        setErrors({ ...errors, [name]: "Only numeric values are allowed" });
+        return;
+      }
+    }
+
+    setFormData({ ...formData, [name]: value });
+    setErrors({ ...errors, [name]: "" });
+  };
+
+  const handleCnicChange = (e) => {
+    const { value } = e.target;
+    const formattedValue = value
+      .replace(/\D/g, "")
+      .replace(/(\d{5})(\d{7})(\d{1})/, "$1-$2-$3");
+    setFormData({ ...formData, cnic: formattedValue });
+    setErrors({ ...errors, cnic: "" });
+  };
+
+  const handlePhoneChange = (value, country) => {
+    if (country.countryCode === 'pk') {
+      const numberWithoutCode = value.slice(country.dialCode.length);
+      
+      if (numberWithoutCode.startsWith('0')) {
+        value = country.dialCode + numberWithoutCode.slice(1);
+      }
+      
+      const cleanNumber = numberWithoutCode.replace(/\D/g, '');
+      
+      if (cleanNumber.length > 0 && !cleanNumber.startsWith('3')) {
+        setErrors({ ...errors, contact: "Pakistani mobile numbers must start with '03'" });
+        return;
+      }
+    }
+
+    const numberWithoutCode = value.slice(country.dialCode.length);
+    
+    const countryValidation = {
+      pk: { minLength: 10, maxLength: 10 },
+      us: { minLength: 10, maxLength: 10 },
+      gb: { minLength: 10, maxLength: 10 },
+      ae: { minLength: 9, maxLength: 9 },
+      sa: { minLength: 9, maxLength: 9 },
+      ca: { minLength: 10, maxLength: 10 },
+      au: { minLength: 9, maxLength: 9 }
+    };
+
+    const validation = countryValidation[country.countryCode] || { minLength: 9, maxLength: 15 };
+    
+    if (numberWithoutCode.length > validation.maxLength) {
+      value = country.dialCode + numberWithoutCode.slice(0, validation.maxLength);
+    }
+
+    setFormData({ ...formData, contact: value });
+    
+    if (numberWithoutCode.length < validation.minLength) {
+      if (country.countryCode === 'pk') {
+        setErrors({ ...errors, contact: "Please enter a valid Pakistani mobile number (e.g., 0300-1234567)" });
+      } else {
+        setErrors({ ...errors, contact: `Phone number must be ${validation.minLength} digits for ${country.name}` });
+      }
+    } else if (numberWithoutCode.length > validation.maxLength) {
+      setErrors({ ...errors, contact: `Phone number cannot exceed ${validation.maxLength} digits for ${country.name}` });
+    } else {
+      setErrors({ ...errors, contact: "" });
+    }
+  };
+
+  const handleFileChange = (e) => {
+    setFormData({ ...formData, medicalReport: e.target.files[0] });
+    setErrors({ ...errors, medicalReport: "" });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    const newErrors = {};
+
+    // Enhanced name validation
+    if (!formData.fullName) {
+      newErrors.fullName = "Full Name is required";
+    } else if (!/^[A-Za-z\s]+$/.test(formData.fullName)) {
+      newErrors.fullName = "Full Name can only contain alphabets and spaces";
+    } else if (formData.fullName.trim().length < 2) {
+      newErrors.fullName = "Full Name must be at least 2 characters long";
+    }
+
+    if (!formData.cnic) newErrors.cnic = "CNIC is required";
+    if (!formData.contact) newErrors.contact = "Contact Number is required";
+    if (!formData.medicalCondition)
+      newErrors.medicalCondition = "Medical Condition is required";
+    if (!formData.assistanceType)
+      newErrors.assistanceType = "Assistance Type is required";
+    if (!formData.preferredNgo)
+      newErrors.preferredNgo = "Preferred NGO is required";
+    if (!formData.medicalReport)
+      newErrors.medicalReport = "Medical Report is required";
+    if (!formData.totalExpense) newErrors.totalExpense = "Total Expense is required";
+    if (!formData.expenseBearable) newErrors.expenseBearable = "Expense Bearable is required";
+
+    // CNIC validation
+    const cnicPattern = /^[0-9]{5}-[0-9]{7}-[0-9]$/;
+    if (formData.cnic && !cnicPattern.test(formData.cnic)) {
+      newErrors.cnic = "Invalid CNIC format. Please use 12345-1234567-0 format.";
+    }
+
+    // Enhanced phone validation for Pakistan
+    if (!formData.contact) {
+      newErrors.contact = "Contact Number is required";
+    } else if (formData.contact.startsWith('+92')) {
+      const numberWithoutCode = formData.contact.slice(3); // Remove +92
+      const cleanNumber = numberWithoutCode.replace(/\D/g, '');
+      if (!cleanNumber.startsWith('3') || cleanNumber.length !== 10) {
+        newErrors.contact = "Please enter a valid Pakistani mobile number (e.g., 0300-1234567)";
+      }
+    }
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      // Show toast for the first error
+      toast.error(Object.values(newErrors)[0], {
+        position: "top-center",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "colored",
+        style: {
+          backgroundColor: '#EF4444',
+          color: 'white',
+          fontSize: '16px',
+          fontWeight: 'bold',
+          borderRadius: '8px',
+          padding: '16px',
+        },
+        transition: Bounce,
+      });
+      return;
+    }
+
+    const formDataToSend = new FormData();
+    formDataToSend.append("user_id", userId);
+    formDataToSend.append("fullName", formData.fullName);
+    formDataToSend.append("cnic", formData.cnic);
+    formDataToSend.append("contact", formData.contact);
+    formDataToSend.append("medicalCondition", formData.medicalCondition);
+    formDataToSend.append("assistanceType", formData.assistanceType);
+    formDataToSend.append("preferredNgo", formData.preferredNgo);
+    if (formData.medicalReport) {
+      formDataToSend.append("medicalReport", formData.medicalReport);
+    }
+    formDataToSend.append("additionalMessage", formData.additionalMessage);
+    formDataToSend.append("totalExpense", formData.totalExpense);
+    formDataToSend.append("expenseBearable", formData.expenseBearable);
+
+    try {
+      const response = await fetch("/api/auth/requestAssistance", {
+        method: "POST",
+        body: formDataToSend,
+      });
+
+      let data;
+      const contentType = response.headers.get("content-type");
+      if (contentType && contentType.includes("application/json")) {
+        data = await response.json();
+      } else {
+        throw new Error("Server returned non-JSON response");
+      }
+
+      if (response.ok) {
+        toast.success(data.message || "Request submitted successfully!", {
+          position: "top-center",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "colored",
+          style: {
+            backgroundColor: '#10B981',
+            color: 'white',
+            fontSize: '16px',
+            fontWeight: 'bold',
+            borderRadius: '8px',
+            padding: '16px',
+          },
+          transition: Bounce,
+        });
+        setTimeout(() => {
+          router.push("/patient");
+        }, 2000);
+      } else {
+        // Handle validation errors from the backend
+        if (data.errors) {
+          setErrors(data.errors);
+          // Show the first error message in a toast
+          const firstError = Object.values(data.errors)[0];
+          toast.error(firstError, {
+            position: "top-center",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "colored",
+            style: {
+              backgroundColor: '#EF4444',
+              color: 'white',
+              fontSize: '16px',
+              fontWeight: 'bold',
+              borderRadius: '8px',
+              padding: '16px',
+            },
+            transition: Bounce,
+          });
+        } else {
+          throw new Error(data.error || "Error submitting request.");
+        }
+      }
+    } catch (error) {
+      console.error("Fetch error:", error);
+      toast.error(error.message || "An error occurred. Please try again.", {
+        position: "top-center",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "colored",
+        style: {
+          backgroundColor: '#EF4444',
+          color: 'white',
+          fontSize: '16px',
+          fontWeight: 'bold',
+          borderRadius: '8px',
+          padding: '16px',
+        },
+        transition: Bounce,
+      });
+    }
+  };
+
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-gray-100">
+      <ToastContainer />
+      <Header />
+      <div className="bg-white shadow-lg rounded-lg p-8 w-full max-w-2xl">
+        <h2
+          className="text-2xl font-bold text-green-600 text-center mb-4"
+          style={{ paddingTop: "60px" }}
+        >
+          Request Assistance
+        </h2>
+        <p className="text-gray-600 text-center mb-6">
+          Fill out the form to request assistance from NGOs.
+        </p>
+        <form onSubmit={handleSubmit} className="space-y-4" noValidate>
+          <div className="space-y-1">
+            <input
+              type="text"
+              name="fullName"
+              placeholder="Full Name (Alphabets only)"
+              value={formData.fullName}
+              onChange={handleChange}
+              required
+              className={`w-full p-2 border rounded transition-colors duration-200 ${
+                errors.fullName
+                  ? 'border-red-500 bg-red-50'
+                  : 'border-gray-300 focus:border-green-500'
+              }`}
+              title="Please enter alphabets only"
+            />
+            {errors.fullName && (
+              <p className="text-red-500 text-sm font-medium">{errors.fullName}</p>
+            )}
+            <p className="text-gray-500 text-xs mt-1">
+              Note: Only alphabets and spaces are allowed in the name
+            </p>
+          </div>
+
+          <div className="space-y-1">
+            <input
+              type="text"
+              name="cnic"
+              placeholder="CNIC (e.g., 12345-1234567-0)"
+              value={formData.cnic}
+              onChange={handleCnicChange}
+              required
+              maxLength="15"
+              className={`w-full p-2 border rounded transition-colors duration-200 ${
+                errors.cnic
+                  ? 'border-red-500 bg-red-50'
+                  : 'border-gray-300 focus:border-green-500'
+              }`}
+            />
+            {errors.cnic && (
+              <p className="text-red-500 text-sm font-medium">{errors.cnic}</p>
+            )}
+          </div>
+
+          <div className="space-y-1">
+            <PhoneInput
+              country={'pk'}
+              value={formData.contact}
+              onChange={handlePhoneChange}
+              inputClass={`w-full p-2 border rounded transition-colors duration-200 ${
+                errors.contact
+                  ? 'border-red-500 bg-red-50'
+                  : 'border-gray-300 focus:border-green-500'
+              }`}
+              containerClass="phone-input-container"
+              buttonClass={errors.contact ? 'phone-input-button-error' : ''}
+              enableSearch={true}
+              searchPlaceholder="Search country..."
+              searchNotFound="Country not found"
+              enableAreaCodes={true}
+              countryCodeEditable={false}
+              inputProps={{
+                required: true,
+                placeholder: "Enter phone number with country code",
+              }}
+              specialLabel=""
+              preferredCountries={['pk', 'us', 'gb', 'ca', 'au', 'ae', 'sa']}
+              enableLongNumbers={true}
+              autoFormat={true}
+            />
+            {errors.contact && (
+              <p className="text-red-500 text-sm font-medium">{errors.contact}</p>
+            )}
+            <p className="text-gray-500 text-xs mt-1">
+              Example format: +92 300 1234567 (includes country code)
+            </p>
+          </div>
+
+          <div className="space-y-1">
+            <textarea
+              name="medicalCondition"
+              placeholder="Describe your health condition"
+              value={formData.medicalCondition}
+              onChange={handleChange}
+              required
+              className={`w-full p-2 border rounded transition-colors duration-200 ${
+                errors.medicalCondition
+                  ? 'border-red-500 bg-red-50'
+                  : 'border-gray-300 focus:border-green-500'
+              }`}
+            />
+            {errors.medicalCondition && (
+              <p className="text-red-500 text-sm font-medium">{errors.medicalCondition}</p>
+            )}
+          </div>
+
+          <div className="space-y-1">
+            <select
+              name="assistanceType"
+              value={formData.assistanceType}
+              onChange={handleChange}
+              required
+              className={`w-full p-2 border rounded transition-colors duration-200 ${
+                errors.assistanceType
+                  ? 'border-red-500 bg-red-50'
+                  : 'border-gray-300 focus:border-green-500'
+              }`}
+            >
+              <option value="">Select Assistance Type</option>
+              {assistanceTypes.map((type) => (
+                <option key={type} value={type}>{type}</option>
+              ))}
+            </select>
+            {errors.assistanceType && (
+              <p className="text-red-500 text-sm font-medium">{errors.assistanceType}</p>
+            )}
+          </div>
+
+          <div className="space-y-1">
+            <select
+              name="preferredNgo"
+              value={formData.preferredNgo}
+              onChange={handleChange}
+              required
+              className={`w-full p-2 border rounded transition-colors duration-200 ${
+                errors.preferredNgo
+                  ? 'border-red-500 bg-red-50'
+                  : 'border-gray-300 focus:border-green-500'
+              }`}
+            >
+              <option value="">Select Preferred NGO</option>
+              {ngos.map((ngo) => (
+                <option key={ngo} value={ngo}>{ngo}</option>
+              ))}
+            </select>
+            {errors.preferredNgo && (
+              <p className="text-red-500 text-sm font-medium">{errors.preferredNgo}</p>
+            )}
+          </div>
+
+          <div className="space-y-1">
+            <input
+              type="file"
+              onChange={handleFileChange}
+              required
+              className={`w-full p-2 border rounded transition-colors duration-200 ${
+                errors.medicalReport
+                  ? 'border-red-500 bg-red-50'
+                  : 'border-gray-300 focus:border-green-500'
+              }`}
+            />
+            {errors.medicalReport && (
+              <p className="text-red-500 text-sm font-medium">{errors.medicalReport}</p>
+            )}
+          </div>
+
+          <div className="space-y-1">
+            <input
+              type="text"
+              name="totalExpense"
+              placeholder="Total Expense (Numbers only)"
+              value={formData.totalExpense}
+              onChange={handleChange}
+              required
+              className={`w-full p-2 border rounded transition-colors duration-200 ${
+                errors.totalExpense
+                  ? 'border-red-500 bg-red-50'
+                  : 'border-gray-300 focus:border-green-500'
+              }`}
+            />
+            {errors.totalExpense && (
+              <p className="text-red-500 text-sm font-medium">{errors.totalExpense}</p>
+            )}
+          </div>
+
+          <div className="space-y-1">
+            <input
+              type="text"
+              name="expenseBearable"
+              placeholder="Expense Bearable (Numbers only)"
+              value={formData.expenseBearable}
+              onChange={handleChange}
+              required
+              className={`w-full p-2 border rounded transition-colors duration-200 ${
+                errors.expenseBearable
+                  ? 'border-red-500 bg-red-50'
+                  : 'border-gray-300 focus:border-green-500'
+              }`}
+            />
+            {errors.expenseBearable && (
+              <p className="text-red-500 text-sm font-medium">{errors.expenseBearable}</p>
+            )}
+          </div>
+
+          <div className="space-y-1">
+            <textarea
+              name="additionalMessage"
+              placeholder="Additional Message (Optional)"
+              value={formData.additionalMessage}
+              onChange={handleChange}
+              className="w-full p-2 border rounded focus:border-green-500"
+            />
+          </div>
+
+          <button
+            type="submit"
+            className="w-full bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition-colors duration-200 font-semibold text-lg"
+          >
+            Submit Request
+          </button>
+        </form>
+      </div>
+    </div>
+  );
+}
+
+const styles = `
+  .phone-input-container {
+    width: 100% !important;
+  }
+  
+  .phone-input-container .form-control {
+    width: 100% !important;
+    height: 42px !important;
+    padding-left: 50px !important;
+  }
+  
+  .phone-input-container input {
+    width: 100% !important;
+    height: 42px !important;
+    padding-left: 50px !important;
+    border-radius: 0.375rem !important;
+  }
+  
+  .phone-input-container .flag-dropdown {
+    border-radius: 0.375rem 0 0 0.375rem !important;
+    border-color: #D1D5DB !important;
+    background-color: #F9FAFB !important;
+  }
+  
+  .phone-input-container .flag-dropdown.open {
+    background-color: #F3F4F6 !important;
+  }
+  
+  .phone-input-button-error {
+    border-color: #EF4444 !important;
+    background-color: #FEF2F2 !important;
+  }
+  
+  .phone-input-container .selected-flag:hover,
+  .phone-input-container .selected-flag:focus {
+    background-color: #F3F4F6 !important;
+  }
+  
+  .phone-input-container .country-list {
+    margin-top: 4px !important;
+    border-radius: 0.375rem !important;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
+    max-height: 300px !important;
+    overflow-y: auto !important;
+  }
+  
+  .phone-input-container .country-list .search {
+    padding: 10px !important;
+    position: sticky !important;
+    top: 0 !important;
+    background: white !important;
+    z-index: 1 !important;
+  }
+  
+  .phone-input-container .country-list .search-box {
+    width: 100% !important;
+    padding: 8px !important;
+    border-radius: 4px !important;
+    border: 1px solid #D1D5DB !important;
+    font-size: 14px !important;
+  }
+  
+  .phone-input-container .country-list .country {
+    padding: 8px 10px !important;
+    display: flex !important;
+    align-items: center !important;
+  }
+  
+  .phone-input-container .country-list .country:hover {
+    background-color: #F3F4F6 !important;
+  }
+  
+  .phone-input-container .country-list .country.highlight {
+    background-color: #E5E7EB !important;
+  }
+  
+  .phone-input-container .country-list .country-name {
+    margin-left: 8px !important;
+    font-size: 14px !important;
+  }
+  
+  .phone-input-container .country-list .dial-code {
+    color: #6B7280 !important;
+    font-size: 13px !important;
+  }
+`;
+
+if (typeof document !== 'undefined') {
+  const styleSheet = document.createElement('style');
+  styleSheet.textContent = styles;
+  document.head.appendChild(styleSheet);
+}

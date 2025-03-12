@@ -1,0 +1,539 @@
+page.js:
+
+
+"use client";
+import React, { useState, useEffect } from "react";
+import Image from "next/image";
+import Link from "next/link";
+import styles from "./header.module.css";
+
+export default function Header() {
+  const [dropdownVisible, setDropdownVisible] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  // Handle scroll effect
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 10) {
+        setScrolled(true);
+      } else {
+        setScrolled(false);
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  // Detect window resize to show/hide mobile menu button
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth <= 768) {
+        setIsMobile(true);
+      } else {
+        setIsMobile(false);
+        setMobileMenuOpen(false); // Close menu if resizing to larger screen
+      }
+    };
+
+    handleResize(); // Initial check
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  // Prevent body scroll when mobile menu is open
+  useEffect(() => {
+    if (mobileMenuOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "auto";
+    }
+
+    return () => {
+      document.body.style.overflow = "auto";
+    };
+  }, [mobileMenuOpen]);
+
+  const toggleDropdown = () => {
+    setDropdownVisible(!dropdownVisible);
+  };
+
+  const toggleMobileMenu = () => {
+    setMobileMenuOpen(!mobileMenuOpen);
+    if (dropdownVisible) setDropdownVisible(false);
+  };
+
+  return (
+    <header className={`${styles.header} ${scrolled ? styles.scrolled : ""}`}>
+      {/* Logo */}
+      <div className={styles.logoContainer}>
+        <Link href="/" className={styles.logoLink}>
+          <Image
+            src="/images/logo.png"
+            alt="Health Nexus"
+            width={60} /* Adjust width for better alignment */
+            height={60}
+            className={styles.logo}
+          />
+        </Link>
+        <span className={styles.brandName}>Health Nexus</span>
+      </div>
+
+
+
+
+
+      {/* Mobile Menu Button (only appears on mobile screens) */}
+      {isMobile && (
+        <button
+          className={`${styles.mobileMenuButton} ${mobileMenuOpen ? styles.active : ""}`}
+          onClick={toggleMobileMenu}
+          aria-label="Toggle menu"
+        >
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+      )}
+
+      {/* Mobile Menu Backdrop */}
+      {mobileMenuOpen && <div className={styles.backdrop} onClick={toggleMobileMenu}></div>}
+
+      {/* Navigation Links */}
+      <nav className={`${styles.nav} ${mobileMenuOpen ? styles.mobileNavActive : ""}`}>
+        <Link href="/about" className={styles.navLink} onClick={() => setMobileMenuOpen(false)}>
+          About
+        </Link>
+        <Link href="/" className={styles.navLink} onClick={() => setMobileMenuOpen(false)}>
+          Home
+        </Link>
+        <Link href="/contact" className={styles.navLink} onClick={() => setMobileMenuOpen(false)}>
+          Contact
+        </Link>
+
+        {/* Login Dropdown */}
+        <div className={styles.dropdownContainer}>
+          <button onClick={toggleDropdown} className={`${styles.navLink} ${styles.loginButton}`}>
+            Login
+          </button>
+
+          <div className={`${styles.dropdownMenu} ${dropdownVisible ? styles.dropdownVisible : ""}`}>
+            <Link href="/patient/login" className={styles.dropdownLink} onClick={() => setMobileMenuOpen(false)}>
+              Patient
+            </Link>
+            <Link href="/NGO/login" className={styles.dropdownLink} onClick={() => setMobileMenuOpen(false)}>
+              NGO
+            </Link>
+            <Link href="/Doctor/login" className={styles.dropdownLink} onClick={() => setMobileMenuOpen(false)}>
+              Doctor
+            </Link>
+            <Link href="/Pharma/Login" className={styles.dropdownLink} onClick={() => setMobileMenuOpen(false)}>
+              Pharma Company
+            </Link>
+            <Link href="/admin/AdminLogin" className={styles.dropdownLink} onClick={() => setMobileMenuOpen(false)}>
+              Admin
+            </Link>
+          </div>
+        </div>
+      </nav>
+    </header>
+  );
+}
+
+
+
+header.module.css:
+
+
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 2rem;
+  width: 100%;
+  height: 80px;
+  background-color: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  position: fixed;
+  top: 0;
+  z-index: 1000;
+  transition: all 0.3s ease;
+}
+
+.scrolled {
+  height: 70px;
+  box-shadow: 0 4px 10px -1px rgba(0, 0, 0, 0.15);
+  background-color: rgba(255, 255, 255, 0.98);
+}
+
+.logoContainer {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  max-width: 250px; /* Prevents logo from stretching */
+  overflow: hidden; /* Avoids unwanted rendering issues */
+}
+
+.logoLink {
+  display: flex;
+  align-items: center;
+}
+
+.logo {
+  transition: transform 0.3s ease;
+  object-fit: contain;
+  max-width: 100px; /* Ensures the logo doesn't stretch */
+  height: auto;
+}
+
+.logo:hover {
+  transform: scale(1.05);
+}
+
+
+.brandName {
+  font-size: 1.5rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, #28a745, #218838);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  margin: 0;
+}
+
+.nav {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+}
+
+.navLink {
+  position: relative;
+  color: #2d3748;
+  font-weight: 500;
+  text-decoration: none;
+  padding: 0.5rem 0;
+  transition: color 0.3s ease;
+}
+
+.navLink:hover {
+  color: #28a745;
+}
+
+/* Fix login button alignment */
+.dropdownContainer {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 0; /* Removed negative margin */
+}
+
+/* Styled login button */
+.loginButton {
+  background: transparent;
+  border: 2px solid #28a745;
+  color: #28a745;
+  padding: 0.5rem 1.5rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  min-width: 90px; /* Ensures button width is consistent */
+  margin-left: 15px; /* Keeps it aligned with nav links */
+}
+
+.loginButton:hover {
+  background-color: #28a745;
+  color: white;
+  border-color: #28a745;
+  box-shadow: 0 4px 8px rgba(40, 167, 69, 0.3);
+  transform: translateY(-2px);
+}
+
+/* Dropdown menu styles */
+.dropdownMenu {
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  right: 0;
+  background: white;
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  opacity: 0;
+  transform: translateY(-10px);
+  transition: all 0.3s ease;
+  pointer-events: none;
+  min-width: 180px;
+  z-index: 1000;
+}
+
+.dropdownVisible {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.dropdownLink {
+  display: block;
+  padding: 0.75rem 1.5rem;
+  color: #2d3748;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  font-weight: 500;
+}
+
+.dropdownLink:hover {
+  background: linear-gradient(135deg, rgba(40, 167, 69, 0.1), rgba(33, 136, 56, 0.1));
+  color: #28a745;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 2rem;
+  width: 100%;
+  height: 80px;
+  background-color: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  position: fixed;
+  top: 0;
+  z-index: 1000;
+  transition: all 0.3s ease;
+}
+
+/* Responsive styles */
+@media (max-width: 1024px) {
+  .header {
+    padding: 0.75rem 1.5rem;
+  }
+
+  .nav {
+    gap: 1.5rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .header {
+    padding: 0.5rem 1rem;
+  }
+
+  .brandName {
+    font-size: 1.25rem;
+  }
+
+  .mobileMenuButton {
+    display: flex;
+  }
+
+  .nav {
+    position: fixed;
+    top: 0;
+    right: -100%;
+    width: 70%;
+    max-width: 300px;
+    height: 100vh;
+    background-color: white;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: flex-start;
+    padding: 5rem 2rem 2rem;
+    gap: 1.5rem;
+    box-shadow: -5px 0 15px rgba(0, 0, 0, 0.1);
+    transition: right 0.3s ease;
+    z-index: 1000;
+  }
+
+  .mobileNavActive {
+    right: 0;
+  }
+
+  .navLink {
+    width: 100%;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid #f0f0f0;
+  }
+
+  .dropdownContainer {
+    width: 100%;
+    text-align: center;
+  }
+
+  .loginButton {
+    width: 100%;
+    text-align: center;
+  }
+
+  .loginButton:hover {
+    transform: none;
+    box-shadow: 0 2px 4px rgba(40, 167, 69, 0.2);
+  }
+}
+
+@media (max-width: 480px) {
+  .header {
+    padding: 0.5rem 0.75rem;
+    height: 70px;
+  }
+
+  .logo {
+    width: 50px;
+    height: 50px;
+  }
+
+  .brandName {
+    font-size: 1.1rem;
+  }
+
+  .nav {
+    width: 85%;
+    padding: 5rem 1.5rem 2rem;
+  }
+}
+
+/* Mobile menu button */
+.mobileMenuButton {
+  display: none; /* Default hidden */
+  flex-direction: column;
+  justify-content: space-between;
+  width: 30px;
+  height: 21px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  z-index: 1001;
+}
+
+.mobileMenuButton span {
+  display: block;
+  width: 100%;
+  height: 3px;
+  background-color: #28a745;
+  border-radius: 3px;
+  transition: all 0.3s ease;
+}
+
+.mobileMenuButton.active span:nth-child(1) {
+  transform: translateY(9px) rotate(45deg);
+}
+
+.mobileMenuButton.active span:nth-child(2) {
+  opacity: 0;
+}
+
+.mobileMenuButton.active span:nth-child(3) {
+  transform: translateY(-9px) rotate(-45deg);
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+  .mobileMenuButton {
+    display: flex; /* Show button on mobile */
+  }
+
+  .nav {
+    position: fixed;
+    top: 0;
+    right: -100%;
+    width: 70%;
+    max-width: 300px;
+    height: 100vh;
+    background-color: white;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: flex-start;
+    padding: 5rem 2rem 2rem;
+    gap: 1.5rem;
+    box-shadow: -5px 0 15px rgba(0, 0, 0, 0.1);
+    transition: right 0.3s ease;
+    z-index: 1000;
+  }
+
+  .mobileNavActive {
+    right: 0;
+  }
+
+  .navLink {
+    width: 100%;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid #f0f0f0;
+  }
+
+  .dropdownContainer {
+    width: 100%;
+    text-align: center;
+  }
+
+  .loginButton {
+    width: 100%;
+    text-align: center;
+  }
+
+  .loginButton:hover {
+    transform: none;
+    box-shadow: 0 2px 4px rgba(40, 167, 69, 0.2);
+  }
+}
+
+.logoContainer {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem; /* Reduce space between logo and text */
+  white-space: nowrap; /* Prevents text from breaking into two lines */
+}
+
+.brandName {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #28a745;
+  margin: 0;
+  white-space: nowrap; /* Ensures text stays in one line */
+}
+
+@media (max-width: 768px) {
+  .logoContainer {
+    flex-wrap: nowrap; /* Forces content to stay in a single row */
+  }
+
+  .brandName {
+    font-size: 1.3rem; /* Slightly smaller font to fit on small screens */
+  }
+}
+
+.logoContainer {
+  display: flex;
+  align-items: center; /* Ensures both logo and text align vertically */
+  gap: 0.8rem; /* Adjusts spacing between logo and text */
+}
+
+.logoLink {
+  display: flex;
+  align-items: center;
+}
+
+.logo {
+  max-width: 80px; /* Adjust logo size */
+  height: auto;
+}
+
+.brandName {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #28a745;
+  margin: 0;
+  white-space: nowrap; /* Prevents text from breaking into two lines */
+  display: flex;
+  align-items: center;
+}

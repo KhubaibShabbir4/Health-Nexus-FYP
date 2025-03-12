@@ -78,7 +78,7 @@ export default function LoginPage() {
           </div>
 
           {/* Login Button with Link Navigation */}
-          <Link href="/PharmaHome">
+          <Link href="/Pharma/Home">
             <button
               type="button"
               className="w-full py-2 bg-green-600 text-white font-bold rounded-lg hover:bg-green-700 transition duration-200"

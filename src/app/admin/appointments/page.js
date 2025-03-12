@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import AdminHeader from "../AdminHeader/page.js";
 import './page.css';
 
-const API_URL = "/api/auth/appointments"; // ✅ Correct API Path
+const API_URL = "/api/auth/appointments";
 
 export default function ManageAppointments() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -11,13 +11,9 @@ export default function ManageAppointments() {
   const [appointments, setAppointments] = useState([]);
   const [selectedAppointment, setSelectedAppointment] = useState(null);
   const [showAddModal, setShowAddModal] = useState(false);
-  const [newAppointment, setNewAppointment] = useState({ name: '', date: '', status: 'Pending' });
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [newAppointment, setNewAppointment] = useState({ name: '', date: '', time: '', status: 'Pending' });
 
-  // ✅ State for Undo Functionality
-  const [deletedAppointment, setDeletedAppointment] = useState(null);
-  const [undoTimer, setUndoTimer] = useState(null);
-
-  // 📌 Fetch all appointments from the database
   useEffect(() => {
     fetchAppointments();
   }, []);
@@ -42,14 +38,24 @@ export default function ManageAppointments() {
       : appointment.id.toString().includes(searchQuery)
   );
 
-  const handleEdit = (appointment) => setSelectedAppointment({ ...appointment });
+  const handleEdit = (appointment) => {
+    setSelectedAppointment({
+      ...appointment,
+      date: appointment.date ? appointment.date.split('T')[0] : "",
+      time: appointment.time || "00:00",
+      status: appointment.status || "Pending",
+    });
+    setShowEditModal(true);
+  };
 
-  const handleCloseModal = () => setSelectedAppointment(null);
+  const handleCloseModal = () => {
+    setSelectedAppointment(null);
+    setShowEditModal(false);
+  };
 
   const handleStatusChange = (e) =>
     setSelectedAppointment({ ...selectedAppointment, status: e.target.value });
 
-  // 📌 Save Updated Appointment to DB
   const handleSave = async () => {
     if (!selectedAppointment) return;
 
@@ -63,74 +69,59 @@ export default function ManageAppointments() {
       if (response.ok) {
         fetchAppointments();
         handleCloseModal();
+      } else {
+        alert("Failed to update appointment.");
       }
     } catch (error) {
       console.error("Error updating appointment:", error);
     }
   };
 
-  // 📌 Handle Appointment Deletion with Undo Feature
   const handleDelete = async () => {
     if (!selectedAppointment) return;
 
     if (window.confirm("Are you sure you want to delete this appointment?")) {
       try {
         await fetch(API_URL, {
-          method: 'DELETE',
-          headers: { 'Content-Type': 'application/json' },
+          method: "DELETE",
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ id: selectedAppointment.id }),
         });
 
-        setDeletedAppointment(selectedAppointment);
-        setAppointments(appointments.filter(appt => appt.id !== selectedAppointment.id));
+        fetchAppointments();
         handleCloseModal();
-
-        // Set Undo Timer (5 Minutes)
-        const timer = setTimeout(() => {
-          setDeletedAppointment(null);
-        }, 300000);
-
-        setUndoTimer(timer);
       } catch (error) {
         console.error("Error deleting appointment:", error);
       }
     }
   };
 
-  // 📌 Undo Deletion
-  const handleUndoDelete = async () => {
-    if (!deletedAppointment) return;
-
-    try {
-      await fetch(API_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(deletedAppointment),
-      });
-
-      fetchAppointments();
-      setDeletedAppointment(null);
-      clearTimeout(undoTimer);
-    } catch (error) {
-      console.error("Error restoring appointment:", error);
-    }
-  };
-
-  // 📌 Add New Appointment to DB
   const handleAddAppointment = async () => {
-    if (!newAppointment.name || !newAppointment.date) return;
+    if (!newAppointment.name || !newAppointment.date || !newAppointment.time) {
+      alert("Please fill all fields including time!");
+      return;
+    }
+
+    const appointmentData = {
+      name: newAppointment.name,
+      date: newAppointment.date,
+      time: newAppointment.time,
+      status: newAppointment.status || "Pending",
+    };
 
     try {
       const response = await fetch(API_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(newAppointment),
+        body: JSON.stringify(appointmentData),
       });
 
       if (response.ok) {
         fetchAppointments();
         setShowAddModal(false);
-        setNewAppointment({ name: '', date: '', status: 'Pending' });
+        setNewAppointment({ name: '', date: '', time: '', status: 'Pending' });
+      } else {
+        alert("Failed to add appointment.");
       }
     } catch (error) {
       console.error("Error adding appointment:", error);
@@ -153,19 +144,13 @@ export default function ManageAppointments() {
           <button className="add-btn" onClick={() => setShowAddModal(true)}>+ Add Appointment</button>
         </div>
 
-        {/* ✅ Floating Undo Button (Now same as ManageAccounts) */}
-        {deletedAppointment && (
-          <button className="undo-floating-btn" onClick={handleUndoDelete}>
-            Undo
-          </button>
-        )}
-
         <table className="appointments-table">
           <thead>
             <tr>
               <th>ID</th>
               <th>Patient Name</th>
               <th>Date</th>
+              <th>Time</th>
               <th>Status</th>
               <th>Action</th>
             </tr>
@@ -176,6 +161,7 @@ export default function ManageAppointments() {
                 <td>{appointment.id}</td>
                 <td>{appointment.name}</td>
                 <td>{new Date(appointment.date).toLocaleDateString()}</td>
+                <td>{appointment.time}</td>
                 <td>{appointment.status}</td>
                 <td><button className="edit-btn" onClick={() => handleEdit(appointment)}>Edit</button></td>
               </tr>
@@ -189,17 +175,9 @@ export default function ManageAppointments() {
         <div className="modal">
           <div className="modal-content">
             <h2>Add Appointment</h2>
-            <input
-              type="text"
-              placeholder="Patient Name"
-              value={newAppointment.name}
-              onChange={(e) => setNewAppointment({ ...newAppointment, name: e.target.value })}
-            />
-            <input
-              type="date"
-              value={newAppointment.date}
-              onChange={(e) => setNewAppointment({ ...newAppointment, date: e.target.value })}
-            />
+            <input type="text" placeholder="Patient Name" value={newAppointment.name} onChange={(e) => setNewAppointment({ ...newAppointment, name: e.target.value })}/>
+            <input type="date" value={newAppointment.date} onChange={(e) => setNewAppointment({ ...newAppointment, date: e.target.value })}/>
+            <input type="time" value={newAppointment.time} onChange={(e) => setNewAppointment({ ...newAppointment, time: e.target.value })}/>
             <button onClick={handleAddAppointment}>Add</button>
             <button onClick={() => setShowAddModal(false)}>Cancel</button>
           </div>
@@ -207,20 +185,13 @@ export default function ManageAppointments() {
       )}
 
       {/* Edit Appointment Modal */}
-      {selectedAppointment && (
+      {showEditModal && selectedAppointment && (
         <div className="modal">
           <div className="modal-content">
             <h2>Edit Appointment</h2>
-            <input
-              type="text"
-              value={selectedAppointment.name}
-              onChange={(e) => setSelectedAppointment({ ...selectedAppointment, name: e.target.value })}
-            />
-            <input
-              type="date"
-              value={selectedAppointment.date}
-              onChange={(e) => setSelectedAppointment({ ...selectedAppointment, date: e.target.value })}
-            />
+            <input type="text" value={selectedAppointment.name} onChange={(e) => setSelectedAppointment({ ...selectedAppointment, name: e.target.value })}/>
+            <input type="date" value={selectedAppointment.date} onChange={(e) => setSelectedAppointment({ ...selectedAppointment, date: e.target.value })}/>
+            <input type="time" value={selectedAppointment.time} onChange={(e) => setSelectedAppointment({ ...selectedAppointment, time: e.target.value })}/>
             <select value={selectedAppointment.status} onChange={handleStatusChange}>
               <option value="Pending">Pending</option>
               <option value="Confirmed">Confirmed</option>

@@ -1,0 +1,72 @@
+.react-tel-input {
+  width: 40%;
+}
+
+.react-tel-input .form-control {
+  font-size: 16px;
+  padding: 10px;
+  width: 20px;
+  height: 40px;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.375rem;
+  left: 40px;
+}
+
+.react-tel-input .flag-dropdown {
+  border: 1px solid #e2e8f0;
+  border-radius: 0.375rem 0 0 0.375rem;
+  background-color: #f8fafc;
+}
+
+.react-tel-input .form-control:focus {
+  border-color: #22c55e;
+  outline: none;
+  box-shadow: 0 0 0 1px #22c55e;
+}
+
+.react-tel-input .country-list {
+  border: 1px solid #e2e8f0;
+  border-radius: 0.375rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.react-tel-input .country-list .country {
+  padding: 8px 12px;
+}
+
+.react-tel-input .country-list .country.highlight {
+  background-color: #f0fdf4;
+}
+
+.react-tel-input .country-list .country:hover {
+  background-color: #f0fdf4;
+}
+
+/* Placeholder styles for SSR and before hydration */
+.phone-input-placeholder {
+  width: 100%;
+  height: 40px;
+  background-color: #f9f9f9;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.375rem;
+  position: relative;
+}
+
+.phone-input-placeholder::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 40px;
+  height: 100%;
+  background-color: #f0f0f0;
+  border-right: 1px solid #e2e8f0;
+  border-radius: 0.375rem 0 0 0.375rem;
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+  .react-tel-input {
+    width: 100%;
+  }
+} 

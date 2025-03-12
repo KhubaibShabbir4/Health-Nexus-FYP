@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
+
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import Footer from "../footer/page";
@@ -31,7 +32,7 @@ function DoctorDashboard() {
       clearTimeout(timer);
       timer = setTimeout(() => {
         alert("Session timed out due to inactivity.");
-        router.replace("/doc_login");
+        router.replace("/Doctor/login");
       }, 60000);
     };
 
@@ -46,11 +47,11 @@ function DoctorDashboard() {
           const userData = await response.json();
           setUser(userData);
         } else {
-          router.replace("/doc_login");
+          router.replace("/Doctor/login");
         }
       } catch (error) {
         console.error("Error verifying user:", error);
-        router.replace("/doc_login");
+        router.replace("/Doctor/login");
       } finally {
         setLoading(false);
       }
@@ -74,55 +75,11 @@ function DoctorDashboard() {
   if (loading) return <p>Loading...</p>;
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
+    <div
+      style={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}
+    >
       <div style={styles.container}>
-        <header style={styles.header}>
-          <div style={styles.logoContainer}>
-            <Image
-              src="/images/logo.png"
-              alt="Health Nexus"
-              width={80}
-              height={80}
-              style={styles.logo}
-            />
-            <h1 style={styles.title}>Health Nexus</h1>
-          </div>
-
-          <nav style={styles.nav}>
-            <Link href="/about" style={styles.navLinkStyle}>
-              About
-            </Link>
-            <Link href="/" style={styles.navLinkStyle}>
-              Home
-            </Link>
-            <Link href="/contact" style={styles.navLinkStyle}>
-              Contact
-            </Link>
-            <div style={styles.dropdownContainer}>
-              <button
-                onClick={toggleDropdown}
-                style={styles.dropdownButton}
-                aria-haspopup="true"
-                aria-expanded={dropdownVisible}
-              >
-                Login
-              </button>
-              {dropdownVisible && (
-                <div style={styles.dropdownMenu}>
-                  <Link href="/NGO_login" style={styles.dropdownItem}>
-                    NGO
-                  </Link>
-                  <Link href="/Doctor_home" style={styles.dropdownItem}>
-                    Doctor
-                  </Link>
-                  <Link href="/Pharma_Login" style={styles.dropdownItem}>
-                    Pharma Company
-                  </Link>
-                </div>
-              )}
-            </div>
-          </nav>
-        </header>
+        <Header />
 
         <div style={styles.welcomeSection}>
           <h2 style={styles.welcomeText}>Welcome, Dr. {user?.email}</h2>
@@ -134,7 +91,13 @@ function DoctorDashboard() {
             {["Pending", "Today", "Visited"].map((status) => (
               <Link
                 key={status}
-                href={status === "Pending" ? "/pending-appointment" : status === "Today" ? "/todays_appointment" : "#"}
+                href={
+                  status === "Pending"
+                    ? "/appointment/pending"
+                    : status === "Today"
+                    ? "/appointment/todays"
+                    : "#"
+                }
               >
                 <button
                   style={{
@@ -192,11 +155,31 @@ const styles = {
   },
   logoContainer: { display: "flex", alignItems: "center" },
   logo: { objectFit: "cover", cursor: "pointer" },
-  title: { marginLeft: "10px", fontSize: "1.8em", color: "#28a745", fontWeight: "bold" },
-  nav: { display: "flex", justifyContent: "flex-end", alignItems: "center", gap: "20px" },
-  navLinkStyle: { textDecoration: "none", color: "#28a745", fontWeight: "bold", fontSize: "1em" },
+  title: {
+    marginLeft: "10px",
+    fontSize: "1.8em",
+    color: "#28a745",
+    fontWeight: "bold",
+  },
+  nav: {
+    display: "flex",
+    justifyContent: "flex-end",
+    alignItems: "center",
+    gap: "20px",
+  },
+  navLinkStyle: {
+    textDecoration: "none",
+    color: "#28a745",
+    fontWeight: "bold",
+    fontSize: "1em",
+  },
   dropdownContainer: { position: "relative" },
-  dropdownButton: { background: "none", border: "none", color: "#28a745", fontSize: "1em" },
+  dropdownButton: {
+    background: "none",
+    border: "none",
+    color: "#28a745",
+    fontSize: "1em",
+  },
   dropdownMenu: {
     position: "absolute",
     top: "100%",
@@ -206,8 +189,17 @@ const styles = {
     borderRadius: "4px",
     zIndex: 1000,
   },
-  dropdownItem: { display: "block", padding: "10px 20px", color: "#28a745", textDecoration: "none" },
-  welcomeSection: { textAlign: "center", marginTop: "150px", marginBottom: "20px" },
+  dropdownItem: {
+    display: "block",
+    padding: "10px 20px",
+    color: "#28a745",
+    textDecoration: "none",
+  },
+  welcomeSection: {
+    textAlign: "center",
+    marginTop: "150px",
+    marginBottom: "20px",
+  },
   welcomeText: { fontSize: "2em", color: "#28a745", fontWeight: "bold" },
   section: {
     border: "1px solid #ddd",
