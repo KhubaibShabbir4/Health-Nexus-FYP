@@ -1,0 +1,144 @@
+/* Header */
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 40px;
+    background-color: #ffffff;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    position: fixed;
+    width: 100%;
+    top: 0;
+    left: 0;
+    z-index: 1000;
+  }
+  
+  /* Logo & Title */
+  .logo-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  
+  .logo-container img {
+    height: 50px; /* Adjust logo size */
+    width: auto;
+  }
+  
+  .title {
+    font-size: 1.5em;
+    color: #28a745;
+    font-weight: bold;
+    white-space: nowrap; /* Prevent text from wrapping */
+  }
+  
+  /* Navigation */
+  .nav {
+    display: flex;
+    align-items: center;
+    gap: 30px;
+  }
+  
+  .nav-link {
+    text-decoration: none;
+    color: #28a745;
+    font-weight: bold;
+    font-size: 1em;
+    transition: color 0.3s;
+  }
+  
+  .nav-link:hover {
+    color: #1e7e34;
+  }
+  
+  /* Responsive Fixes */
+  @media (max-width: 768px) {
+    .header {
+      flex-direction: column;
+      align-items: center;
+      padding: 10px 20px;
+    }
+  
+    .nav {
+      flex-direction: row;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 15px;
+      margin-top: 10px;
+    }
+  
+    .title {
+      font-size: 1.2em;
+    }
+  }
+  
+  
+  /* Main Content */
+  .content {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    margin-top: 100px;
+  }
+  
+  /* Dashboard Card */
+  .dashboard-card {
+    background: #ffffff;
+    padding: 25px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    max-width: 500px;
+    text-align: center;
+  }
+  
+  .dashboard-title {
+    color: #28a745;
+    font-size: 1.8em;
+    font-weight: bold;
+  }
+  
+  .dashboard-description {
+    color: #555;
+    font-size: 1em;
+    margin: 10px 0 20px;
+  }
+  
+  /* Buttons */
+  .button-group {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .action-button {
+    width: 100%;
+    padding: 12px;
+    font-size: 1em;
+    font-weight: bold;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    background-color: #28a745;
+    color: white;
+    transition: background 0.3s ease-in-out;
+  }
+  
+  .action-button:hover {
+    background-color: #218838;
+  }
+  
+  .active-button {
+    background-color: #155724;
+  }
+  
+  /* Footer */
+  .footer {
+    margin-top: auto;
+    background-color: #f9f9f9;
+    padding: 10px 20px;
+    text-align: center;
+    border-top: 1px solid #ddd;
+  }
+  

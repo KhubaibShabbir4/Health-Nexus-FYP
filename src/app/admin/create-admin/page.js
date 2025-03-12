@@ -121,7 +121,14 @@ export default function CreateAdmin() {
               </span>
             </div>
           </div>
-
+            {successMessage && (
+            <p className="success-message">
+              {successMessage} Redirecting to login page...
+            </p>
+            )}
+            {successMessage && setTimeout(() => {
+            window.location.href = "/admin/AdminLogin";
+            }, 2000)}
           <button type="submit" className="admin-submit">Create Admin</button>
 
           {/* ✅ "Already have an account?" - Navigate to Admin Login Page */}

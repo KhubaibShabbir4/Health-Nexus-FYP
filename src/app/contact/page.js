@@ -1,6 +1,7 @@
 'use client';
 import { useState } from "react";
-import { FaPhone, FaEnvelope, FaMapMarkerAlt } from "react-icons/fa"; // Import icons
+import emailjs from 'emailjs-com';
+import { FaPhone, FaEnvelope, FaMapMarkerAlt } from "react-icons/fa"; // Optional: if you want to use icons
 import "./page.css";
 
 export default function ContactUs() {
@@ -23,34 +24,54 @@ export default function ContactUs() {
 
     let validationErrors = {};
 
-    // Name validation
+    // Validate Name
     if (!formData.name.trim()) {
       validationErrors.name = "Name is required!";
     }
 
-    // Email validation
+    // Validate Email
     if (!formData.email.trim()) {
       validationErrors.email = "Email is required!";
     } else if (!validateEmail(formData.email)) {
       validationErrors.email = "Invalid email format!";
     }
 
-    // Message validation
+    // Validate Message
     if (!formData.message.trim()) {
       validationErrors.message = "Message is required!";
     } else if (formData.message.length < 10) {
       validationErrors.message = "Message must be at least 10 characters!";
     }
 
-    // If there are validation errors, stop submission
+    // Stop submission if there are errors
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
       return;
     }
 
-    // Success message & form reset
-    setSuccessMessage("Message sent successfully!");
-    setFormData({ name: "", email: "", message: "" });
+    // Send email using EmailJS
+    emailjs
+    .send(
+      'service_vj0cdzk',      // Your EmailJS service ID
+      'template_9qc4u6d',     // Your EmailJS template ID
+      {
+        from_name: formData.name,   // Matches {{from_name}} in your template
+        from_email: formData.email, // Matches {{from_email}} in your template
+        message: formData.message   // Matches {{message}} in your template
+      },
+      '-rR0UVQiC9eiEYfdS'     // Your EmailJS public key (User ID)
+    )
+      .then(
+        (response) => {
+          console.log('Email successfully sent!', response.status, response.text);
+          setSuccessMessage("Message sent successfully!");
+          setFormData({ name: "", email: "", message: "" });
+        },
+        (error) => {
+          console.error("Failed to send email via EmailJS:", error);
+          setSuccessMessage("Failed to send message. Please try again.");
+        }
+      );
 
     setTimeout(() => {
       setSuccessMessage("");
@@ -105,12 +126,10 @@ export default function ContactUs() {
         </form>
       </div>
 
-      {/* Contact Info Section */}
+      {/* Optional: Additional contact info */}
       <div className="contact-info">
         <h3>Get in Touch</h3>
-        <p><FaMapMarkerAlt /> 123 Street, City, Country</p>
-        <p><FaPhone /> +123 456 7890</p>
-        <p><FaEnvelope /> contact@example.com</p>
+        <p><FaEnvelope /> healthnexus22@gmail.com</p>
       </div>
     </div>
   );

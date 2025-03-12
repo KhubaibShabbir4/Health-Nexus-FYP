@@ -3,29 +3,52 @@
 @tailwind utilities;
 
 :root {
+  --primary: #2563eb;
+  --primary-dark: #1d4ed8;
+  --secondary: #10b981;
+  --secondary-dark: #059669;
   --background: #ffffff;
-  --foreground: #f3eeee;
+  --foreground: #1f2937;
+  --gray-100: #f3f4f6;
+  --gray-200: #e5e7eb;
+  --gray-300: #d1d5db;
+  --gray-400: #9ca3af;
+  --gray-500: #6b7280;
+  --error: #ef4444;
+  --success: #22c55e;
+  --warning: #f59e0b;
+  --info: #3b82f6;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #f7f7f7;
-    --foreground: #fcfbfb;
+    --background: #0f172a;
+    --foreground: #f8fafc;
+    --gray-100: #1e293b;
+    --gray-200: #334155;
+    --gray-300: #475569;
+    --gray-400: #64748b;
+    --gray-500: #94a3b8;
   }
 }
 
 body {
   color: var(--foreground);
   background-color: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
   margin: 0;
   padding: 0;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 .ngo-board {
   text-align: center;
   font-family: Arial, sans-serif;
-  
+}
+* {
+  color: #000;
 }
 
 /* Header Styling */
@@ -33,17 +56,18 @@ header {
   display: flex;
   justify-content: space-between; /* Aligns content to the sides */
   align-items: center; /* Vertically centers the content */
-  padding: 30px 40px; /* Space inside the header */
+  padding: 1rem 2rem;
   height: 120px; /* Height of the header */
-  border-bottom: 1px solid #ccc; /* Bottom border for a sleek look */
-  background-color: #fcfffd; /* Light background color */
+  border-bottom: 1px solid var(--gray-200);
+  background-color: var(--background);
   color: #28a745; /* Text color matching your theme */
-  position: fixed; /* Makes the header fixed at the top */
-  top: 0; /* Aligns the header to the top of the page */
+  position: sticky;
+  top: 0;
   left: 0; /* Ensures it starts from the left edge */
   width: 100%; /* Full width to cover the screen */
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Adds a subtle shadow */
-  z-index: 1000; /* Keeps the header on top of other content */
+  box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
+  z-index: 50;
+  backdrop-filter: blur(8px);
 }
 
 /* Reset Body Margin (if not already included) */
@@ -54,14 +78,20 @@ body {
 
 /* Reset the margin of the body */
 
-
 nav a {
   margin: 0 30px;
-  color: #28a745; 
+  color: var(--foreground);
   text-decoration: none;
-  font-weight: bold;
+  font-weight: 500;
   font-size: large;
-  font-weight: 50;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  transition: all 0.2s ease;
+}
+
+nav a:hover {
+  background-color: var(--gray-100);
+  color: var(--primary);
 }
 
 h2 {
@@ -95,19 +125,18 @@ h2 {
   height: 180px;
   object-fit: contain;
   cursor: pointer;
-  border-radius: 20px; /* More pronounced curved borders */
-  border: 2px solid transparent; /* Transparent border for gradient effect */
-  background-image: linear-gradient(white, white), 
-                    linear-gradient(135deg, #7f8283, #818486); /* Gradient border */
+  border-radius: 1rem;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+  background-image: linear-gradient(white, white),
+    linear-gradient(135deg, #7f8283, #818486); /* Gradient border */
   background-origin: border-box;
   background-clip: content-box, border-box; /* Gradient border effect */
-  box-shadow: 0 8px 15px rgba(11, 202, 75, 0.3); /* Soft shadow for depth */
-  transition: transform 0.3s ease, box-shadow 0.3s ease; /* Smooth hover animation */
 }
 
 .logo-image:hover {
-  transform: translateY(-10px) scale(1.05); /* Lift and zoom on hover */
-  box-shadow: 0 12px 24px rgba(11, 230, 22, 0.4); /* Enhanced shadow on hover */
+  transform: translateY(-4px) scale(1.02);
+  box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1);
   filter: brightness(1.1); /* Brighten the image slightly on hover */
 }
 
@@ -117,14 +146,11 @@ h2 {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2); /* Softer shadow on click */
 }
 
-
-
 .logos > a {
   flex: 0 1 calc(25% - 20px); /* 25% width for each image (4 per row), minus the gap */
   display: flex;
   justify-content: center;
 }
-
 
 .animated-text {
   animation: fadeInScale 4s ease-in-out forwards;
@@ -224,7 +250,6 @@ h2 {
   justify-content: center;
   border-radius: 8px;
   overflow: hidden;
-  
 }
 
 /* Button styles */
@@ -443,10 +468,10 @@ button {
 button:hover {
   background-color: #28a745;
 }
-*{
+* {
   font-family: "Montserrat", sans-serif;
   font-optical-sizing: auto;
-  font-weight:100;
+  font-weight: 100;
   font-style: normal;
 }
 /* home.css */
@@ -483,7 +508,8 @@ button:hover {
   border: none;
   border-radius: 5px;
 }
-html, body {
+html,
+body {
   margin: 0;
   padding: 0;
   width: 100%;
@@ -504,8 +530,8 @@ html, body {
 .container {
   width: 100%; /* Full width of its parent */
   margin: 0 auto;
-  padding :20;
-  box-sizing: border-box;  /*Prevent padding from adding extra width*/ 
+  padding: 20;
+  box-sizing: border-box; /*Prevent padding from adding extra width*/
   height: 45%;
 }
 
@@ -604,7 +630,9 @@ body {
   padding: 0;
   box-sizing: border-box;
 }
-h1, h2, h3 {
+h1,
+h2,
+h3 {
   font-weight: bold;
 }
 a {
@@ -690,7 +718,6 @@ img {
   color: #333;
 }
 
-
 /* Wrapper for scrolling effect */
 #partners {
   position: relative;
@@ -753,7 +780,6 @@ img {
   letter-spacing: 1px;
 }
 
-
 #important-facts {
   background-color: #f7fafc; /* Light gray background */
   padding-top: 2rem;
@@ -796,274 +822,102 @@ img {
   margin-bottom: 1.5rem;
 }
 
-/*SOBAN CSS @tailwind base;
-@tailwind components;
-@tailwind utilities;
-
-/* Global variables for light and dark modes */
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* Modern Button Styles */
+.button, 
+.supplied-button,
+.case-button,
+.login-button {
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  border: none;
+  background-color: var(--primary);
+  color: white;
+  box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+.button:hover,
+.supplied-button:hover,
+.case-button:hover,
+.login-button:hover {
+  background-color: var(--primary-dark);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+}
+
+/* Card Styles */
+.card {
+  background-color: var(--background);
+  border-radius: 1rem;
+  padding: 1.5rem;
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+}
+
+/* Input Styles */
+input,
+select,
+textarea {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--gray-300);
+  border-radius: 0.5rem;
+  background-color: var(--background);
+  color: var(--foreground);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+/* Typography */
+h1, h2, h3, h4, h5, h6 {
+  color: var(--foreground);
+  font-weight: 600;
+  line-height: 1.25;
+  margin-bottom: 1rem;
+}
+
+h1 { font-size: 2.25rem; }
+h2 { font-size: 1.875rem; }
+h3 { font-size: 1.5rem; }
+h4 { font-size: 1.25rem; }
+h5 { font-size: 1.125rem; }
+h6 { font-size: 1rem; }
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
-body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+.fade-in {
+  animation: fadeIn 0.5s ease forwards;
 }
 
-/* General Styles */
-.container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 20px;
-}
-
-.main {
-  padding-top: 120px; /* Adjust for the fixed header */
-  min-height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.centerContent {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  max-width: 800px;
-}
-
-.footerText {
-  margin-top: 20px;
-  text-align: center;
-  max-width: 700px;
-  color: #666;
-}
-
-/* Header Styles */
-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0 40px;
-  width: 100%;
-  height: 100px;
-  background-color: #ffffff;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  position: fixed;
-  top: 0;
-  z-index: 1000;
-}
-
-header .logo {
-  display: flex;
-  align-items: center;
-}
-
-header .logo img {
-  object-fit: cover;
-  cursor: pointer;
-}
-
-header .logo h1 {
-  margin-left: 10px;
-  font-size: 1.5em;
-  color: #28a745;
-  font-weight: bold;
-}
-
-nav {
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
-  gap: 20px;
-}
-
-nav a {
-  font-size: 1.2em;
-  font-weight: 600;
-  color: #28a745;
-  text-decoration: none;
-  padding: 10px 15px;
-  border-radius: 8px;
-  transition: all 0.3s ease;
-}
-
-nav a:hover {
-  background-color: #e9f7ef;
-  color: #1e7a3c;
-}
-
-/* Footer Styles */
-footer {
-  width: 100%;
-  background-color: #000;
-  color: #fff;
-  text-align: center;
-  padding: 20px 0;
-  position: relative;
-  margin-top: auto;
-}
-
-footer p {
-  font-size: 1rem;
-  color: #ccc;
-}
-
-.footer-links {
-  margin: 10px 0;
-  display: flex;
-  justify-content: center;
-  gap: 20px;
-}
-
-.footer-links a {
-  color: #28a745;
-  text-decoration: none;
-  font-size: 1rem;
-  transition: color 0.3s ease;
-}
-
-.footer-links a:hover {
-  color: #1e7a3c;
-}
-
-/* Login Form */
-.login-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-  background-color: #f1f5fa;
-}
-
-.login-box {
-  background-color: white;
-  padding: 2rem;
-  border-radius: 8px;
-  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
-  max-width: 400px;
-  width: 100%;
-  text-align: center;
-}
-
-.input-group label,
-.navLink {
-  color: #333;
-  font-weight: bold;
-}
-
-.input-group input,
-input {
-  width: 100%;
-  padding: 0.5rem;
-  font-size: 1rem;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-}
-
-.login-button,
-.button {
-  width: 100%;
-  padding: 0.75rem;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-weight: 600;
-}
-
-.login-button {
-  background-color: #56bb64;
-}
-
-.button {
-  background-color: #0070f3;
-}
-
-.login-button:hover {
-  background-color: #35c852;
-}
-
-.button:hover {
-  background-color: #005bb5;
-}
-
-/* Navbar Animations */
-nav a {
-  font-size: 1.8em;
-  padding: 8px 15px;
-  font-weight: 500;
-  color: #333;
-  text-decoration: none;
-  transition: color 0.3s ease, transform 0.3s ease; /* Smooth color and scale transition */
-}
-
-nav a:hover {
-  color: #4CAF50; /* Change color on hover */
-  transform: scale(1.1); /* Slightly enlarge the item */
-}
-
-/* Bell Icon Button */
-.userIcon {
-  background: none;
-  border: none;
-  font-size: 1.8em;
-  color: #333;
-  transition: color 0.3s ease, transform 0.3s ease; /* Smooth color and scale transition */
-  padding-left: 50px;
-  cursor: pointer;
-}
-
-.userIcon:hover {
-  color: #4CAF50; /* Change color on hover */
-  transform: scale(1.2); /* Slightly enlarge the icon */
-}
-
-/* Bell icon dropdown menu */
-.dropdownMenu {
-  position: absolute;
-  top: 40px;
-  right: 10px;
-  background-color: white;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  z-index: 10;
-}
-
-.dropdownMenu ul {
-  list-style-type: none;
-  padding: 10px;
-  margin: 0;
-}
-
-.dropdownMenu li {
-  padding: 8px 12px;
-}
-
-.dropdownMenu li a {
-  text-decoration: none;
-  color: #333;
-}
-
-.dropdownMenu li:hover {
-  background-color: #f0f0f0;
-}
-
-/* Additional Styles */
-h2 {
-  font-size: 1.8em;
-  font-weight: bold;
-  color: #333;
+.slide-up {
+  animation: slideUp 0.5s ease forwards;
 }

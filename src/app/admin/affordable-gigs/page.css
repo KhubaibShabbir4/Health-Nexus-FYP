@@ -1,217 +1,217 @@
 /* Container */
 .container {
-  max-width: 1100px;
-  margin: auto;
-  padding: 20px;
-  text-align: center;
-}
-
-/* Title */
-.title {
-  font-size: 28px;
-  font-weight: bold;
-  color: #28a745;
-  margin-bottom: 20px;
-}
-
-/* Search & Filter */
-.search-filter-container {
-  display: flex;
-  justify-content: center;
-  gap: 15px;
-  margin-bottom: 20px;
-}
-
-.search-input {
-  padding: 10px;
-  width: 50%;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  font-size: 16px;
-}
-
-.filter-dropdown {
-  padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  font-size: 16px;
-}
-
-/* Gigs Grid */
-.gigs-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 20px;
-  margin-top: 20px;
-}
-
-/* Gig Card */
-.gig-card {
-  background: #ffffff;
-  padding: 20px;
-  border-radius: 10px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  text-align: center;
-  transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
-}
-
-.gig-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
-}
-
-/* Gig Details */
-.gig-title {
-  font-size: 20px;
-  font-weight: bold;
-  color: #333;
-}
-
-.gig-description {
-  font-size: 14px;
-  color: #555;
-  margin: 10px 0;
-}
-
-.gig-price {
-  font-size: 18px;
-  font-weight: bold;
-  color: #28a745;
-  margin-bottom: 10px;
-}
-
-/* Buttons */
-.actions {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 15px;
-}
-
-.details-btn {
+    max-width: 1100px;
+    margin: auto;
+    padding: 20px;
+    text-align: center;
+  }
+  
+  /* Title */
+  .title {
+    font-size: 28px;
+    font-weight: bold;
+    color: #28a745;
+    margin-bottom: 20px;
+  }
+  
+  /* Search & Filter */
+  .search-filter-container {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-bottom: 20px;
+  }
+  
+  .search-input {
+    padding: 10px;
+    width: 50%;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 16px;
+  }
+  
+  .filter-dropdown {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 16px;
+  }
+  
+  /* Gigs Grid */
+  .gigs-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+    margin-top: 20px;
+  }
+  
+  /* Gig Card */
+  .gig-card {
+    background: #ffffff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+  }
+  
+  .gig-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+  }
+  
+  /* Gig Details */
+  .gig-title {
+    font-size: 20px;
+    font-weight: bold;
+    color: #333;
+  }
+  
+  .gig-description {
+    font-size: 14px;
+    color: #555;
+    margin: 10px 0;
+  }
+  
+  .gig-price {
+    font-size: 18px;
+    font-weight: bold;
+    color: #28a745;
+    margin-bottom: 10px;
+  }
+  
+  /* Buttons */
+  .actions {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 15px;
+  }
+  
+  .details-btn {
+    padding: 8px 15px;
+    background: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: 0.3s ease-in-out;
+  }
+  
+  .details-btn:hover {
+    background: #0056b3;
+  }
+  
+  .apply-btn {
+    padding: 8px 15px;
+    background: #28a745;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: 0.3s ease-in-out;
+  }
+  
+  .apply-btn:hover {
+    background: #218838;
+  }
+  
+  /* No Results */
+  .no-results {
+    font-size: 18px;
+    color: #777;
+    margin-top: 20px;
+  }
+  
+  /* Responsive Design */
+  @media (max-width: 768px) {
+    .search-filter-container {
+      flex-direction: column;
+    }
+  
+    .search-input,
+    .filter-dropdown {
+      width: 100%;
+    }
+  
+    .actions {
+      flex-direction: column;
+      gap: 10px;
+    }
+  }
+  
+  /* Add Styling for Sorting Dropdown */
+.sort-dropdown {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 16px;
+  }
+  
+  /* Buttons: View Details & Order Now */
+.details-btn,
+.order-btn {
   padding: 8px 15px;
-  background: #007bff;
-  color: white;
+  width: 120px;
   border: none;
   border-radius: 5px;
   cursor: pointer;
+  font-size: 14px;
   transition: 0.3s ease-in-out;
+}
+
+.details-btn {
+  background: #007bff;
+  color: white;
 }
 
 .details-btn:hover {
   background: #0056b3;
 }
 
-.apply-btn {
-  padding: 8px 15px;
+.order-btn {
   background: #28a745;
   color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: 0.3s ease-in-out;
-}
-
-.apply-btn:hover {
-  background: #218838;
-}
-
-/* No Results */
-.no-results {
-  font-size: 18px;
-  color: #777;
-  margin-top: 20px;
-}
-
-/* Responsive Design */
-@media (max-width: 768px) {
-  .search-filter-container {
-    flex-direction: column;
-  }
-
-  .search-input,
-  .filter-dropdown {
-    width: 100%;
-  }
-
-  .actions {
-    flex-direction: column;
-    gap: 10px;
-  }
-}
-
-/* Add Styling for Sorting Dropdown */
-.sort-dropdown {
-  padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  font-size: 16px;
-}
-
-/* Buttons: View Details & Order Now */
-.details-btn,
-.order-btn {
-padding: 8px 15px;
-width: 120px;
-border: none;
-border-radius: 5px;
-cursor: pointer;
-font-size: 14px;
-transition: 0.3s ease-in-out;
-}
-
-.details-btn {
-background: #007bff;
-color: white;
-}
-
-.details-btn:hover {
-background: #0056b3;
-}
-
-.order-btn {
-background: #28a745;
-color: white;
 }
 
 .order-btn:hover {
-background: #218838;
+  background: #218838;
 }
 
 /* Modal Styles */
 .modal {
-position: fixed;
-top: 0;
-left: 0;
-width: 100%;
-height: 100%;
-background: rgba(0, 0, 0, 0.5);
-display: flex;
-justify-content: center;
-align-items: center;
-z-index: 1000;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
 }
 
 .modal-content {
-background: white;
-padding: 20px;
-border-radius: 8px;
-text-align: center;
-width: 80%;
-max-width: 400px;
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  text-align: center;
+  width: 80%;
+  max-width: 400px;
 }
 
 .close-btn {
-background: #dc3545;
-color: white;
-padding: 8px 15px;
-border: none;
-border-radius: 5px;
-cursor: pointer;
-font-size: 14px;
-font-weight: bold;
-transition: 0.3s ease-in-out;
+  background: #dc3545;
+  color: white;
+  padding: 8px 15px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: bold;
+  transition: 0.3s ease-in-out;
 }
 
 .close-btn:hover {
-background: #c82333;
+  background: #c82333;
 }

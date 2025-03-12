@@ -88,15 +88,13 @@ export default function AdminLogin() {
           </div>
 
           <div className="login-options">
-            <label>
-              <input type="checkbox" name="remember" /> Remember Me
-            </label>
+           
             <a href="/forgot-password" className="forgot-password">Forgot your password?</a>
           </div>
 
           <button type="submit" className="login-btn">Log in</button>
 
-          <p className="signup-text">Don't have an account?</p>
+          <p className="signup-text"style={{ padding: '10px' }}>Don't have an account?</p>
           <button type="button" className="signup-btn" onClick={() => window.location.href = "/admin/create-admin"}>
             Create New Account
           </button>
