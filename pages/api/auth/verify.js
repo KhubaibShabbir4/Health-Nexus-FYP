@@ -1,4 +1,4 @@
-import { authenticateToken } from '/pages/api/middleware/auth';
+import { authenticateToken } from './route.js';
 
 export default function handler(req, res) {
   const user = authenticateToken(req, res);

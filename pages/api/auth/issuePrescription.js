@@ -5,22 +5,10 @@ const prisma = new PrismaClient();
 export default async function handler(req, res) {
   try {
     if (req.method === "POST") {
-      const { appointment_id, Medicines, Tests, Operations, ExtraInstructions } =
+      const { user_id, Medicines, Tests, Operations, ExtraInstructions } =
         req.body;
-      
-      // Validate that appointment_id is provided
-      if (!appointment_id) {
-        return res.status(400).json({ error: "appointment_id is required" });
-      }
-
       const newPrescription = await prisma.prescription.create({
-        data: { 
-          appointment_id: Number(appointment_id), 
-          Medicines, 
-          Tests, 
-          Operations, 
-          ExtraInstructions 
-        },
+        data: { user_id, Medicines, Tests, Operations, ExtraInstructions },
       });
       return res.status(201).json(newPrescription);
     }
