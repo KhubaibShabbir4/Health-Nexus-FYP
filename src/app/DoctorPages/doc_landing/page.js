@@ -53,44 +53,29 @@ const DoctorLanding = () => {
       >
         <h1 className="text-2xl font-bold">Welcome to Health Nexus!</h1>
       </div>
-      <main 
-        className="flex-1 flex flex-col items-center justify-center bg-cover bg-center bg-no-repeat p-6"
-        style={{
-          backgroundImage: "url('/images/doctorbg.jpg')",
-          backgroundColor: 'rgba(243, 244, 246, 0.6)',
-          backgroundBlendMode: 'overlay'
-        }}
-      >
-        <div className="w-full max-w-md p-8 bg-white/90 shadow-lg rounded-2xl text-center transform transition-all duration-300 ease-in-out hover:scale-105 hover:shadow-xl text-gray-900">
-          <p className="text-xl font-extrabold text-green-700">
+      <main className="flex-1 flex flex-col items-center justify-center bg-gray-100 p-6">
+        <div className="w-full max-w-4xl p-11 bg-white shadow-lg rounded-2xl text-center transition-transform transform hover:scale-105 text-gray-900">
+          <p className="mt-4 text-xl font-extrabold text-green-700">
             {doctor.firstName && doctor.lastName
               ? `Dr. ${doctor.firstName} ${doctor.lastName}`
               : "Fetching Doctor Details..."}
           </p>
 
           {/* ✅ Displaying the specialization dynamically */}
-          <p className="mt-3 text-lg font-semibold text-green-700 mb-6">
+          <p className="mt-4 text-xl font-semibold text-green-700">
             {doctor.specialization
               ? ` ${doctor.specialization}`
               : "Specialization not available"}
           </p>
 
-          <div className="flex flex-col space-y-3 w-full mx-auto">
+          <div className="flex space-x-4 mt-6">
             <button
               onClick={() =>
                 router.push(`/DoctorPages/todays_appointment?id=${doctor.id}`)
               }
-              className="w-full px-5 py-2.5 text-base bg-green-600 text-white rounded-lg hover:bg-green-800 transition-colors duration-300"
+              className="w-full px-6 py-2 text-lg bg-green-600 text-white rounded-lg hover:bg-green-800"
             >
               Show Appointments
-            </button>
-            <button
-              onClick={() =>
-                router.push(`/DoctorPages/appointment_history?id=${doctor.id}`)
-              }
-              className="w-full px-5 py-2.5 text-base bg-green-600 text-white rounded-lg hover:bg-green-800 transition-colors duration-300"
-            >
-              Accepted Appointment
             </button>
           </div>
         </div>

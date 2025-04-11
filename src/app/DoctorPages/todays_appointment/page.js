@@ -17,6 +17,7 @@ const Appointments = () => {
   });
 
   const [searchDate, setSearchDate] = useState("");
+  const [searchTime, setSearchTime] = useState("");
   const [searchId, setSearchId] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -44,7 +45,32 @@ const Appointments = () => {
       setLoading(false);
     }
   };
+  const handleComplete = async (id) => {
+    try {
+      setLoading(true);
+      const response = await fetch("/api/auth/book-appointment", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id, status: "completed" }),
+      });
+      if (response.ok) {
+        setAppointments(
+          appointments.map((appt) =>
+            appt.id === id ? { ...appt, status: "completed" } : appt
+          )
+        );
 
+        const appointment = appointments.find((appt) => appt.id === id);
+        router.push(`/DoctorPages/prescriptions?id=${appointment.user_id}`);
+      } else {
+        alert("Failed to accept the completion.");
+      }
+    } catch (error) {
+      console.error("Error accepting appointment:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
   const handleReschedule = async (id) => {
     if (!rescheduleData.date || !rescheduleData.time) {
       alert("Please select a date and time for rescheduling.");
@@ -120,8 +146,9 @@ const Appointments = () => {
   const filteredAppointments = appointments.filter(
     (appt) =>
       appt.doctor_id === Number(id) &&
-      appt.status !== "accepted" &&
-      (searchDate ? new Date(appt.date).toISOString().split('T')[0] === searchDate : true)
+      (searchDate ? appt.date === searchDate : true) &&
+      (searchTime ? appt.time === searchTime : true) &&
+      (searchId ? appt.id.toString() === searchId : true)
   );
   const getAppoinmnets = async () => {
     try {
@@ -166,96 +193,109 @@ const Appointments = () => {
         </h1>
 
         <div className="max-w-4xl mx-auto bg-white p-6 rounded-lg shadow-lg">
-          <div className="mb-6">
-            <label className="block text-gray-700 text-sm font-bold mb-2">
-              Search Appointments by Date
-            </label>
+          <div className="mb-4 flex space-x-4">
             <input
               type="date"
-              className="border p-2 rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-green-500"
+              className="border p-2 rounded-lg"
               value={searchDate}
               onChange={(e) => setSearchDate(e.target.value)}
             />
+            <input
+              type="time"
+              className="border p-2 rounded-lg"
+              value={searchTime}
+              onChange={(e) => setSearchTime(e.target.value)}
+            />
+            <input
+              type="number"
+              placeholder="Patient ID"
+              className="border p-2 rounded-lg"
+              value={searchId}
+              onChange={(e) => setSearchId(e.target.value)}
+            />
           </div>
 
-          {filteredAppointments.length > 0 ? (
-            filteredAppointments.map((appt) => (
-              <div key={appt.id} className="border-b py-4">
-                <p className="text-lg font-semibold">Patient: {appt.name}</p>
-                <p className="text-gray-700">
-                  Date: {new Date(appt.date).toLocaleDateString("en-GB")}
-                </p>
-                <p
-                  className={`text-sm font-semibold ${
-                    appt.status === "accepted"
-                      ? "text-green-600"
-                      : appt.status === "rescheduled"
-                      ? "text-blue-600"
-                      : appt.status === "declined"
-                      ? "text-red-600"
-                      : "text-yellow-600"
-                  }`}
+          {filteredAppointments.map((appt) => (
+            <div key={appt.id} className="border-b py-4">
+              <p className="text-lg font-semibold">Patient: {appt.name}</p>
+              <p className="text-gray-700">
+                Date: {new Date(appt.date).toLocaleDateString("en-GB")} | Time:{" "}
+                {appt.time}
+              </p>
+              <p
+                className={`text-sm font-semibold ${
+                  appt.status === "accepted"
+                    ? "text-green-600"
+                    : appt.status === "rescheduled"
+                    ? "text-blue-600"
+                    : appt.status === "declined"
+                    ? "text-red-600"
+                    : "text-yellow-600"
+                }`}
+              >
+                Status: {appt.status}
+              </p>
+              <div className="mt-3 flex space-x-3">
+                <button
+                  className="px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-700"
+                  onClick={() => handleComplete(appt.id)}
                 >
-                  Status: {appt.status}
-                </p>
-                <div className="mt-3 flex space-x-3">
-                  <button
-                    onClick={() => handleAccept(appt.id)}
-                    className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
-                  >
-                    Accept
-                  </button>
-                  <button
-                    onClick={() =>
-                      setRescheduleData({ id: appt.id, date: "", time: "" })
+                  Completed/Finish
+                </button>
+                <button
+                  onClick={() => handleAccept(appt.id)}
+                  className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
+                >
+                  Accept
+                </button>
+                <button
+                  onClick={() =>
+                    setRescheduleData({ id: appt.id, date: "", time: "" })
+                  }
+                  className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
+                >
+                  Reschedule
+                </button>
+                <button
+                  onClick={() => handleDecline(appt.id)}
+                  className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600"
+                >
+                  Decline
+                </button>
+              </div>
+              {rescheduleData.id === appt.id && (
+                <div className="mt-4">
+                  <input
+                    type="date"
+                    className="border p-2 rounded-lg mr-2"
+                    min={new Date().toISOString().split("T")[0]}
+                    onChange={(e) =>
+                      setRescheduleData({
+                        ...rescheduleData,
+                        date: e.target.value,
+                      })
                     }
-                    className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
-                  >
-                    Reschedule
-                  </button>
+                  />
+                  <input
+                    type="time"
+                    className="border p-2 rounded-lg mr-2"
+                    onChange={(e) =>
+                      setRescheduleData({
+                        ...rescheduleData,
+                        time: e.target.value,
+                      })
+                    }
+                  />
                   <button
-                    onClick={() => handleDecline(appt.id)}
-                    className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600"
+                    onClick={() => handleReschedule(appt.id)}
+                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
                   >
-                    Decline
+                    Confirm Reschedule
                   </button>
                 </div>
-                {rescheduleData.id === appt.id && (
-                  <div className="mt-4">
-                    <input
-                      type="date"
-                      className="border p-2 rounded-lg mr-2"
-                      min={new Date().toISOString().split("T")[0]}
-                      onChange={(e) =>
-                        setRescheduleData({
-                          ...rescheduleData,
-                          date: e.target.value,
-                        })
-                      }
-                    />
-                    <input
-                      type="time"
-                      className="border p-2 rounded-lg mr-2"
-                      onChange={(e) =>
-                        setRescheduleData({
-                          ...rescheduleData,
-                          time: e.target.value,
-                        })
-                      }
-                    />
-                    <button
-                      onClick={() => handleReschedule(appt.id)}
-                      className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-                    >
-                      Confirm Reschedule
-                    </button>
-                  </div>
-                )}
-              </div>
-            ))
-          ) : (
-            <p className="text-center text-gray-500">No appointments found for the selected date.</p>
-          )}
+              )}
+            </div>
+          ))}
         </div>
       </div>
       <Footer />

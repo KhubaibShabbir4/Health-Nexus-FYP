@@ -1,64 +1,10 @@
 "use client";
 
 import Head from "next/head";
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import Footer from "../components/footer/page";
+import Footer from "../../components/footer/page";
+import Header from "../../components/Header/page";
 
 export default function HomePharma() {
-  const [loading, setLoading] = useState(true);
-  const [user, setUser] = useState(null);
-  const router = useRouter();
-
-  useEffect(() => {
-    let timer;
-
-    const resetTimer = () => {
-      clearTimeout(timer);
-      timer = setTimeout(() => {
-        alert("Session timed out due to inactivity.");
-        router.replace("/Pharma/Login"); // Redirects to login on timeout
-      }, 60000); // 1 minute
-    };
-
-    const verifyUser = async () => {
-      try {
-        const response = await fetch("/api/auth/verify", {
-          method: "GET",
-          credentials: "include",
-        });
-
-        if (response.ok) {
-          const userData = await response.json();
-          setUser(userData);
-        } else {
-          router.replace("/Pharma/Login"); // Redirect if session invalid
-        }
-      } catch (error) {
-        console.error("Error verifying user:", error);
-        router.replace("/Pharma/Login");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    verifyUser();
-    resetTimer();
-
-    window.addEventListener("mousemove", resetTimer);
-    window.addEventListener("keydown", resetTimer);
-    window.addEventListener("click", resetTimer);
-
-    return () => {
-      clearTimeout(timer);
-      window.removeEventListener("mousemove", resetTimer);
-      window.removeEventListener("keydown", resetTimer);
-      window.removeEventListener("click", resetTimer);
-    };
-  }, [router]);
-
-  if (loading) return <p>Loading...</p>;
-
   return (
     <div className="min-h-screen flex flex-col">
       <Head>
@@ -100,7 +46,7 @@ export default function HomePharma() {
       {/* Main Section */}
       <main className="flex-grow pt-32 text-center bg-gray-50">
         <h2 className="text-4xl font-bold animate-fade-in">
-          Welcome {user?.email || "Pharma Partner"}!
+          Welcome Pharma Partner!
         </h2>
 
         {/* NGOs on Board Section */}

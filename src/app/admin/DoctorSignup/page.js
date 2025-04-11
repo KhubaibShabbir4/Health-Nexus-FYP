@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation"; // Import useRouter for redirection
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { toast, Bounce } from "react-toastify";
@@ -12,6 +12,24 @@ const API_URL = "/api/auth/doctorSignup";
 
 export default function DoctorSignup() {
   const router = useRouter(); // Initialize router
+
+  // Add useEffect for one-time refresh
+  useEffect(() => {
+    // Check if page has been refreshed
+    const hasRefreshed = localStorage.getItem('doctorSignupRefreshed');
+    
+    if (!hasRefreshed) {
+      // Set the flag in localStorage
+      localStorage.setItem('doctorSignupRefreshed', 'true');
+      // Refresh the page
+      window.location.reload();
+    }
+
+    // Cleanup function to remove the flag when component unmounts
+    return () => {
+      localStorage.removeItem('doctorSignupRefreshed');
+    };
+  }, []);
 
   const [doctor, setDoctor] = useState({
     firstName: "",
