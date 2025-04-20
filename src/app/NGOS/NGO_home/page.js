@@ -7,20 +7,26 @@ import Footer from "../../components/footer/page";
 import Header from "../../components/Header/page";
 import { motion } from "framer-motion";
 
+// Pie chart imports
+import { Pie } from "react-chartjs-2";
+import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
+
+// Register Pie Chart Components
+ChartJS.register(ArcElement, Tooltip, Legend);
+
 export default function NGOHome() {
   const [ngo, setNgo] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [impactValues, setImpactValues] = useState([0, 0, 0, 0]);
   const router = useRouter();
 
-  // Auto-refresh effect - will refresh the page only once when it's opened
+  // Auto-refresh effect - will refresh the page only once
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      // Check if the URL already has the refreshed parameter
       const urlParams = new URLSearchParams(window.location.search);
       const hasRefreshed = urlParams.get('refreshed');
       
       if (!hasRefreshed) {
-        // Add the refreshed parameter to the URL
         urlParams.set('refreshed', 'true');
         const newUrl = `${window.location.pathname}?${urlParams.toString()}`;
         window.location.href = newUrl;
@@ -28,6 +34,7 @@ export default function NGOHome() {
     }
   }, []);
 
+  // Load NGO info (optional; not used for chart)
   useEffect(() => {
     const fetchNGO = async () => {
       try {
@@ -47,6 +54,72 @@ export default function NGOHome() {
 
     fetchNGO();
   }, []);
+
+  // ✅ Dynamic fetch for pie chart
+  useEffect(() => {
+    const fetchImpactData = async () => {
+      try {
+        const response = await fetch("/api/auth/getImpact");
+        const data = await response.json();
+    
+        console.log("🔍 Fetched impact data:", data); // <== ADD THIS LOG
+    
+        if (response.ok) {
+          setImpactValues([
+            data.patientsHelped,
+            data.fundsDistributed,
+            data.pendingRequests,
+            data.avgApprovalTime,
+          ]);
+        } else {
+          console.error("Failed to fetch impact data:", data.message);
+        }
+      } catch (err) {
+        console.error("Fetch error:", err);
+      }
+    };
+    
+
+    fetchImpactData();
+  }, []);
+
+  // Chart config
+  const impactLabels = [
+    "Patients Helped",
+    "Funds Distributed ($K)",
+    "Pending Requests",
+    "Avg Approval Time (weeks)",
+  ];
+
+  const impactColors = ["#4CAF50", "#FFC107", "#FF5722", "#673AB7"];
+
+  const impactData = {
+    labels: impactLabels,
+    datasets: [
+      {
+        label: "NGO Impact",
+        data: impactValues,
+        backgroundColor: impactColors,
+        borderColor: ["#388E3C", "#FFA000", "#E64A19", "#512DA8"],
+        borderWidth: 1,
+      },
+    ],
+  };
+
+  const options = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        callbacks: {
+          label: function (tooltipItem) {
+            return `${tooltipItem.label}: ${tooltipItem.raw}`;
+          },
+        },
+      },
+    },
+  };
 
   return (
     <div 
@@ -81,7 +154,7 @@ export default function NGOHome() {
           </motion.div>
 
           <main className="flex-grow flex flex-col items-center justify-center p-6">
-            <div className="flex w-full max-w-7xl gap-8">
+            <div className="flex w-full max-w-7xl gap-8 flex-wrap md:flex-nowrap">
               <div className="flex-1 p-8">
                 <h2 className="text-4xl font-bold mb-6 text-green-400">Making Healthcare Accessible</h2>
                 <p className="text-xl mb-6 leading-relaxed text-white font-medium">
@@ -90,7 +163,30 @@ export default function NGOHome() {
               </div>
 
               <div className="flex-1 p-11 bg-white bg-opacity-90 shadow-lg rounded-2xl text-center">
-                <h3 className="text-2xl font-bold text-green-700 mb-8">Manage Your Services</h3>
+                <h3 className="text-2xl font-bold text-green-700 mb-6">Manage Your Services</h3>
+
+                {/* Pie chart and legend in one row */}
+                <div className="flex flex-col lg:flex-row items-center justify-center gap-6 mb-8">
+                  {/* Pie Chart */}
+                  <div className="w-[250px] h-[250px] md:w-[300px] md:h-[300px]">
+                    <Pie data={impactData} options={options} />
+                  </div>
+
+                  {/* Legend */}
+                  <ul className="text-left space-y-2 text-sm font-medium">
+                    {impactLabels.map((label, index) => (
+                      <li key={index} className="flex items-center gap-2">
+                        <span
+                          className="w-4 h-4 inline-block rounded-sm"
+                          style={{ backgroundColor: impactColors[index] }}
+                        ></span>
+                        {label}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                {/* Buttons */}
                 <div className="flex flex-col space-y-6">
                   <button
                     onClick={() => router.push("/NGOS/Ngo_givingLoan")}
