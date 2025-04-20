@@ -2,7 +2,8 @@
 
 import Head from "next/head";
 import Footer from "../../components/footer/page";
-import Header from "../../components/Header/page";
+import Link from "next/link";
+//import Header from "../../components/Header/page";
 
 export default function HomePharma() {
   return (
@@ -48,6 +49,26 @@ export default function HomePharma() {
         <h2 className="text-4xl font-bold animate-fade-in">
           Welcome Pharma Partner!
         </h2>
+
+        {/* Pharma Actions Container */}
+        <div className="flex justify-center mt-8 mb-12">
+          <div className="bg-white rounded-lg shadow-md p-8 max-w-4xl w-full">
+            <h3 className="text-2xl font-bold text-green-700 mb-6">
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <Link href="/Pharma/SubmitMedicationGigs" className="block">
+                <button className="w-full py-4 bg-green-600 text-white font-bold rounded-lg shadow-md hover:bg-green-700 transition duration-300 text-lg">
+                  Submit Medication GIGs
+                </button>
+              </Link>
+              <Link href="/Pharma/FulfillMedicationOrders" className="block">
+                <button className="w-full py-4 bg-green-600 text-white font-bold rounded-lg shadow-md hover:bg-green-700 transition duration-300 text-lg">
+                  Fulfill Medication Orders
+                </button>
+              </Link>
+            </div>
+          </div>
+        </div>
 
         {/* NGOs on Board Section */}
         <h3 className="text-3xl font-bold mt-8 mb-6 text-green-700">

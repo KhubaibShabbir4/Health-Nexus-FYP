@@ -194,6 +194,7 @@ model Prescription {
   Operations        String
   ExtraInstructions String
   createdAt         DateTime @default(now())
+  appointment_id    Int?
 }
 
 model AssistanceRequest {
@@ -202,16 +203,16 @@ model AssistanceRequest {
   cnic              String         @unique
   contact           String
   medicalCondition  String
-  assistanceType    AssistanceType
   medicalReport     String?
   additionalMessage String?
-  totalExpenditure  Int?
-  selfFinance       Int?
-  ngoAmount         Int?
   createdAt         DateTime       @default(now())
-  user_id           Int
   Reason            String?
   Status            String?        @default("pending")
+  user_id           Int
+  assistanceType    AssistanceType
+  ngoAmount         Int?
+  selfFinance       Int?
+  totalExpenditure  Int?
 }
 
 model Doctor {
@@ -263,6 +264,16 @@ model manageAccount {
   role      String   @default("user")
   createdAt DateTime @default(now())
   updatedAt DateTime
+}
+
+model nGOImpact {
+  id               Int      @id @default(autoincrement())
+  patientsHelped   Int
+  fundsDistributed Int
+  pendingRequests  Int
+  avgApprovalTime  Int
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime
 }
 
 enum AssistanceType {
