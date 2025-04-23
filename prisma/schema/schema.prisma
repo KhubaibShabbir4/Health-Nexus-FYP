@@ -240,6 +240,9 @@ model NGO {
   mission            String
   role               String   @default("ngo")
   createdAt          DateTime @default(now())
+  impacts            nGOImpact[]
+  monthlyDonations   NGOMonthlyDonation[]
+  monthlyPatients    NGOMonthlyPatient[]
 }
 
 model Pharmacy {
@@ -273,8 +276,42 @@ model nGOImpact {
   pendingRequests  Int
   avgApprovalTime  Int
   createdAt        DateTime @default(now())
-  updatedAt        DateTime
+  updatedAt        DateTime @updatedAt
+  ngo              NGO      @relation(fields: [ngold], references: [id])
+  ngold            Int
+
+  @@index([ngold])
 }
+
+model NGOMonthlyDonation {
+  id        Int      @id @default(autoincrement())
+  amount    Float
+  month     DateTime
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  ngo       NGO      @relation(fields: [ngoId], references: [id])
+  ngoId     Int
+
+  @@index([ngoId])
+  @@index([month])
+  @@unique([ngoId, month])
+}
+
+model NGOMonthlyPatient {
+  id           Int      @id @default(autoincrement())
+  patientCount Int
+  month        DateTime
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  ngo          NGO      @relation(fields: [ngoId], references: [id])
+  ngoId        Int
+
+  @@index([ngoId])
+  @@index([month])
+  @@unique([ngoId, month])
+} 
+
+
 
 enum AssistanceType {
   FINANCIAL_AID
