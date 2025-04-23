@@ -2,13 +2,14 @@
 
 import React, { useEffect, useState } from "react";
 import DoctorHeader from "../../components/Header/page";
-import Footer from "../../components/footer/page";
 import { useRouter } from "next/navigation";
+import { motion } from "framer-motion";
 
 const Appointments = () => {
   const router = useRouter();
   const [appointments, setAppointments] = useState([{}]);
   const [id, setId] = useState(0);
+  const [statusFilter, setStatusFilter] = useState("");
 
   const [rescheduleData, setRescheduleData] = useState({
     id: null,
@@ -148,7 +149,10 @@ const Appointments = () => {
       appt.doctor_id === Number(id) &&
       (searchDate ? appt.date === searchDate : true) &&
       (searchTime ? appt.time === searchTime : true) &&
-      (searchId ? appt.id.toString() === searchId : true)
+      (searchId ? appt.id.toString() === searchId : true) &&
+      (statusFilter 
+        ? appt.status === statusFilter 
+        : appt.status !== "accepted" && appt.status !== "completed")
   );
   const getAppoinmnets = async () => {
     try {
@@ -172,12 +176,27 @@ const Appointments = () => {
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const id = params.get("id");
+    const status = params.get("status");
     setId(id);
+    if (status) {
+      setStatusFilter(status);
+    }
     getAppoinmnets();
   }, []);
 
   return (
-    <div className="flex flex-col min-h-screen">
+    <div 
+      className="flex flex-col min-h-screen"
+      style={{
+        backgroundImage: 'url("/images/doctor.jpg")',
+        backgroundSize: 'cover',
+        backgroundPosition: 'center 2%',
+        backgroundRepeat: 'no-repeat',
+        backgroundAttachment: 'fixed',
+        backgroundColor: 'rgba(255, 255, 255, 0.8)',
+        backgroundBlendMode: 'overlay'
+      }}
+    >
       {loading && (
         <div className="z-50 fixed top-0 left-0 w-full h-full bg-black backdrop-blur-sm bg-opacity-70 flex justify-center items-center">
           <div className="relative p-4 w-48 h-48  flex justify-center items-center">
@@ -187,10 +206,15 @@ const Appointments = () => {
         </div>
       )}
       <DoctorHeader />
-      <div className="flex-1 p-6 bg-gray-100">
-        <h1 className="text-2xl font-bold text-center text-green-700 mb-6">
-          Requested Appointments
-        </h1>
+      <div className="flex-1 p-6">
+        <motion.h1 
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="text-2xl font-bold text-center text-green-700 mb-6"
+        >
+          {statusFilter ? `${statusFilter.charAt(0).toUpperCase() + statusFilter.slice(1)} Appointments` : "Requested Appointments"}
+        </motion.h1>
 
         <div className="max-w-4xl mx-auto bg-white p-6 rounded-lg shadow-lg">
           <div className="mb-4 flex space-x-4">
@@ -242,12 +266,14 @@ const Appointments = () => {
                 >
                   Completed/Finish
                 </button>
-                <button
-                  onClick={() => handleAccept(appt.id)}
-                  className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
-                >
-                  Accept
-                </button>
+                {!statusFilter || (statusFilter !== 'accepted' && appt.status !== 'accepted') ? (
+                  <button
+                    onClick={() => handleAccept(appt.id)}
+                    className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
+                  >
+                    Accept
+                  </button>
+                ) : null}
                 <button
                   onClick={() =>
                     setRescheduleData({ id: appt.id, date: "", time: "" })
@@ -256,12 +282,14 @@ const Appointments = () => {
                 >
                   Reschedule
                 </button>
-                <button
-                  onClick={() => handleDecline(appt.id)}
-                  className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600"
-                >
-                  Decline
-                </button>
+                {!statusFilter || (statusFilter !== 'accepted' && appt.status !== 'accepted') ? (
+                  <button
+                    onClick={() => handleDecline(appt.id)}
+                    className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600"
+                  >
+                    Decline
+                  </button>
+                ) : null}
               </div>
               {rescheduleData.id === appt.id && (
                 <div className="mt-4">
@@ -298,7 +326,6 @@ const Appointments = () => {
           ))}
         </div>
       </div>
-      <Footer />
     </div>
   );
 };
