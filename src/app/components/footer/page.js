@@ -101,9 +101,10 @@ export default function Footer() {
         }
 
         .container {
-          width: 60%; /* Even narrower for tighter grouping */
-          max-width: 800px; /* Reduced max-width */
-          margin: 0 auto;
+          width: 100%;
+          max-width: 800px;     /* or whatever your page’s main container is */
+          padding: 0 20px;      /* a little side-padding so it doesn’t stick to the edges */
+          margin: 0 auto;       /* centers the container */
         }
 
         .row {
@@ -117,7 +118,7 @@ export default function Footer() {
 
         .footer-col {
           flex: 0 0 auto;
-          width: 160px; /* Slightly narrower columns */
+          /* width: 160px; */ /* Removed fixed width */
           text-align: center;
         }
 

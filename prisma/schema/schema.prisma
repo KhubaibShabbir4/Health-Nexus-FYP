@@ -200,7 +200,7 @@ model Prescription {
 model AssistanceRequest {
   id                Int            @id @default(autoincrement())
   fullName          String
-  cnic              String         @unique
+  cnic              String         
   contact           String
   medicalCondition  String
   medicalReport     String?
