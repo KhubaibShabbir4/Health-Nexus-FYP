@@ -2,8 +2,10 @@
 
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import DoctorHeader from "../../components/Header/page";
-import Footer from "../../components/footer/page";
+import Image from "next/image";
+import Header from "../../components/Header/page";
+import { motion } from "framer-motion";
+
 
 const DoctorLanding = () => {
   const [doctor, setDoctor] = useState({});
@@ -37,8 +39,19 @@ const DoctorLanding = () => {
   }, []);
 
   return (
-    <div className="flex flex-col min-h-screen">
-      <DoctorHeader />
+    <div 
+      className="flex flex-col min-h-screen relative"
+      style={{
+        backgroundImage: 'url("/images/doctor.jpg")',
+        backgroundSize: 'cover',
+        backgroundPosition: 'center 2%',
+        backgroundRepeat: 'no-repeat',
+        backgroundAttachment: 'fixed',
+        backgroundColor: 'rgba(255, 255, 255, 0.8)',
+        backgroundBlendMode: 'overlay'
+      }}
+    >
+      <Header />
       {loading && (
         <div className="z-50 fixed top-0 left-0 w-full h-full bg-black backdrop-blur-sm bg-opacity-70 flex justify-center items-center">
           <div className="relative p-4 w-48 h-48 flex justify-center items-center">
@@ -47,13 +60,18 @@ const DoctorLanding = () => {
           </div>
         </div>
       )}
-      <div
-        className="w-full bg-green-600 text-white h-20 flex items-center justify-center text-center shadow-md mt-20 
-        transition-transform transform duration-700 ease-out animate-fadeIn"
-      >
-        <h1 className="text-2xl font-bold">Welcome to Health Nexus!</h1>
-      </div>
-      <main className="flex-1 flex flex-col items-center justify-center bg-gray-100 p-6">
+        <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="w-full bg-green-600 bg-opacity-90 text-white h-20 flex items-center justify-center text-center shadow-md mt-20"
+          >
+            <h1 className="text-2xl font-bold">
+              Welcome to Health Nexus{loading ? "Loading..." :doctor ?.name || ""}
+            </h1>
+          </motion.div>
+
+      <main className="flex-1 flex flex-col items-center justify-center p-6 relative z-10">
         <div className="w-full max-w-4xl p-11 bg-white shadow-lg rounded-2xl text-center transition-transform transform hover:scale-105 text-gray-900">
           <p className="mt-4 text-xl font-extrabold text-green-700">
             {doctor.firstName && doctor.lastName
@@ -73,14 +91,21 @@ const DoctorLanding = () => {
               onClick={() =>
                 router.push(`/DoctorPages/todays_appointment?id=${doctor.id}`)
               }
-              className="w-full px-6 py-2 text-lg bg-green-600 text-white rounded-lg hover:bg-green-800"
+              className="w-1/2 px-6 py-2 text-lg bg-green-600 text-white rounded-lg hover:bg-green-800"
             >
               Show Appointments
+            </button>
+            <button
+              onClick={() =>
+                router.push(`/DoctorPages/todays_appointment?id=${doctor.id}&status=accepted`)
+              }
+              className="w-1/2 px-6 py-2 text-lg bg-blue-600 text-white rounded-lg hover:bg-blue-800"
+            >
+              Accepted Appointments
             </button>
           </div>
         </div>
       </main>
-      <Footer />
     </div>
   );
 };
