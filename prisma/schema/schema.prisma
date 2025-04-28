@@ -3,6 +3,7 @@ generator client {
   previewFeatures = ["prismaSchemaFolder"]
 }
 
+
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
@@ -54,6 +55,7 @@ model PatientLogin {
   password_hash              String
   created_at                 DateTime  @default(now())
   updated_at                 DateTime  @updatedAt
+  Rating                     Rating[]
 }
 
 model loan {
@@ -186,21 +188,21 @@ model Medication {
   createdAt  DateTime @default(now())
 }
 
-model Prescription {
-  id                Int      @id @default(autoincrement())
-  user_id           Int
-  Medicines         String
-  Tests             String
-  Operations        String
-  ExtraInstructions String
-  createdAt         DateTime @default(now())
-  appointment_id    Int?
-}
+  model Prescription {
+    id                Int      @id @default(autoincrement())
+    user_id           Int
+    Medicines         String
+    Tests             String
+    Operations        String
+    ExtraInstructions String
+    createdAt         DateTime @default(now())
+    appointment_id    Int?
+  }
 
 model AssistanceRequest {
   id                Int            @id @default(autoincrement())
   fullName          String
-  cnic              String         
+  cnic              String
   contact           String
   medicalCondition  String
   medicalReport     String?
@@ -230,19 +232,20 @@ model Doctor {
 }
 
 model NGO {
-  id                 Int      @id @default(autoincrement())
+  id                 Int                  @id @default(autoincrement())
   name               String
-  email              String   @unique
+  email              String               @unique
   password           String
-  registrationNumber String   @unique
+  registrationNumber String               @unique
   phone              String
   address            String
   mission            String
-  role               String   @default("ngo")
-  createdAt          DateTime @default(now())
-  impacts            nGOImpact[]
-  monthlyDonations   NGOMonthlyDonation[]
-  monthlyPatients    NGOMonthlyPatient[]
+  role               String               @default("ngo")
+  createdAt          DateTime             @default(now())
+  NGOMonthlyDonation NGOMonthlyDonation[]
+  NGOMonthlyPatient  NGOMonthlyPatient[]
+  Rating             Rating[]
+  nGOImpact          nGOImpact[]
 }
 
 model Pharmacy {
@@ -269,18 +272,17 @@ model manageAccount {
   updatedAt DateTime
 }
 
-model nGOImpact {
-  id               Int      @id @default(autoincrement())
-  patientsHelped   Int
-  fundsDistributed Int
-  pendingRequests  Int
-  avgApprovalTime  Int
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
-  ngo              NGO      @relation(fields: [ngold], references: [id])
-  ngold            Int
+model Rating {
+  id           Int          @id @default(autoincrement())
+  patientId    Int
+  ngoId        Int
+  rating       Float
+  NGO          NGO          @relation(fields: [ngoId], references: [id])
+  PatientLogin PatientLogin @relation(fields: [patientId], references: [patient_id])
 
-  @@index([ngold])
+  @@unique([patientId, ngoId])
+  @@index([ngoId])
+  @@index([patientId])
 }
 
 model NGOMonthlyDonation {
@@ -288,13 +290,13 @@ model NGOMonthlyDonation {
   amount    Float
   month     DateTime
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  ngo       NGO      @relation(fields: [ngoId], references: [id])
+  updatedAt DateTime
   ngoId     Int
+  NGO       NGO      @relation(fields: [ngoId], references: [id])
 
-  @@index([ngoId])
-  @@index([month])
   @@unique([ngoId, month])
+  @@index([month])
+  @@index([ngoId])
 }
 
 model NGOMonthlyPatient {
@@ -302,16 +304,28 @@ model NGOMonthlyPatient {
   patientCount Int
   month        DateTime
   createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-  ngo          NGO      @relation(fields: [ngoId], references: [id])
+  updatedAt    DateTime
   ngoId        Int
+  NGO          NGO      @relation(fields: [ngoId], references: [id])
 
-  @@index([ngoId])
-  @@index([month])
   @@unique([ngoId, month])
-} 
+  @@index([month])
+  @@index([ngoId])
+}
 
+model nGOImpact {
+  id               Int      @id @default(autoincrement())
+  patientsHelped   Int
+  fundsDistributed Int
+  pendingRequests  Int
+  avgApprovalTime  Int
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime
+  ngold            Int
+  NGO              NGO      @relation(fields: [ngold], references: [id])
 
+  @@index([ngold])
+}
 
 enum AssistanceType {
   FINANCIAL_AID

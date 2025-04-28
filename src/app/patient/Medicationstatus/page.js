@@ -103,7 +103,6 @@ const MedicationStatus = () => {
             return;
           }
           setPrescriptions(data);
-          setActivePrescription(data[0].id);
           
           // Now fetch all medications for this user ID
           return fetch(`/api/auth/Medications?user_id=${id}`)
@@ -187,6 +186,22 @@ const MedicationStatus = () => {
     const interval = setInterval(checkReminders, 60000);
     return () => clearInterval(interval);
   }, [medications]);
+
+  // Map real prescription IDs to sequential display numbers (1-indexed)
+  const getPrescriptionDisplayNumber = (realId) => {
+    if (!prescriptions || prescriptions.length === 0) return 1;
+    
+    // Sort prescriptions by creation date (oldest first)
+    const sortedPrescriptions = [...prescriptions].sort(
+      (a, b) => new Date(a.createdAt) - new Date(b.createdAt)
+    );
+    
+    // Find the index of the prescription with this ID in the sorted array
+    const index = sortedPrescriptions.findIndex(p => p.id === realId);
+    
+    // Return 1-indexed position (add 1 to 0-indexed position)
+    return index !== -1 ? index + 1 : 1;
+  };
 
   const filteredMedications = activePrescription 
     ? medications.filter(med => med.prescriptionId === activePrescription)
@@ -285,7 +300,7 @@ const MedicationStatus = () => {
                           : "bg-white text-gray-700 hover:bg-gray-100"
                       }`}
                     >
-                      Prescription {prescription.id.toString().padStart(2, '0')} 
+                      Prescription {getPrescriptionDisplayNumber(prescription.id).toString().padStart(2, '0')} 
                       <span className="ml-2 text-xs opacity-80">
                         {new Date(prescription.createdAt).toLocaleDateString()}
                       </span>
@@ -323,7 +338,7 @@ const MedicationStatus = () => {
                         <svg className="h-6 w-6 text-green-600 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                         </svg>
-                        <h2 className="text-xl font-bold text-gray-800">Prescription #{prescription.id}</h2>
+                        <h2 className="text-xl font-bold text-gray-800">Prescription #{getPrescriptionDisplayNumber(prescription.id)}</h2>
                       </div>
                       
                       <div className="mb-4">
@@ -377,7 +392,7 @@ const MedicationStatus = () => {
                         <h3 className="text-xl font-bold text-gray-800">{med.name}</h3>
                         {med.prescriptionId !== activePrescription && activePrescription !== null && (
                           <span className="text-xs bg-gray-200 text-gray-700 px-2 py-1 rounded-full">
-                            Rx #{med.prescriptionId}
+                            Rx #{getPrescriptionDisplayNumber(med.prescriptionId)}
                           </span>
                         )}
                       </div>
