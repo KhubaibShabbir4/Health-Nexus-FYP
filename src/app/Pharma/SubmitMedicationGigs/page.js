@@ -9,12 +9,20 @@ const SubmitMedicationGigs = () => {
   const [prescriptions, setPrescriptions] = useState([]);
   const [medications, setMedications] = useState([]);
   const [id, setId] = useState(0);
+  const [patientInfo, setPatientInfo] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [activePrescription, setActivePrescription] = useState(null);
   const [gigRequests, setGigRequests] = useState({});
   const [submittingGig, setSubmittingGig] = useState(null);
   const router = useRouter();
+
+  // Function to calculate total amount
+  const calculateTotal = (medId) => {
+    const quantity = parseFloat(gigRequests[medId]?.quantity || 0);
+    const price = parseFloat(gigRequests[medId]?.price || 0);
+    return (quantity * price).toFixed(2);
+  };
 
   // Get patient ID from session or URL parameter as fallback
   useEffect(() => {
@@ -28,6 +36,17 @@ const SubmitMedicationGigs = () => {
           if (sessionData && sessionData.patient_id) {
             console.log("Retrieved patient_id from session:", sessionData.patient_id);
             setId(Number(sessionData.patient_id));
+            
+            // Also get patient info if we have the ID
+            try {
+              const patientResponse = await fetch(`/api/auth/getPatientDetails?id=${sessionData.patient_id}`);
+              if (patientResponse.ok) {
+                const patientData = await patientResponse.json();
+                setPatientInfo(patientData.patient);
+              }
+            } catch (error) {
+              console.error("Error fetching patient details from session ID:", error);
+            }
             return;
           }
         } else {
@@ -40,6 +59,7 @@ const SubmitMedicationGigs = () => {
             if (userData && userData.patient && userData.patient.patient_id) {
               console.log("Retrieved patient_id from getUser API:", userData.patient.patient_id);
               setId(Number(userData.patient.patient_id));
+              setPatientInfo(userData.patient);
               return;
             }
           } else {
@@ -48,6 +68,17 @@ const SubmitMedicationGigs = () => {
             if (localPatientId) {
               console.log("Retrieved patient_id from localStorage:", localPatientId);
               setId(Number(localPatientId));
+              
+              // Try to get patient details separately
+              try {
+                const patientResponse = await fetch(`/api/auth/getPatientDetails?id=${localPatientId}`);
+                if (patientResponse.ok) {
+                  const patientData = await patientResponse.json();
+                  setPatientInfo(patientData.patient);
+                }
+              } catch (error) {
+                console.error("Error fetching patient details:", error);
+              }
               return;
             }
             
@@ -58,6 +89,17 @@ const SubmitMedicationGigs = () => {
             
             if (user_id) {
               setId(Number(user_id));
+              
+              // Try to get patient details separately
+              try {
+                const patientResponse = await fetch(`/api/auth/getPatientDetails?id=${user_id}`);
+                if (patientResponse.ok) {
+                  const patientData = await patientResponse.json();
+                  setPatientInfo(patientData.patient);
+                }
+              } catch (error) {
+                console.error("Error fetching patient details:", error);
+              }
               return;
             }
             
@@ -142,7 +184,9 @@ const SubmitMedicationGigs = () => {
                         stock, 
                         id: `${prescription.id}-${index}`,
                         prescriptionId: prescription.id,
-                        prescriptionDate: createdAt
+                        prescriptionDate: createdAt,
+                        patientName: patientInfo?.full_name || prescription.patientName || "Patient",
+                        patientId: patientInfo?.patient_id || prescription.patientId || id
                       };
                     });
                     
@@ -169,7 +213,7 @@ const SubmitMedicationGigs = () => {
     } else {
       console.log("No id available to fetch medications");
     }
-  }, [id]);
+  }, [id, patientInfo]);
 
   useEffect(() => {
     const checkReminders = () => {
@@ -210,13 +254,21 @@ const SubmitMedicationGigs = () => {
     : medications;
 
   const handleGigInputChange = (medId, field, value) => {
-    setGigRequests(prev => ({
-      ...prev,
-      [medId]: {
-        ...prev[medId],
-        [field]: value
+    setGigRequests(prev => {
+      // Convert to number if field is quantity or price
+      let processedValue = value;
+      if (field === 'quantity' || field === 'price') {
+        processedValue = value === '' ? '' : parseFloat(value);
       }
-    }));
+      
+      return {
+        ...prev,
+        [medId]: {
+          ...prev[medId],
+          [field]: processedValue
+        }
+      };
+    });
   };
 
   const submitGig = async (medId) => {
@@ -271,13 +323,11 @@ const SubmitMedicationGigs = () => {
     <div 
       className="min-h-screen w-full"
       style={{
-        backgroundImage: 'url("/images/medsta.jpeg")',
+        backgroundImage: 'linear-gradient(to right, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.85)), url("/images/medsta.jpeg")',
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         backgroundRepeat: 'no-repeat',
-        backgroundAttachment: 'fixed',
-        backgroundColor: 'rgba(255, 255, 255, 0.9)',
-        backgroundBlendMode: 'overlay'
+        backgroundAttachment: 'fixed'
       }}
     >
       <div className="max-w-6xl mx-auto pt-8 pb-16 px-4 sm:px-6 lg:px-8">
@@ -285,14 +335,17 @@ const SubmitMedicationGigs = () => {
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="flex flex-col sm:flex-row justify-between items-center mb-8"
+          className="flex flex-col sm:flex-row justify-between items-center mb-8 bg-white shadow-lg rounded-xl p-6"
         >
-          <h1 className="text-3xl font-extrabold text-green-700 sm:text-4xl mb-4 sm:mb-0">
-            Submit Medication Gigs
-          </h1>
+          <div>
+            <h1 className="text-3xl font-extrabold text-green-700 sm:text-4xl mb-2">
+              Submit Medication Gigs
+            </h1>
+            <p className="text-gray-600">Help patients by providing medication services</p>
+          </div>
           <Link 
             href="/Pharma/Home" 
-            className="px-5 py-2.5 bg-white hover:bg-gray-50 text-green-700 font-medium rounded-lg shadow transition duration-300 flex items-center space-x-2"
+            className="mt-4 sm:mt-0 px-5 py-2.5 bg-green-50 hover:bg-green-100 text-green-700 font-medium rounded-lg shadow-sm transition duration-300 flex items-center space-x-2 border border-green-200"
           >
             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
               <path fillRule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clipRule="evenodd" />
@@ -305,14 +358,40 @@ const SubmitMedicationGigs = () => {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-white rounded-lg shadow-lg p-6 mb-8"
+          className="bg-white rounded-lg shadow-xl p-6 mb-8 border-l-4 border-green-500"
         >
           <div className="flex items-center mb-4">
-            <svg className="h-6 w-6 text-blue-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
+            <div className="bg-green-100 p-3 rounded-full mr-3">
+              <svg className="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
             <h2 className="text-xl font-bold text-gray-800">How to Submit Your Medication Gigs</h2>
           </div>
+          
+          {patientInfo && (
+            <div className="flex items-center p-5 my-4 bg-gradient-to-r from-green-50 to-blue-50 border border-green-100 rounded-lg shadow-sm">
+              <div className="flex-shrink-0 bg-green-100 p-3 rounded-full mr-4">
+                <svg className="h-7 w-7 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+              </div>
+              <div>
+                <p className="text-green-800 font-bold text-xl">
+                  {patientInfo.full_name}
+                </p>
+                {patientInfo.email && (
+                  <p className="text-green-700 text-sm flex items-center">
+                    <svg className="h-4 w-4 mr-1 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                    </svg>
+                    {patientInfo.email}
+                  </p>
+                )}
+              </div>
+            </div>
+          )}
+          
           <ol className="list-decimal pl-5 space-y-2 text-gray-700">
             <li>Review your medications listed below.</li>
             <li>For each medication, enter the quantity you can provide and your service details.</li>
@@ -369,32 +448,42 @@ const SubmitMedicationGigs = () => {
             {/* Prescription Tabs */}
             {prescriptions.length > 1 && (
               <div className="mb-6 overflow-x-auto">
-                <div className="flex space-x-2 border-b border-gray-200 pb-2">
+                <div className="flex space-x-2 border-b-2 border-gray-200 pb-2">
                   {prescriptions.map((prescription) => (
                     <button
                       key={prescription.id}
                       onClick={() => setActivePrescription(prescription.id)}
-                      className={`px-4 py-2 rounded-t-lg font-medium transition-colors whitespace-nowrap ${
+                      className={`px-6 py-3 rounded-t-lg font-medium transition-colors whitespace-nowrap ${
                         activePrescription === prescription.id
-                          ? "bg-green-600 text-white"
-                          : "bg-white text-gray-700 hover:bg-gray-100"
+                          ? "bg-gradient-to-r from-green-600 to-green-500 text-white shadow-md"
+                          : "bg-white text-gray-700 hover:bg-gray-50 hover:text-green-600"
                       }`}
                     >
-                      Prescription {getPrescriptionDisplayNumber(prescription.id).toString().padStart(2, '0')} 
-                      <span className="ml-2 text-xs opacity-80">
-                        {new Date(prescription.createdAt).toLocaleDateString()}
+                      <span className="flex items-center">
+                        <svg className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        Prescription {getPrescriptionDisplayNumber(prescription.id).toString().padStart(2, '0')} 
+                        <span className="ml-2 text-xs opacity-80">
+                          {new Date(prescription.createdAt).toLocaleDateString()}
+                        </span>
                       </span>
                     </button>
                   ))}
                   <button
                     onClick={() => setActivePrescription(null)}
-                    className={`px-4 py-2 rounded-t-lg font-medium transition-colors ${
+                    className={`px-6 py-3 rounded-t-lg font-medium transition-colors ${
                       activePrescription === null
-                        ? "bg-green-600 text-white"
-                        : "bg-white text-gray-700 hover:bg-gray-100"
+                        ? "bg-gradient-to-r from-blue-600 to-blue-500 text-white shadow-md"
+                        : "bg-white text-gray-700 hover:bg-gray-50 hover:text-blue-600"
                     }`}
                   >
-                    View All
+                    <span className="flex items-center">
+                      <svg className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 10h16M4 14h16M4 18h16" />
+                      </svg>
+                      View All
+                    </span>
                   </button>
                 </div>
               </div>
@@ -404,9 +493,12 @@ const SubmitMedicationGigs = () => {
             <motion.div 
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="bg-gray-50 rounded-lg shadow-lg p-6"
+              className="bg-white rounded-lg shadow-xl p-6"
             >
-              <div className="bg-gradient-to-r from-green-600 to-teal-500 py-4 px-6 -mx-6 -mt-6 mb-6 rounded-t-lg">
+              <div className="bg-gradient-to-r from-green-600 via-green-500 to-teal-500 py-5 px-6 -mx-6 -mt-6 mb-8 rounded-t-lg flex items-center">
+                <svg className="h-8 w-8 text-white mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+                </svg>
                 <h2 className="text-white text-2xl font-bold">Available Medications for Your Gigs</h2>
               </div>
               
@@ -419,51 +511,77 @@ const SubmitMedicationGigs = () => {
                       animate={{ opacity: 1 }}
                       exit={{ opacity: 0 }}
                       transition={{ duration: 0.3, delay: index * 0.05 }}
-                      className="p-6 mb-4 bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-all"
+                      className="p-6 mb-6 bg-white border border-gray-200 rounded-xl shadow-md hover:shadow-lg transition-all"
                     >
-                      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between">
+                      <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between">
                         {/* Medication Info */}
-                        <div className="mb-4 lg:mb-0 lg:pr-4">
+                        <div className="mb-5 lg:mb-0 lg:pr-6 lg:w-3/5">
                           <div className="flex items-center mb-3">
                             <span className={`w-4 h-4 rounded-full mr-3 ${med.stock > 0 ? 'bg-green-500' : 'bg-red-500'}`}></span>
-                            <h3 className="text-2xl font-bold text-gray-800">{med.name}</h3>
-                            {med.prescriptionId !== activePrescription && activePrescription === null && (
-                              <span className="ml-3 text-xs bg-gray-200 text-gray-700 px-2 py-1 rounded-full">
-                                Rx #{getPrescriptionDisplayNumber(med.prescriptionId)}
-                              </span>
-                            )}
+                            <h3 className="text-2xl font-bold text-gray-800 flex items-center">
+                              {med.name}
+                              {med.prescriptionId !== activePrescription && activePrescription === null && (
+                                <span className="ml-3 text-xs bg-gray-200 text-gray-700 px-2 py-1 rounded-full">
+                                  Rx #{getPrescriptionDisplayNumber(med.prescriptionId)}
+                                </span>
+                              )}
+                            </h3>
                           </div>
                           
-                          <div className="mt-2 grid grid-cols-1 sm:grid-cols-3 gap-2">
-                            <div className="flex items-center text-sm text-gray-600">
-                              <svg className="h-4 w-4 text-blue-500 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <div className="text-sm text-gray-700 mb-3 bg-blue-50 p-2 rounded-md inline-flex items-center">
+                            <svg className="h-5 w-5 text-blue-600 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                            </svg>
+                            <span className="font-medium">Patient:</span> {med.patientName}
+                          </div>
+                          
+                          <div className="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-3">
+                            <div className="flex items-center text-sm bg-indigo-50 p-2 rounded-md">
+                              <svg className="h-5 w-5 text-indigo-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                               </svg>
-                              Take: {med.time}
+                              <div>
+                                <span className="block font-semibold text-indigo-700">Schedule</span>
+                                {med.time}
+                              </div>
                             </div>
-                            <div className="flex items-center text-sm text-gray-600">
-                              <svg className="h-4 w-4 text-purple-500 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <div className="flex items-center text-sm bg-purple-50 p-2 rounded-md">
+                              <svg className="h-5 w-5 text-purple-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                               </svg>
-                              Duration: {med.days} days
+                              <div>
+                                <span className="block font-semibold text-purple-700">Duration</span>
+                                {med.days} days
+                              </div>
                             </div>
-                            <div className="flex items-center text-sm text-gray-600">
-                              <svg className="h-4 w-4 text-amber-500 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <div className="flex items-center text-sm bg-amber-50 p-2 rounded-md">
+                              <svg className="h-5 w-5 text-amber-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
                               </svg>
-                              Stock: <span className={med.stock / med.total > 0.3 ? "text-green-600" : "text-red-600 font-medium"}>
-                                {med.stock} / {med.total}
-                              </span>
+                              <div>
+                                <span className="block font-semibold text-amber-700">Stock</span>
+                                <span className={med.stock / med.total > 0.3 ? "text-green-600" : "text-red-600 font-medium"}>
+                                  {med.stock} / {med.total}
+                                </span>
+                              </div>
                             </div>
                           </div>
                         </div>
                         
                         {/* Gig Submission Form */}
-                        <div className="bg-blue-50 p-5 rounded-lg lg:w-2/5 border border-blue-100 shadow-sm">
-                          <h4 className="text-lg font-semibold text-blue-800 mb-3 border-b border-blue-100 pb-2">Submit Your Gig</h4>
-                          <div className="space-y-3">
+                        <div className="bg-gradient-to-br from-blue-50 to-sky-50 p-6 rounded-lg lg:w-2/5 border border-blue-100 shadow-md">
+                          <h4 className="text-lg font-semibold text-blue-800 mb-4 border-b border-blue-100 pb-2 flex items-center">
+                            <svg className="h-5 w-5 text-blue-600 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                            </svg>
+                            Submit Your Gig
+                          </h4>
+                          <div className="space-y-4">
                             <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-1">
+                              <label className="block text-sm font-medium text-gray-700 mb-1 flex items-center">
+                                <svg className="h-4 w-4 text-gray-600 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14" />
+                                </svg>
                                 Quantity You Can Provide
                               </label>
                               <input
@@ -473,45 +591,20 @@ const SubmitMedicationGigs = () => {
                                 value={gigRequests[med.id]?.quantity || ''}
                                 onChange={(e) => handleGigInputChange(med.id, 'quantity', e.target.value)}
                                 placeholder={`Max ${med.total}`}
-                                className="w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring focus:ring-green-200 focus:ring-opacity-50"
+                                className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
                               />
                             </div>
                             
                             <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-1">
-                                Your Service Details
-                              </label>
-                              <textarea
-                                value={gigRequests[med.id]?.instructions || ''}
-                                onChange={(e) => handleGigInputChange(med.id, 'instructions', e.target.value)}
-                                placeholder="Describe your service (delivery time, special handling, etc.)"
-                                rows="2"
-                                className="w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring focus:ring-green-200 focus:ring-opacity-50"
-                              />
-                            </div>
-                            
-                            <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-1">
-                                Service Type
-                              </label>
-                              <select
-                                value={gigRequests[med.id]?.deliveryPreference || ''}
-                                onChange={(e) => handleGigInputChange(med.id, 'deliveryPreference', e.target.value)}
-                                className="w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring focus:ring-green-200 focus:ring-opacity-50"
-                              >
-                                <option value="">Select a service type</option>
-                                <option value="delivery">Home Delivery</option>
-                                <option value="pickup">Pharmacy Pickup</option>
-                              </select>
-                            </div>
-
-                            <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-1">
-                                Your Price (per unit)
+                              <label className="block text-sm font-medium text-gray-700 mb-1 flex items-center">
+                                <svg className="h-4 w-4 text-gray-600 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                Your Price (per unit in Rs)
                               </label>
                               <div className="flex">
-                                <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 bg-gray-50 text-gray-500">
-                                  $
+                                <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 bg-gray-50 text-gray-500 font-medium">
+                                  Rs
                                 </span>
                                 <input
                                   type="number"
@@ -520,30 +613,55 @@ const SubmitMedicationGigs = () => {
                                   value={gigRequests[med.id]?.price || ''}
                                   onChange={(e) => handleGigInputChange(med.id, 'price', e.target.value)}
                                   placeholder="0.00"
-                                  className="flex-1 min-w-0 rounded-none rounded-r-md border-gray-300 focus:border-green-500 focus:ring focus:ring-green-200 focus:ring-opacity-50"
+                                  className="flex-1 min-w-0 rounded-none rounded-r-md border-gray-300 focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
                                 />
                               </div>
+                              {(gigRequests[med.id]?.quantity && gigRequests[med.id]?.price) && (
+                                <div className="mt-1 text-sm bg-green-50 text-green-700 font-medium p-2 rounded border border-green-100">
+                                  Total Amount: Rs {calculateTotal(med.id)}
+                                </div>
+                              )}
                             </div>
 
                             <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-1">
+                              <label className="block text-sm font-medium text-gray-700 mb-1 flex items-center">
+                                <svg className="h-4 w-4 text-gray-600 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                </svg>
                                 Service Availability
                               </label>
                               <select
                                 value={gigRequests[med.id]?.availability || ''}
                                 onChange={(e) => handleGigInputChange(med.id, 'availability', e.target.value)}
-                                className="w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring focus:ring-green-200 focus:ring-opacity-50"
+                                className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
                               >
                                 <option value="">Select availability</option>
                                 <option value="same-day">Same Day</option>
                                 <option value="next-day">Next Day</option>
                                 <option value="2-3-days">2-3 Days</option>
-                                <option value="custom">Custom (specify in details)</option>
+                              </select>
+                            </div>
+                            
+                            <div>
+                              <label className="block text-sm font-medium text-gray-700 mb-1 flex items-center">
+                                <svg className="h-4 w-4 text-gray-600 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                                </svg>
+                                Service Type
+                              </label>
+                              <select
+                                value={gigRequests[med.id]?.deliveryPreference || ''}
+                                onChange={(e) => handleGigInputChange(med.id, 'deliveryPreference', e.target.value)}
+                                className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+                              >
+                                <option value="">Select a service type</option>
+                                <option value="delivery">Home Delivery</option>
+                                <option value="pickup">Pharmacy Pickup</option>
                               </select>
                             </div>
                           </div>
                           
-                          <div className="mt-4">
+                          <div className="mt-6">
                             <button
                               onClick={() => submitGig(med.id)}
                               disabled={
@@ -553,14 +671,14 @@ const SubmitMedicationGigs = () => {
                                 !gigRequests[med.id]?.availability ||
                                 med.stock <= 0
                               }
-                              className={`w-full py-2 px-4 rounded-md font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors ${
+                              className={`w-full py-3 px-4 rounded-md font-medium text-base focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors ${
                                 submittingGig === med.id
                                   ? "bg-gray-400 cursor-not-allowed"
                                   : med.stock <= 0
                                   ? "bg-gray-300 text-gray-500 cursor-not-allowed"
                                   : !gigRequests[med.id]?.quantity || !gigRequests[med.id]?.price || !gigRequests[med.id]?.availability
                                   ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                                  : "bg-green-600 hover:bg-green-700 text-white focus:ring-green-500"
+                                  : "bg-gradient-to-r from-green-600 to-green-500 hover:from-green-700 hover:to-green-600 text-white focus:ring-green-500 shadow-md"
                               }`}
                             >
                               {submittingGig === med.id ? (
