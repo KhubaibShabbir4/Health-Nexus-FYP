@@ -3,7 +3,6 @@ generator client {
   previewFeatures = ["prismaSchemaFolder"]
 }
 
-
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
@@ -108,13 +107,18 @@ model CaseStatus {
   dosage             String?
   prescribedMedicine String?
 }
-
 model GigDetails {
-  id          Int      @id @default(autoincrement())
-  gigAmount   Int
-  caseId      Int
-  patientName String
-  createdAt   DateTime @default(now())
+  id                  Int      @id @default(autoincrement())
+  pharmacistId        Int
+  prescriptionId      Int
+  medicationId        String
+  medicationName      String
+  quantity            Float
+  price               Float
+  availability        String
+  deliveryPreference  String
+  status              String
+  createdAt           DateTime @default(now())
 }
 
 model patients {
@@ -188,16 +192,16 @@ model Medication {
   createdAt  DateTime @default(now())
 }
 
-  model Prescription {
-    id                Int      @id @default(autoincrement())
-    user_id           Int
-    Medicines         String
-    Tests             String
-    Operations        String
-    ExtraInstructions String
-    createdAt         DateTime @default(now())
-    appointment_id    Int?
-  }
+model Prescription {
+  id                Int      @id @default(autoincrement())
+  user_id           Int
+  Medicines         String
+  Tests             String
+  Operations        String
+  ExtraInstructions String
+  createdAt         DateTime @default(now())
+  appointment_id    Int?
+}
 
 model AssistanceRequest {
   id                Int            @id @default(autoincrement())
