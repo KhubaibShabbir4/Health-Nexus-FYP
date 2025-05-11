@@ -1,7 +1,7 @@
 'use client';
 import Link from "next/link";
 import { useState } from "react";
-import AdminHeader from "../AdminHeader/page.js"; // Import the AdminHeader component
+import Header from "../../components/Header/page"; // Import the AdminHeader component
 import './page.css';
 
 export default function AdminDashboard() {
@@ -9,7 +9,7 @@ export default function AdminDashboard() {
 
   return (
     <>
-      <AdminHeader /> {/* Use the extracted header */}
+     <Header /> {/* Use the extracted header */}
 
       {/* Admin Dashboard Section */}
       <div className="container">
@@ -61,15 +61,16 @@ export default function AdminDashboard() {
 
       {/* Floating Buttons Container */}
       <div className="floating-buttons-container">
-        <Link href="/admin/create-admin">
+        <Link href="/admin/create-admin" className="floating-button-link">
           <button className="floating-add-admin-button">
             <span className="button-icon">+</span>
             <span className="button-text">Add Admin</span>
           </button>
         </Link>
-        <Link href="/components/Landing">
+        <Link href="/components/Landing" className="floating-button-link">
           <button className="floating-logout-button">
-          <span className=".button-log">Logout</span>
+            <span className="button-icon">↪</span>
+            <span className="button-text">Logout</span>
           </button>
         </Link>
       </div>
