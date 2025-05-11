@@ -242,7 +242,7 @@ export default function PatientDashboard() {
           setXrayOpen(true);
         }}
       >
-        X-ray Analysis
+        X-Ray Analysis
       </button>
 
 
@@ -290,35 +290,78 @@ export default function PatientDashboard() {
       {xrayOpen && (
         <div className="xray-back" onClick={() => setXrayOpen(false)}>
           <div className="xray-box" onClick={(e) => e.stopPropagation()}>
-            <h3>X-ray Analysis</h3>
+            <h3>X-Ray Analysis</h3>
 
+            {/* Show upload first only if no analysis has been done */}
+            {!xrayBusy && xrayChat.length === 0 && (
+              <div className="xray-upload">
+                <label htmlFor="xray-file">
+                  {xrayFile ? '✅ Image selected' : '📎 Choose X-Ray image'}
+                </label>
+                <input
+                  id="xray-file"
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => setXrayFile(e.target.files[0] || null)}
+                />
+              </div>
+            )}
+
+            {/* Analysis Results */}
             <div className="xray-chat">
               {xrayChat.map((m, i) =>
                 m.role === "user" ? (
-                  <img key={i} src={m.url} alt="upload" className="xray-img" />
+                  <div key={i} className="xray-img-container">
+                    <h4>Uploaded X-RAY</h4>
+                    <img src={m.url} alt="X-ray scan" className="xray-img" />
+                  </div>
                 ) : (
                   <div key={i} className="xray-bot">
                     <ReactMarkdown>{m.text}</ReactMarkdown>
                   </div>
                 )
               )}
-              {xrayBusy && <p>Analyzing…</p>}
+              
+              {xrayBusy && (
+                <div className="xray-loading">
+                  <div className="xray-loading-spinner" />
+                  <p>Analyzing your X-Ray image...</p>
+                </div>
+              )}
             </div>
 
-            {!xrayBusy && (
-              <>
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={(e) => setXrayFile(e.target.files[0] || null)}
-                />
-                <div style={{ display: "flex", justifyContent: "flex-end", gap: "8px" }}>
-                  <button onClick={() => setXrayOpen(false)}>Close</button>
-                  <button disabled={!xrayFile} onClick={analyzeXray}>
-                    Analyze
-                  </button>
+            {/* Show upload section below results if analysis exists */}
+            {!xrayBusy && xrayChat.length > 0 && (
+              <div className="xray-controls">
+                <button onClick={() => setXrayOpen(false)}>Close</button>
+                <div className="xray-upload">
+                  <label htmlFor="xray-file">
+                    Analyze Another X-Ray
+                  </label>
+                  <input
+                    id="xray-file"
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => setXrayFile(e.target.files[0] || null)}
+                  />
                 </div>
-              </>
+                {xrayFile && (
+                  <button onClick={analyzeXray}>Analyze X-ray</button>
+                )}
+              </div>
+            )}
+
+            {/* Initial upload controls */}
+            {!xrayBusy && xrayChat.length === 0 && (
+              <div className="xray-controls">
+                <button onClick={() => setXrayOpen(false)}>Close</button>
+                <button 
+                  disabled={!xrayFile} 
+                  onClick={analyzeXray}
+                >
+                  Analyze X-Ray
+                </button>
+              </div>
             )}
           </div>
         </div>

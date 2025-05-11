@@ -5,369 +5,290 @@
     align-items: center;
     min-height: 100vh;
     padding: 20px;
-    background-color: #f4f4f4;
-    margin-top: 80px; /* To avoid overlap with the fixed header */
-  }
-  
-  .card {
-    background: #ffffff;
-    padding: 40px; /* Increased padding for a larger card */
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    text-align: center;
-    max-width: 800px; /* Increased max-width to make the card bigger */
-    width: 100%;
-  }
-  
-  .title {
-    font-size: 2em; /* Increased font size for the title */
-    font-weight: bold;
-    color: #28a745;
-    margin-bottom: 10px;
-  }
-  
-  .description {
-    font-size: 1.2em; /* Increased font size for the description */
-    color: #555;
-    margin-bottom: 20px;
-  }
-  
-  .grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr; /* Two columns instead of one for a more spacious layout */
-    gap: 30px; /* Increased gap between items */
-  }
-  
-  .link {
-    display: block;
-    padding: 12px 20px;
-    background-color: #28a745;
-    color: white;
-    text-decoration: none;
-    font-size: 1em;
-    font-weight: bold;
-    border-radius: 5px;
-    transition: background 0.3s ease;
-  }
-  
-  .link:hover {
-    background-color: #218838;
-  }
-  
-  /* Responsive Design */
-  
-  /* Small devices (Phones in portrait mode, 600px and below) */
-  @media (max-width: 600px) {
-    .container {
-      padding: 10px;
-    }
-  
-    .card {
-      padding: 20px; /* Reduced padding for smaller screens */
-    }
-  
-    .title {
-      font-size: 1.5em; /* Smaller title font */
-    }
-  
-    .description {
-      font-size: 1em; /* Smaller description font */
-    }
-  
-    .grid {
-      grid-template-columns: 1fr; /* One column for smaller screens */
-      gap: 15px; /* Reduced gap between grid items */
-    }
-  
-    .link {
-      font-size: 0.9em;
-      padding: 10px; /* Reduced padding for smaller screens */
-    }
-  }
-  
-  /* Medium devices (Tablets in landscape mode, 768px and below) */
-  @media (max-width: 768px) {
-    .container {
-      padding: 15px; /* Slightly smaller padding */
-    }
-  
-    .grid {
-      grid-template-columns: 1fr 1fr; /* Two columns for medium screens */
-    }
-  
-    .link {
-      font-size: 1em; /* Font size adjustment for medium screens */
-    }
-  }
-  
-  /* Large devices (Desktops, 1024px and above) */
-  @media (min-width: 1024px) {
-    .container {
-      padding: 20px; /* Regular padding */
-    }
-  
-    .card {
-      padding: 40px; /* Regular padding */
-    }
-  
-    .title {
-      font-size: 2em; /* Larger font size for larger screens */
-    }
-  
-    .description {
-      font-size: 1.2em; /* Larger font size for larger screens */
-    }
-  
-    .grid {
-      grid-template-columns: 1fr 1fr; /* Two columns for larger screens */
-      gap: 30px; /* Increased gap between grid items */
-    }
-  }
-  /* Responsive Design for Header Title */
-  .header-title {
-    font-size: 1.5em; /* Default size */
-  }
-  
-  /* Small devices (Phones in portrait mode, 600px and below) */
-  @media (max-width: 600px) {
-    .header-title {
-      font-size: 1.2em; /* Smaller font size for smaller screens */
-    }
-  }
-  
-  /* Medium devices (Tablets in landscape mode, 768px and below) */
-  @media (max-width: 768px) {
-    .header-title {
-      font-size: 1.3em; /* Slightly smaller for tablets */
-    }
-  }
-  
-  /* Large devices (Desktops, 1024px and above) */
-  @media (min-width: 1024px) {
-    .header-title {
-      font-size: 1.7em; /* Larger size for desktop screens */
-    }
-  }
-  
-  
-  /* Floating Add Admin Button */
-  .floating-add-admin-button {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    background: linear-gradient(135deg, #28a745, #218838); /* Green Gradient */
-    color: white;
-    border: none;
-    padding: 14px;
-    font-size: 16px;
-    font-weight: bold;
-    cursor: pointer;
-    border-radius: 50%; /* Initial round shape */
-    transition: all 0.3s ease-in-out;
-    box-shadow: 0px 4px 15px rgba(40, 167, 69, 0.5); /* Green glow */
-    width: 50px;
-    height: 50px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    overflow: hidden;
-    white-space: nowrap;
-  }
-
-  /*logout button*/
-  .floating-logout-button {
-    position: fixed;
-    bottom: 20px; /* Align with the add admin button */
-    right: 80px; /* Move to the left side */
-    background: linear-gradient(135deg, #28a745, #218838); /* Green Gradient */
-    color: white;
-    border: none;
-    padding: 14px;
-    font-size: 16px;
-    font-weight: bold;
-    cursor: pointer;
-    border-radius: 50%; /* Initial round shape */
-    transition: all 0.3s ease-in-out;
-    box-shadow: 0px 4px 15px rgba(40, 167, 69, 0.5); /* Green glow */
-    width: 100px;
-    height: 50px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    overflow: hidden;
-    white-space: nowrap;
-  }
-  
-  /* Icon and Text Styling */
-  .button-icon {
-    font-size: 20px;
-  }
-  
-  .button-log {
-    font-size: 15px;
-  }
-  .button-text {
-    display: none; /* Hide text initially */
-    margin-left: 10px;
-  }
-  
-  /* Hover Effect - Expands the button */
-  .floating-add-admin-button:hover {
-    width: 150px; /* Expands */
-    border-radius: 50px; /* Soft pill shape */
-    padding: 14px 20px;
-    justify-content: space-between;
-    box-shadow: 0px 6px 20px rgba(40, 167, 69, 0.7);
-  }
-  
-  /* Show text on hover */
-  .floating-add-admin-button:hover .button-text {
-    display: inline;
-  }
-  
-  /* Bounce Animation */
-  @keyframes bounce {
-    0%, 100% {
-      transform: translateY(0);
-    }
-    50% {
-      transform: translateY(-5px);
-    }
-  }
-  
-  /* General Styles */
-.container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
+    background: linear-gradient(135deg, #f5f7fa 0%, #e4e8eb 100%);
+    margin-top: 80px;
 }
 
 .card {
-  background: #fff;
-  padding: 30px;
-  border-radius: 12px;
-  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
-  text-align: center;
-  width: 400px;
+    background: rgba(255, 255, 255, 0.95);
+    padding: 40px;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    max-width: 900px;
+    width: 100%;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .title {
-  font-size: 28px;
-  font-weight: bold;
-  color: #28a745;
-  margin-bottom: 10px;
+    font-size: 2.5em;
+    font-weight: 800;
+    background: linear-gradient(135deg, #2ecc71, #27ae60);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 15px;
+    letter-spacing: -0.5px;
 }
 
 .description {
-  font-size: 16px;
-  color: #555;
-  margin-bottom: 20px;
+    font-size: 1.2em;
+    color: #4a5568;
+    margin-bottom: 30px;
+    line-height: 1.6;
 }
 
 .grid {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 25px;
+    margin-top: 30px;
 }
 
 .link {
-  display: block;
-  padding: 12px;
-  background: #28a745;
-  color: white;
-  text-decoration: none;
-  border-radius: 6px;
-  transition: all 0.3s;
+    display: block;
+    padding: 16px 24px;
+    background: linear-gradient(135deg, #2ecc71, #27ae60);
+    color: white;
+    text-decoration: none;
+    font-size: 1.1em;
+    font-weight: 600;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(46, 204, 113, 0.2);
+    position: relative;
+    overflow: hidden;
 }
 
 .link:hover {
-  background: #218838;
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(46, 204, 113, 0.3);
+    background: linear-gradient(135deg, #27ae60, #2ecc71);
 }
 
-/* Dropdown Menu */
+/* Dropdown Styles */
 .dropdown-container {
-  position: relative;
-  display: inline-block;
-  width: 100%;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    grid-column: 1 / -1; /* Make it span all columns */
+    margin-top: 20px;
 }
 
 .dropdown-button {
-  width: 100%;
-  padding: 12px;
-  background: #ff9800;
-  color: white;
-  font-size: 16px;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: all 0.3s;
+    width: 80%;
+    padding: 20px 30px;
+    background: linear-gradient(135deg, #f39c12, #e67e22);
+    color: white;
+    font-size: 1.3em;
+    font-weight: 600;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(243, 156, 18, 0.2);
+    text-transform: uppercase;
+    letter-spacing: 1px;
 }
 
 .dropdown-button:hover {
-  background: #e68900;
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(243, 156, 18, 0.3);
+    background: linear-gradient(135deg, #e67e22, #f39c12);
 }
 
 .dropdown-menu {
-  position: absolute;
-  width: 100%;
-  background: #fff;
-  border-radius: 6px;
-  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
-  margin-top: 5px;
-  z-index: 100;
+    position: absolute;
+    width: 80%;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    margin-top: 10px;
+    z-index: 100;
+    overflow: hidden;
+    transform-origin: top;
+    animation: dropdownFade 0.3s ease;
+}
+
+@keyframes dropdownFade {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .dropdown-item {
-  display: block;
-  padding: 10px;
-  color: #333;
-  text-decoration: none;
-  transition: all 0.3s;
+    display: block;
+    padding: 16px 24px;
+    color: #2d3748;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    font-weight: 500;
+    font-size: 1.1em;
+    text-align: center;
 }
 
 .dropdown-item:hover {
-  background: #f1f1f1;
+    background: #f7fafc;
+    color: #2ecc71;
 }
 
-/* Floating Add Admin Button */
+/* Floating Buttons Container */
+.floating-buttons-container {
+    position: fixed;
+    bottom: 30px;
+    right: 95px;
+    display: flex;
+    gap: 20px;
+    z-index: 1000;
+}
+
+.floating-button-link {
+    text-decoration: none;
+}
+
+.floating-add-admin-button,
+.floating-logout-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 50px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    min-width: 160px;
+}
+
 .floating-add-admin-button {
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  background: #28a745;
-  color: white;
-  border: none;
-  padding: 12px 20px;
-  border-radius: 50px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  cursor: pointer;
-  transition: all 0.3s;
+    background: linear-gradient(135deg, #2ecc71, #27ae60);
+    color: white;
 }
 
-.floating-add-admin-button:hover {
-  background: #218838;
+.floating-logout-button {
+    background: linear-gradient(135deg, #e74c3c, #c0392b);
+    color: white;
 }
 
 .button-icon {
-  font-size: 20px;
-  font-weight: bold;
+    font-size: 20px;
+    margin-right: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .button-text {
-  font-size: 14px;
+    font-size: 16px;
+    white-space: nowrap;
 }
 
-/* Mobile Responsive */
-@media (max-width: 768px) {
-  .card {
-    width: 90%;
-    padding: 20px;
-  }
+/* Hover Effects */
+.floating-add-admin-button:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(46, 204, 113, 0.3);
+    background: linear-gradient(135deg, #27ae60, #2ecc71);
+}
 
-  .floating-add-admin-button {
-    font-size: 14px;
-  }
+.floating-logout-button:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(231, 76, 60, 0.3);
+    background: linear-gradient(135deg, #c0392b, #e74c3c);
+}
+
+/* Active State */
+.floating-add-admin-button:active,
+.floating-logout-button:active {
+    transform: translateY(1px);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .container {
+        padding: 15px;
+    }
+
+    .card {
+        padding: 25px;
+        border-radius: 15px;
+    }
+
+    .title {
+        font-size: 2em;
+    }
+
+    .description {
+        font-size: 1.1em;
+    }
+
+    .grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+
+    .floating-buttons-container {
+        right: 35px;
+        gap: 15px;
+    }
+
+    .floating-add-admin-button,
+    .floating-logout-button {
+        padding: 10px 20px;
+        min-width: 140px;
+        font-size: 14px;
+    }
+
+    .button-icon {
+        font-size: 18px;
+        margin-right: 6px;
+    }
+
+    .button-text {
+        font-size: 14px;
+    }
+}
+
+/* Animation for buttons */
+@keyframes buttonPulse {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+.floating-add-admin-button:focus,
+.floating-logout-button:focus {
+    animation: buttonPulse 0.3s ease;
+    outline: none;
+}
+
+/* Animation for links */
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.02);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+.link:active {
+    animation: pulse 0.3s ease;
 }
