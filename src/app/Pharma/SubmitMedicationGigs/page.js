@@ -24,7 +24,7 @@ const SubmitMedicationGigs = () => {
     return (quantity * price).toFixed(2);
   };
 
-  // Get patient ID from session or URL parameter as fallback
+  // Get patient ID from session or URL parameter as fallback 
   useEffect(() => {
     const fetchPatientId = async () => {
       try {
@@ -291,19 +291,34 @@ const SubmitMedicationGigs = () => {
         pharmacistId: id,
         prescriptionId: medication.prescriptionId,
         quantity: gigRequests[medId]?.quantity || medication.stock,
-        price: parseFloat(gigRequests[medId]?.price),
+        price: parseFloat(calculateTotal(medId)),
         status: 'available',
-        createdAt: new Date().toISOString()
+        createdAt: new Date().toISOString(),
+        totalAmount: calculateTotal(medId),
+        patientId: medication.patientId,
+        patientName: medication.patientName
       };
       
-      // Mock API call for demonstration - would be replaced with actual endpoint
-      console.log("Submitting gig request:", requestData);
-      
-      // Simulate API request delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Make the actual API call to save the gig
+      const response = await fetch('/api/auth/saveGig', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(requestData),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const result = await response.json();
       
       // Success notification
       alert(`Gig request for ${medication.name} submitted successfully!`);
+      
+      // Remove the submitted medication from the list
+      setMedications(prevMeds => prevMeds.filter(med => med.id !== medId));
       
       // Clear form data for this medication
       setGigRequests(prev => {
@@ -668,14 +683,11 @@ const SubmitMedicationGigs = () => {
                                 submittingGig === med.id || 
                                 !gigRequests[med.id]?.quantity || 
                                 !gigRequests[med.id]?.price || 
-                                !gigRequests[med.id]?.availability ||
-                                med.stock <= 0
+                                !gigRequests[med.id]?.availability
                               }
                               className={`w-full py-3 px-4 rounded-md font-medium text-base focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors ${
                                 submittingGig === med.id
                                   ? "bg-gray-400 cursor-not-allowed"
-                                  : med.stock <= 0
-                                  ? "bg-gray-300 text-gray-500 cursor-not-allowed"
                                   : !gigRequests[med.id]?.quantity || !gigRequests[med.id]?.price || !gigRequests[med.id]?.availability
                                   ? "bg-gray-300 text-gray-500 cursor-not-allowed"
                                   : "bg-gradient-to-r from-green-600 to-green-500 hover:from-green-700 hover:to-green-600 text-white focus:ring-green-500 shadow-md"
@@ -689,8 +701,6 @@ const SubmitMedicationGigs = () => {
                                   </svg>
                                   Submitting...
                                 </span>
-                              ) : med.stock <= 0 ? (
-                                "Out of Stock"
                               ) : (
                                 "Submit Your Gig"
                               )}
