@@ -107,18 +107,20 @@ model CaseStatus {
   dosage             String?
   prescribedMedicine String?
 }
+
 model GigDetails {
-  id                  Int      @id @default(autoincrement())
-  pharmacistId        Int
-  prescriptionId      Int
-  medicationId        String
-  medicationName      String
-  quantity            Float
-  price               Float
-  availability        String
-  deliveryPreference  String
-  status              String
-  createdAt           DateTime @default(now())
+  id                 Int          @id @default(autoincrement())
+  createdAt          DateTime     @default(now())
+  availability       String
+  deliveryPreference String
+  medicationId       String
+  medicationName     String
+  pharmacistId       Int
+  prescriptionId     Int
+  price              Float
+  quantity           Float
+  status             String
+  Prescription       Prescription @relation(fields: [prescriptionId], references: [id])
 }
 
 model patients {
@@ -129,6 +131,7 @@ model patients {
   time_slot           String
   appointment_date    String
   pendingAppointments PendingAppointment[]
+  Prescription        Prescription[]
 }
 
 model PendingAppointment {
@@ -193,14 +196,16 @@ model Medication {
 }
 
 model Prescription {
-  id                Int      @id @default(autoincrement())
+  id                Int          @id @default(autoincrement())
   user_id           Int
   Medicines         String
   Tests             String
   Operations        String
   ExtraInstructions String
-  createdAt         DateTime @default(now())
+  createdAt         DateTime     @default(now())
   appointment_id    Int?
+  GigDetails        GigDetails[]
+  patients          patients     @relation(fields: [user_id], references: [patient_id])
 }
 
 model AssistanceRequest {

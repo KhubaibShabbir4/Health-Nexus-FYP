@@ -337,3 +337,60 @@ nav div {
   background: #059669;
   transform: scale(1.1);
 }
+
+/* --- Upload-X-ray floating button (compact + animated) --- */
+.xray-btn{
+  position:fixed;
+  bottom:150px;          /* sits ~30 px above Need-Help */
+  right:28px;
+  display:flex;
+  align-items:center;
+  gap:6px;
+  padding:10px 20px;
+  font-size:.95rem;
+  font-weight:600;
+  white-space:nowrap;
+  color:#fff;
+  background:linear-gradient(90deg,#0fd948 0%,#045a16 100%);
+  background-size:200% 200%;                /* for gradient shift */
+  border:none;
+  border-radius:28px;
+  cursor:pointer;
+  box-shadow:0 6px 14px rgba(0,0,0,.18);
+  transition:transform .25s ease;
+  animation:xrayFloat 3.5s ease-in-out infinite,
+            xrayGradient 6s linear infinite;
+  z-index:1000;
+  width: auto;
+  margin-bottom: 25px;
+  margin-right: 68px;
+}
+.xray-btn:hover{
+  transform:translateY(-4px) scale(1.06);
+}
+.xray-back{
+  position:fixed;inset:0;background:rgba(0,0,0,.55);
+  display:flex;justify-content:center;align-items:center;z-index:1100;
+}
+.xray-box{
+  background:#fff;width:90%;max-width:440px;max-height:80vh;
+  padding:18px;border-radius:12px;display:flex;flex-direction:column;gap:10px;
+}
+.xray-chat{
+  flex:1;overflow-y:auto;background:#fafafa;border:1px solid #e5e7eb;
+  padding:8px;border-radius:8px;
+}
+.xray-img{max-width:120px;border:2px solid #10b981;border-radius:6px;margin:4px 0}
+.xray-bot{background:#e5e7eb;padding:6px 8px;border-radius:6px;margin:4px 0}
+
+/* pulse glow */
+@keyframes xrayPulse{
+  0%  {box-shadow:0 0 8px rgba(6, 190, 95, 0.6);}
+  100%{box-shadow:0 0 22px rgb(6, 190, 92);}
+}
+/* reuse the same pattern you’ve used for chatbot */
+.xray-btn.hidden{
+  opacity:0;
+  visibility:hidden;
+  pointer-events:none;
+}
