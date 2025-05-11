@@ -5,13 +5,13 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { fetchGeminiResponse } from "../services/geminiAPI"; // Import Gemini API service
 import Header from "../components/Header/page";
-import Footer from "../components/footer/page";
 import "./page.css";
 import { useRouter } from "next/navigation";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-// import Landing from "./components/Landing/page";
-import Landing from "../components/Landing/page";
+import { GoogleGenerativeAI } from "@google/generative-ai";        // ← new
+
+
 export default function PatientDashboard() {
   const [chatVisible, setChatVisible] = useState(false);
   const [chatInput, setChatInput] = useState("");
@@ -19,6 +19,55 @@ export default function PatientDashboard() {
   const [patient, setPatient] = useState({});
   const [loading, setLoading] = useState(true);
   const router = useRouter();
+
+  /* ---------- X-ray modal state (new) ---------- */
+  const [xrayOpen, setXrayOpen] = useState(false);
+  const [xrayFile, setXrayFile] = useState(null);
+  const [xrayBusy, setXrayBusy] = useState(false);
+  const [xrayChat, setXrayChat] = useState([]);   // {role:'user'|'bot', url?|text?}
+
+
+  /* read file → base64 */
+  const fileToB64 = (f) =>
+    new Promise((res, rej) => {
+      const r = new FileReader();
+      r.onload = () => res(r.result.split(",")[1]);
+      r.onerror = rej;
+      r.readAsDataURL(f);
+    });
+
+  /* analyze with Gemini Vision */
+  const analyzeXray = async () => {
+    if (!xrayFile) return;
+    setXrayBusy(true);
+    setXrayChat((c) => [...c, { role: "user", url: URL.createObjectURL(xrayFile) }]);
+
+    try {
+      const genAI = new GoogleGenerativeAI(
+        process.env.NEXT_PUBLIC_GEMINI_API_KEY_VISION
+      );
+      const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+
+      const prompt =
+        "You are a medical expert AI. Analyze this X-ray image and give a detailed, and a patient-friendly explanation. If normal, say so.";
+
+      const resp = await model.generateContent([
+        prompt,
+        { inlineData: { data: await fileToB64(xrayFile), mimeType: xrayFile.type } },
+      ]);
+
+      // ✅ compute first, then set state
+      const botText = await resp.response.text();
+      setXrayChat((c) => [...c, { role: "bot", text: botText }]);
+
+    } catch {
+      setXrayChat((c) => [...c, { role: "bot", text: "Analysis failed." }]);
+    } finally {
+      setXrayBusy(false);
+      setXrayFile(null);
+    }
+  };
+
 
   const getUser = async () => {
     try {
@@ -178,13 +227,25 @@ export default function PatientDashboard() {
           onClick={toggleChat}
           className={`chatbot-btn ${chatVisible ? "hidden" : ""}`}
         >
-          Need Help? 💬
+          Chatbot
         </button>
 
         <button onClick={handleLogout} className="logout-btn">
           Logout
         </button>
       </div>
+      <button
+        className={`xray-btn ${chatVisible ? "hidden" : ""}`}
+        onClick={() => {
+          setXrayChat([]);
+          setXrayFile(null);
+          setXrayOpen(true);
+        }}
+      >
+        X-ray Analysis
+      </button>
+
+
 
       {chatVisible && (
         <div className="chatbox visible">
@@ -196,9 +257,8 @@ export default function PatientDashboard() {
             {messages.map((msg, index) => (
               <div
                 key={index}
-                className={`chat-message ${
-                  msg.sender === "user" ? "user-message" : "bot-message"
-                }`}
+                className={`chat-message ${msg.sender === "user" ? "user-message" : "bot-message"
+                  }`}
               >
                 {msg.sender === "user" ? (
                   msg.text
@@ -225,6 +285,45 @@ export default function PatientDashboard() {
           </div>
         </div>
       )}
+
+      {/* ---------- X-ray modal ---------- */}
+      {xrayOpen && (
+        <div className="xray-back" onClick={() => setXrayOpen(false)}>
+          <div className="xray-box" onClick={(e) => e.stopPropagation()}>
+            <h3>X-ray Analysis</h3>
+
+            <div className="xray-chat">
+              {xrayChat.map((m, i) =>
+                m.role === "user" ? (
+                  <img key={i} src={m.url} alt="upload" className="xray-img" />
+                ) : (
+                  <div key={i} className="xray-bot">
+                    <ReactMarkdown>{m.text}</ReactMarkdown>
+                  </div>
+                )
+              )}
+              {xrayBusy && <p>Analyzing…</p>}
+            </div>
+
+            {!xrayBusy && (
+              <>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => setXrayFile(e.target.files[0] || null)}
+                />
+                <div style={{ display: "flex", justifyContent: "flex-end", gap: "8px" }}>
+                  <button onClick={() => setXrayOpen(false)}>Close</button>
+                  <button disabled={!xrayFile} onClick={analyzeXray}>
+                    Analyze
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      )}
+
     </>
   );
 }
