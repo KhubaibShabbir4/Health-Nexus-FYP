@@ -20,7 +20,7 @@ Follow these step-by-step instructions to set up and run the project successfull
 
 ```bash
 git init
-git remote add origin https://github.com/KhubaibShabbir4/FYP.git
+git remote add origin https://github.com/KhubaibShabbir4/Testing.git
 ```
 
 ---
