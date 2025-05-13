@@ -15,6 +15,7 @@ const SubmitMedicationGigs = () => {
   const [activePrescription, setActivePrescription] = useState(null);
   const [gigRequests, setGigRequests] = useState({});
   const [submittingGig, setSubmittingGig] = useState(null);
+  const [submittedGigs, setSubmittedGigs] = useState({});
   const router = useRouter();
 
   // Function to calculate total amount
@@ -271,6 +272,32 @@ const SubmitMedicationGigs = () => {
     });
   };
 
+  // Fetch existing gigs when medications are loaded
+  useEffect(() => {
+    const fetchExistingGigs = async () => {
+      if (id && medications.length > 0) {
+        try {
+          const response = await fetch(`/api/auth/getPharmacistGigs?pharmacistId=${id}`);
+          if (response.ok) {
+            const gigsData = await response.json();
+            
+            // Create a map of submitted gigs using medication IDs as keys
+            const gigsMap = {};
+            gigsData.forEach(gig => {
+              gigsMap[gig.medicationId] = gig;
+            });
+            
+            setSubmittedGigs(gigsMap);
+          }
+        } catch (error) {
+          console.error("Error fetching existing gigs:", error);
+        }
+      }
+    };
+    
+    fetchExistingGigs();
+  }, [id, medications]);
+
   const submitGig = async (medId) => {
     try {
       // Validate required fields
@@ -314,11 +341,17 @@ const SubmitMedicationGigs = () => {
 
       const result = await response.json();
       
+      // Add to submitted gigs map
+      setSubmittedGigs(prev => ({
+        ...prev,
+        [medId]: {
+          ...requestData,
+          id: result.id || Date.now()
+        }
+      }));
+      
       // Success notification
       alert(`Gig request for ${medication.name} submitted successfully!`);
-      
-      // Remove the submitted medication from the list
-      setMedications(prevMeds => prevMeds.filter(med => med.id !== medId));
       
       // Clear form data for this medication
       setGigRequests(prev => {
@@ -526,7 +559,7 @@ const SubmitMedicationGigs = () => {
                       animate={{ opacity: 1 }}
                       exit={{ opacity: 0 }}
                       transition={{ duration: 0.3, delay: index * 0.05 }}
-                      className="p-6 mb-6 bg-white border border-gray-200 rounded-xl shadow-md hover:shadow-lg transition-all"
+                      className={`p-6 mb-6 bg-white border ${submittedGigs[med.id] ? 'border-green-300 bg-green-50' : 'border-gray-200'} rounded-xl shadow-md hover:shadow-lg transition-all`}
                     >
                       <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between">
                         {/* Medication Info */}
@@ -538,6 +571,11 @@ const SubmitMedicationGigs = () => {
                               {med.prescriptionId !== activePrescription && activePrescription === null && (
                                 <span className="ml-3 text-xs bg-gray-200 text-gray-700 px-2 py-1 rounded-full">
                                   Rx #{getPrescriptionDisplayNumber(med.prescriptionId)}
+                                </span>
+                              )}
+                              {submittedGigs[med.id] && (
+                                <span className="ml-3 text-xs bg-green-200 text-green-800 px-2 py-1 rounded-full">
+                                  Gig Submitted
                                 </span>
                               )}
                             </h3>
@@ -583,130 +621,188 @@ const SubmitMedicationGigs = () => {
                           </div>
                         </div>
                         
-                        {/* Gig Submission Form */}
-                        <div className="bg-gradient-to-br from-blue-50 to-sky-50 p-6 rounded-lg lg:w-2/5 border border-blue-100 shadow-md">
-                          <h4 className="text-lg font-semibold text-blue-800 mb-4 border-b border-blue-100 pb-2 flex items-center">
-                            <svg className="h-5 w-5 text-blue-600 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                            </svg>
-                            Submit Your Gig
-                          </h4>
-                          <div className="space-y-4">
-                            <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-1 flex items-center">
-                                <svg className="h-4 w-4 text-gray-600 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14" />
-                                </svg>
-                                Quantity You Can Provide
-                              </label>
-                              <input
-                                type="number"
-                                min="1"
-                                max={med.total}
-                                value={gigRequests[med.id]?.quantity || ''}
-                                onChange={(e) => handleGigInputChange(med.id, 'quantity', e.target.value)}
-                                placeholder={`Max ${med.total}`}
-                                className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
-                              />
+                        {/* Gig Submission Form or Submitted Gig Info */}
+                        {submittedGigs[med.id] ? (
+                          <div className="bg-gradient-to-br from-emerald-50 to-green-50 p-6 rounded-lg lg:w-2/5 border border-green-200 shadow-md">
+                            <h4 className="text-lg font-semibold text-green-800 mb-4 border-b border-green-100 pb-2 flex items-center">
+                              <svg className="h-5 w-5 text-green-600 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                              </svg>
+                              Gig Submitted
+                            </h4>
+                            <div className="space-y-4">
+                              <div className="grid grid-cols-2 gap-3">
+                                <div>
+                                  <p className="text-sm font-medium text-gray-600">Quantity:</p>
+                                  <p className="text-base font-bold">{submittedGigs[med.id].quantity}</p>
+                                </div>
+                                <div>
+                                  <p className="text-sm font-medium text-gray-600">Price per unit:</p>
+                                  <p className="text-base font-bold">Rs {submittedGigs[med.id].price || (submittedGigs[med.id].totalAmount / submittedGigs[med.id].quantity).toFixed(2)}</p>
+                                </div>
+                                <div>
+                                  <p className="text-sm font-medium text-gray-600">Total Amount:</p>
+                                  <p className="text-base font-bold text-green-700">Rs {submittedGigs[med.id].totalAmount}</p>
+                                </div>
+                                <div>
+                                  <p className="text-sm font-medium text-gray-600">Availability:</p>
+                                  <p className="text-base font-bold">{submittedGigs[med.id].availability}</p>
+                                </div>
+                              </div>
+                              
+                              <div className="mt-4 pt-3 border-t border-green-100">
+                                <button
+                                  onClick={() => {
+                                    // Set initial values for editing
+                                    handleGigInputChange(med.id, 'quantity', submittedGigs[med.id].quantity);
+                                    handleGigInputChange(med.id, 'price', submittedGigs[med.id].price || (submittedGigs[med.id].totalAmount / submittedGigs[med.id].quantity));
+                                    handleGigInputChange(med.id, 'availability', submittedGigs[med.id].availability);
+                                    if (submittedGigs[med.id].deliveryPreference) {
+                                      handleGigInputChange(med.id, 'deliveryPreference', submittedGigs[med.id].deliveryPreference);
+                                    }
+                                    
+                                    // Remove from submitted gigs to show the form again
+                                    setSubmittedGigs(prev => {
+                                      const newState = {...prev};
+                                      delete newState[med.id];
+                                      return newState;
+                                    });
+                                  }}
+                                  className="w-full py-2.5 px-4 rounded-md font-medium text-sm bg-white border border-green-300 text-green-700 hover:bg-green-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors flex items-center justify-center"
+                                >
+                                  <svg className="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                  </svg>
+                                  Edit Gig Details
+                                </button>
+                              </div>
                             </div>
-                            
-                            <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-1 flex items-center">
-                                <svg className="h-4 w-4 text-gray-600 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                </svg>
-                                Your Price (per unit in Rs)
-                              </label>
-                              <div className="flex">
-                                <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 bg-gray-50 text-gray-500 font-medium">
-                                  Rs
-                                </span>
+                          </div>
+                        ) : (
+                          <div className="bg-gradient-to-br from-blue-50 to-sky-50 p-6 rounded-lg lg:w-2/5 border border-blue-100 shadow-md">
+                            <h4 className="text-lg font-semibold text-blue-800 mb-4 border-b border-blue-100 pb-2 flex items-center">
+                              <svg className="h-5 w-5 text-blue-600 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                              </svg>
+                              Submit Your Gig
+                            </h4>
+                            <div className="space-y-4">
+                              <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1 flex items-center">
+                                  <svg className="h-4 w-4 text-gray-600 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14" />
+                                  </svg>
+                                  Quantity You Can Provide
+                                </label>
                                 <input
                                   type="number"
-                                  min="0.01"
-                                  step="0.01"
-                                  value={gigRequests[med.id]?.price || ''}
-                                  onChange={(e) => handleGigInputChange(med.id, 'price', e.target.value)}
-                                  placeholder="0.00"
-                                  className="flex-1 min-w-0 rounded-none rounded-r-md border-gray-300 focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+                                  min="1"
+                                  max={med.total}
+                                  value={gigRequests[med.id]?.quantity || ''}
+                                  onChange={(e) => handleGigInputChange(med.id, 'quantity', e.target.value)}
+                                  placeholder={`Max ${med.total}`}
+                                  className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
                                 />
                               </div>
-                              {(gigRequests[med.id]?.quantity && gigRequests[med.id]?.price) && (
-                                <div className="mt-1 text-sm bg-green-50 text-green-700 font-medium p-2 rounded border border-green-100">
-                                  Total Amount: Rs {calculateTotal(med.id)}
+                              
+                              <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1 flex items-center">
+                                  <svg className="h-4 w-4 text-gray-600 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                  </svg>
+                                  Your Price (per unit in Rs)
+                                </label>
+                                <div className="flex">
+                                  <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 bg-gray-50 text-gray-500 font-medium">
+                                    Rs
+                                  </span>
+                                  <input
+                                    type="number"
+                                    min="0.01"
+                                    step="0.01"
+                                    value={gigRequests[med.id]?.price || ''}
+                                    onChange={(e) => handleGigInputChange(med.id, 'price', e.target.value)}
+                                    placeholder="0.00"
+                                    className="flex-1 min-w-0 rounded-none rounded-r-md border-gray-300 focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+                                  />
                                 </div>
-                              )}
-                            </div>
+                                {(gigRequests[med.id]?.quantity && gigRequests[med.id]?.price) && (
+                                  <div className="mt-1 text-sm bg-green-50 text-green-700 font-medium p-2 rounded border border-green-100">
+                                    Total Amount: Rs {calculateTotal(med.id)}
+                                  </div>
+                                )}
+                              </div>
 
-                            <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-1 flex items-center">
-                                <svg className="h-4 w-4 text-gray-600 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                </svg>
-                                Service Availability
-                              </label>
-                              <select
-                                value={gigRequests[med.id]?.availability || ''}
-                                onChange={(e) => handleGigInputChange(med.id, 'availability', e.target.value)}
-                                className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
-                              >
-                                <option value="">Select availability</option>
-                                <option value="same-day">Same Day</option>
-                                <option value="next-day">Next Day</option>
-                                <option value="2-3-days">2-3 Days</option>
-                              </select>
+                              <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1 flex items-center">
+                                  <svg className="h-4 w-4 text-gray-600 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                  </svg>
+                                  Service Availability
+                                </label>
+                                <select
+                                  value={gigRequests[med.id]?.availability || ''}
+                                  onChange={(e) => handleGigInputChange(med.id, 'availability', e.target.value)}
+                                  className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+                                >
+                                  <option value="">Select availability</option>
+                                  <option value="same-day">Same Day</option>
+                                  <option value="next-day">Next Day</option>
+                                  <option value="2-3-days">2-3 Days</option>
+                                </select>
+                              </div>
+                              
+                              <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1 flex items-center">
+                                  <svg className="h-4 w-4 text-gray-600 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                                  </svg>
+                                  Service Type
+                                </label>
+                                <select
+                                  value={gigRequests[med.id]?.deliveryPreference || ''}
+                                  onChange={(e) => handleGigInputChange(med.id, 'deliveryPreference', e.target.value)}
+                                  className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+                                >
+                                  <option value="">Select a service type</option>
+                                  <option value="delivery">Home Delivery</option>
+                                  <option value="pickup">Pharmacy Pickup</option>
+                                </select>
+                              </div>
                             </div>
                             
-                            <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-1 flex items-center">
-                                <svg className="h-4 w-4 text-gray-600 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                                </svg>
-                                Service Type
-                              </label>
-                              <select
-                                value={gigRequests[med.id]?.deliveryPreference || ''}
-                                onChange={(e) => handleGigInputChange(med.id, 'deliveryPreference', e.target.value)}
-                                className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+                            <div className="mt-6">
+                              <button
+                                onClick={() => submitGig(med.id)}
+                                disabled={
+                                  submittingGig === med.id || 
+                                  !gigRequests[med.id]?.quantity || 
+                                  !gigRequests[med.id]?.price || 
+                                  !gigRequests[med.id]?.availability
+                                }
+                                className={`w-full py-3 px-4 rounded-md font-medium text-base focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors ${
+                                  submittingGig === med.id
+                                    ? "bg-gray-400 cursor-not-allowed"
+                                    : !gigRequests[med.id]?.quantity || !gigRequests[med.id]?.price || !gigRequests[med.id]?.availability
+                                    ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                                    : "bg-gradient-to-r from-green-600 to-green-500 hover:from-green-700 hover:to-green-600 text-white focus:ring-green-500 shadow-md"
+                                }`}
                               >
-                                <option value="">Select a service type</option>
-                                <option value="delivery">Home Delivery</option>
-                                <option value="pickup">Pharmacy Pickup</option>
-                              </select>
+                                {submittingGig === med.id ? (
+                                  <span className="flex items-center justify-center">
+                                    <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                    </svg>
+                                    Submitting...
+                                  </span>
+                                ) : (
+                                  "Submit Your Gig"
+                                )}
+                              </button>
                             </div>
                           </div>
-                          
-                          <div className="mt-6">
-                            <button
-                              onClick={() => submitGig(med.id)}
-                              disabled={
-                                submittingGig === med.id || 
-                                !gigRequests[med.id]?.quantity || 
-                                !gigRequests[med.id]?.price || 
-                                !gigRequests[med.id]?.availability
-                              }
-                              className={`w-full py-3 px-4 rounded-md font-medium text-base focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors ${
-                                submittingGig === med.id
-                                  ? "bg-gray-400 cursor-not-allowed"
-                                  : !gigRequests[med.id]?.quantity || !gigRequests[med.id]?.price || !gigRequests[med.id]?.availability
-                                  ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                                  : "bg-gradient-to-r from-green-600 to-green-500 hover:from-green-700 hover:to-green-600 text-white focus:ring-green-500 shadow-md"
-                              }`}
-                            >
-                              {submittingGig === med.id ? (
-                                <span className="flex items-center justify-center">
-                                  <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                  </svg>
-                                  Submitting...
-                                </span>
-                              ) : (
-                                "Submit Your Gig"
-                              )}
-                            </button>
-                          </div>
-                        </div>
+                        )}
                       </div>
                     </motion.div>
                   ))}
