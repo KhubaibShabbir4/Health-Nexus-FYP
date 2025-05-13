@@ -8,9 +8,23 @@ export default async function handler(req, res) {
       const gigs = await prisma.gigDetails.findMany({
         orderBy: {
           price: 'asc'
+        },
+        include: {
+          prescription: {
+            include: {
+              patient: true
+            }
+          }
         }
       });
-      return res.status(200).json({ gigs });
+      
+      // Transform the data to include patient information
+      const transformedGigs = gigs.map(gig => ({
+        ...gig,
+        patientName: gig.prescription?.patient?.patient_name || 'N/A'
+      }));
+      
+      return res.status(200).json({ gigs: transformedGigs });
     }
 
     if (req.method === 'PUT') {
