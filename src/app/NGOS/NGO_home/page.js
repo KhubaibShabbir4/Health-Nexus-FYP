@@ -298,7 +298,7 @@ export default function NGOHome() {
                   onClick={() => router.push("/NGOS/Ngo_givingLoan")}
                   className="px-6 py-3 text-base bg-green-600 text-white rounded-lg hover:bg-green-700 transition-all flex items-center gap-2"
                 >
-                  <span>View Appointments</span>
+                  <span>View Assistance Requests</span>
                 </button>
                 <button
                   onClick={() => {

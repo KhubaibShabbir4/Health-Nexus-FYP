@@ -46,7 +46,7 @@ export default function HomePharma() {
             Partnering for Better Health
           </h1>
           <p className="text-lg text-gray-700 mb-6">
-            Manage your medication supply chain efficiently. Submit GIGs for needed medications and fulfill orders seamlessly through our dedicated portal.
+            Manage your medication supply chain efficiently. Submit Orders for needed medications and fulfill orders seamlessly through our dedicated portal.
           </p>
           <p className="text-md text-gray-600">
             Connecting pharmacies with suppliers for a healthier tomorrow.
@@ -61,12 +61,12 @@ export default function HomePharma() {
             <div className="grid grid-cols-1 gap-6">
               <Link href="/Pharma/SubmitMedicationGigs" className="block">
                 <button className="w-full py-4 bg-green-600 text-white font-bold rounded-lg shadow-md hover:bg-green-700 transition duration-300 text-lg">
-                  Submit Medication GIGs
+                  Submit Medication Orders
                 </button>
               </Link>
               <Link href="/Pharma/FulfillMedicationOrders" className="block">
                 <button className="w-full py-4 bg-green-600 text-white font-bold rounded-lg shadow-md hover:bg-green-700 transition duration-300 text-lg">
-                Submitted Gigs Overview
+                Submitted Orders Overview
                 </button>
               </Link>
             </div>

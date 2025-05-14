@@ -10,7 +10,7 @@ export default function AffordableGigs() {
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
-  const [showDeclineModal, setShowDeclineModal] = useState(false);
+  const [showDeclineModal] = useState(false);   // modal logic kept (unused)
   const [declineReason, setDeclineReason] = useState('');
   const [selectedGigId, setSelectedGigId] = useState(null);
   const [reasonError, setReasonError] = useState(false);
@@ -27,105 +27,53 @@ export default function AffordableGigs() {
       const data = await res.json();
 
       const transformed = data.gigs.map((g) => ({
-        id: g.id,
-        pharmacyName: g.pharmacyName || 'N/A',
-        patientName: g.patientName || 'N/A',
-        medication: g.medicationName,
-        quantity: g.quantity,
-        price: g.price,
-        status: g.status || 'Pending',
-        createdAt: g.createdAt,
-        notes: g.notes,
+        id          : g.id,
+        pharmacistId: g.pharmacistId,
+        patientName : g.patientName || 'N/A',
+        medication  : g.medicationName,
+        quantity    : g.quantity,
+        price       : g.price,
+        status      : g.status || 'Pending',
+        createdAt   : g.createdAt,
+        notes       : g.notes,
         isProcessing: false,
       }));
 
-      const lowestPrice = [...transformed].sort((a, b) => a.price - b.price)[0]
-        ?.price;
+      /* ───── fetch pharmacy names once ───── */
+      const uniqueIds = [...new Set(transformed.map((g) => g.pharmacistId))];
+      let pharmacyMap = {};
+
+      if (uniqueIds.length) {
+        const namesRes = await fetch(
+          `/api/auth/getPharmacies?ids=${uniqueIds.join(',')}`
+        );
+        if (!namesRes.ok) throw new Error('Failed to fetch pharmacy names');
+
+        const { pharmacies } = await namesRes.json();
+        pharmacyMap = pharmacies.reduce(
+          (acc, p) => ({ ...acc, [p.id]: p.name }),
+          {}
+        );
+      }
+
+      const withNames = transformed.map((g) => ({
+        ...g,
+        pharmacyName: pharmacyMap[g.pharmacistId] || 'N/A',
+      }));
+
+      const lowestPrice =
+        [...withNames].sort((a, b) => a.price - b.price)[0]?.price || 0;
 
       setGigs(
-        transformed.map((g) => ({ ...g, isLowestPrice: g.price === lowestPrice }))
+        withNames.map((g) => ({
+          ...g,
+          isLowestPrice: g.price === lowestPrice,
+        }))
       );
       setLoading(false);
     } catch (err) {
       setError(err.message);
       setLoading(false);
-    }
-  };
-
-  /* ──────────── ACCEPT / DECLINE ──────────── */
-  const handleAccept = async (gigId) => {
-    try {
-      setGigs((prev) =>
-        prev.map((g) =>
-          g.id === gigId ? { ...g, isProcessing: true } : g
-        )
-      );
-
-      const res = await fetch('/api/auth/affordableGigs', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ gigId, status: 'Selected' }),
-      });
-      if (!res.ok) throw new Error('Failed to update gig status');
-
-      setGigs((prev) =>
-        prev.map((g) =>
-          g.id === gigId ? { ...g, status: 'Selected', isProcessing: false } : g
-        )
-      );
-      alert(`Gig #${gigId} has been accepted successfully.`);
-    } catch (err) {
-      setError(err.message);
-      setGigs((prev) =>
-        prev.map((g) =>
-          g.id === gigId ? { ...g, isProcessing: false } : g
-        )
-      );
-    }
-  };
-
-  const openDeclineModal = (gigId) => {
-    setSelectedGigId(gigId);
-    setDeclineReason('');
-    setReasonError(false);
-    setShowDeclineModal(true);
-  };
-
-  const closeDeclineModal = () => {
-    setShowDeclineModal(false);
-    setSelectedGigId(null);
-    setDeclineReason('');
-    setReasonError(false);
-  };
-
-  const handleDecline = async () => {
-    if (!declineReason.trim()) {
-      setReasonError(true);
-      return;
-    }
-    try {
-      const res = await fetch('/api/auth/affordableGigs', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          gigId: selectedGigId,
-          status: 'Rejected',
-          rejectionReason: declineReason,
-        }),
-      });
-      if (!res.ok) throw new Error('Failed to update gig status');
-
-      setGigs((prev) =>
-        prev.map((g) =>
-          g.id === selectedGigId
-            ? { ...g, status: 'Rejected', rejectionReason: declineReason }
-            : g
-        )
-      );
-      closeDeclineModal();
-      alert(`Gig #${selectedGigId} has been declined.`);
-    } catch (err) {
-      setError(err.message);
     }
   };
 
@@ -372,98 +320,7 @@ export default function AffordableGigs() {
                     )}
                   </div>
 
-                  {/* ─────────── ACTION BUTTONS (always rendered) ─────────── */}
-                  <div className="mt-8 flex items-center justify-end space-x-4">
-                    {/* Reject */}
-                    <button
-                      onClick={() => openDeclineModal(gig.id)}
-                      disabled={gig.isProcessing || gig.status !== 'Pending'}
-                      className={`px-6 py-3 rounded-xl transition-all duration-300 shadow-md flex items-center
-                        ${
-                          gig.status === 'Rejected'
-                            ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                            : 'bg-gradient-to-r from-red-700 to-red-800 text-white hover:from-red-600 hover:to-red-700'
-                        }
-                        disabled:opacity-140`}
-                    >
-                      <svg
-                        className="h-5 w-5 mr-2"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth="2"
-                          d="M6 18L18 6M6 6l12 12"
-                        />
-                      </svg>
-                      {gig.status === 'Rejected' ? 'Rejected' : 'Reject'}
-                    </button>
-
-                    {/* Accept */}
-                    <button
-                      onClick={() => handleAccept(gig.id)}
-                      disabled={gig.isProcessing || gig.status !== 'Pending'}
-                      className={`px-8 py-3 rounded-xl transition-all duration-300 shadow-md flex items-center
-                        ${
-                          gig.status === 'Selected'
-                            ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                            : gig.isLowestPrice
-                            ? 'bg-gradient-to-r from-green-500 to-green-600 text-white hover:from-green-600 hover:to-green-700'
-                            : 'bg-gradient-to-r from-blue-500 to-blue-600 text-white hover:from-blue-600 hover:to-blue-700'
-                        }
-                        disabled:opacity-140`}
-                    >
-                      {gig.isProcessing ? (
-                        <>
-                          <svg
-                            className="animate-spin -ml-1 mr-2 h-5 w-5 text-white"
-                            xmlns="http://www.w3.org/2000/svg"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                          >
-                            <circle
-                              className="opacity-25"
-                              cx="12"
-                              cy="12"
-                              r="10"
-                              stroke="currentColor"
-                              strokeWidth="4"
-                            ></circle>
-                            <path
-                              className="opacity-75"
-                              fill="currentColor"
-                              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                            ></path>
-                          </svg>
-                          Processing…
-                        </>
-                      ) : (
-                        <>
-                          <svg
-                            className="h-5 w-5 mr-2"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth="2"
-                              d="M5 13l4 4L19 7"
-                            />
-                          </svg>
-                          {gig.status === 'Selected'
-                            ? 'Accepted'
-                            : gig.isLowestPrice
-                            ? 'Accept Best Price'
-                            : 'Accept'}
-                        </>
-                      )}
-                    </button>
-                  </div>
+                  {/* ─────────── ACTION BUTTONS REMOVED ─────────── */}
                 </div>
               </div>
             ))}
@@ -496,59 +353,6 @@ export default function AffordableGigs() {
           )}
         </div>
       </div>
-
-      {/* ───── Decline Modal ───── */}
-      {showDeclineModal && (
-        <div className="fixed inset-0 z-50 overflow-y-auto">
-          <div className="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
-            <div className="fixed inset-0 transition-opacity" aria-hidden="true">
-              <div className="absolute inset-0 bg-gray-500 bg-opacity-75 backdrop-blur-sm"></div>
-            </div>
-
-            <div className="inline-block align-bottom bg-white rounded-2xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
-              <div className="bg-gradient-to-r from-red-500 to-red-600 px-6 py-4">
-                <h3 className="text-xl font-bold text-white">Decline Gig</h3>
-              </div>
-              <div className="bg-white px-6 py-4">
-                <p className="text-gray-600 mb-4">
-                  Please provide a reason for declining this gig.
-                </p>
-                <textarea
-                  value={declineReason}
-                  onChange={(e) => {
-                    setDeclineReason(e.target.value);
-                    setReasonError(false);
-                  }}
-                  className={`w-full rounded-xl border ${
-                    reasonError ? 'border-red-300 bg-red-50' : 'border-gray-300'
-                  } shadow-sm focus:border-red-500 focus:ring focus:ring-red-200 focus:ring-opacity-50 p-4`}
-                  rows="4"
-                  placeholder="Enter reason for declining..."
-                />
-                {reasonError && (
-                  <p className="mt-2 text-sm text-red-600">
-                    Please provide a reason for declining
-                  </p>
-                )}
-              </div>
-              <div className="bg-gray-50 px-6 py-4 flex justify-end space-x-4">
-                <button
-                  onClick={closeDeclineModal}
-                  className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors duration-200"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={handleDecline}
-                  className="px-6 py-2 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-lg hover:from-red-600 hover:to-red-700 transition-all duration-300 shadow-md hover:shadow-lg"
-                >
-                  Decline Gig
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
