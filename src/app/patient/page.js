@@ -203,7 +203,7 @@ export default function PatientDashboard() {
               <span>💊 Medication Status</span>
             </Link>
             <Link
-              href={`/NGO/pharma?id=${patient.patient_id}`}
+              href={`/NGOS/pharma?id=${patient.patient_id}`}
               className="link"
             >
               <span>🏥 NGO & Pharma Responses</span>

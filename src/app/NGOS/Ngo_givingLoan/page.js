@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Footer from "../footer/page";
 import NgoHeader from "../../NGOS/NgoHeader/page";
 import "./page.css";
+import Image from "next/image";
 
 export default function NgoGivingLoan() {
   const router = useRouter();
@@ -158,7 +159,19 @@ export default function NgoGivingLoan() {
   );
 
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50">
+    <div className="min-h-screen flex flex-col bg-gray-50 relative">
+      {/* Background Image */}
+      <div className="fixed inset-0 z-0 opacity-14">
+        <Image 
+          src="/images/financialaid.jpg" 
+          alt="Financial Aid Background" 
+          fill
+          sizes="100vw"
+          style={{ objectFit: 'cover' }}
+          priority
+        />
+      </div>
+
       {/* Header - Fixed Position */}
       <div className="fixed top-0 left-0 right-0 z-50">
         <NgoHeader onBellClick={() => router.push("/NGOS/Ngo_givingLoan")} />
@@ -167,9 +180,20 @@ export default function NgoGivingLoan() {
       {/* Main Section - With extra top padding to account for fixed header */}
       <main className="flex-grow pt-28 pb-10 px-4 md:px-6 lg:px-8 flex flex-col items-center relative z-10 max-w-6xl mx-auto">
         <div className="w-full max-w-5xl bg-white rounded-xl shadow-md p-6 md:p-8 bg-pattern">
-          <h1 className="text-2xl md:text-3xl font-bold text-green-700 mb-6 text-center">
-            Recent Fund Requests
-          </h1>
+          <div className="flex justify-between items-center mb-6">
+            <button
+              onClick={() => router.push("/NGOS/NGO_home")}
+              className="flex items-center px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors duration-200"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clipRule="evenodd" />
+              </svg>
+              Back to Dashboard
+            </button>
+            <h1 className="text-2xl md:text-3xl font-bold text-green-700 text-center">
+              Recent Fund Requests
+            </h1>
+          </div>
 
           {/* Display success & error messages */}
           {Object.entries(responseMessages).map(([key, value]) => {
