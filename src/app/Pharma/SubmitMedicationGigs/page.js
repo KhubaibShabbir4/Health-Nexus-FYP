@@ -16,6 +16,7 @@ const SubmitMedicationGigs = () => {
   const [gigRequests, setGigRequests] = useState({});
   const [submittingGig, setSubmittingGig] = useState(null);
   const [submittedGigs, setSubmittedGigs] = useState({});
+  const [pharmacyName, setPharmacyName] = useState("");
   const router = useRouter();
 
   // Function to calculate total amount
@@ -309,6 +310,11 @@ const SubmitMedicationGigs = () => {
         return;
       }
       
+      if (!pharmacyName.trim()) {
+        alert("Please enter your pharmacy name");
+        return;
+      }
+      
       setSubmittingGig(medId);
       const medication = medications.find(med => med.id === medId);
       const requestData = {
@@ -316,6 +322,7 @@ const SubmitMedicationGigs = () => {
         medicationId: medId,
         medicationName: medication.name,
         pharmacistId: id,
+        pharmacyName: pharmacyName,
         prescriptionId: medication.prescriptionId,
         quantity: gigRequests[medId]?.quantity || medication.stock,
         price: parseFloat(calculateTotal(medId)),
@@ -341,6 +348,27 @@ const SubmitMedicationGigs = () => {
 
       const result = await response.json();
       
+      // Create a notification for the patient
+      const notificationData = {
+        patientId: medication.patientId,
+        medicationId: medId,
+        medicationName: medication.name,
+        pharmacyName: pharmacyName,
+        message: `Your medication ${medication.name} is ready for collection at ${pharmacyName}`,
+        createdAt: new Date().toISOString(),
+        isRead: false,
+        gigId: result.id || Date.now()
+      };
+      
+      // Send notification to the patient
+      await fetch('/api/auth/createNotification', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(notificationData),
+      });
+      
       // Add to submitted gigs map
       setSubmittedGigs(prev => ({
         ...prev,
@@ -351,7 +379,7 @@ const SubmitMedicationGigs = () => {
       }));
       
       // Success notification
-      alert(`Gig request for ${medication.name} submitted successfully!`);
+      alert(`Order request for ${medication.name} submitted successfully! The patient has been notified.`);
       
       // Clear form data for this medication
       setGigRequests(prev => {
@@ -360,8 +388,8 @@ const SubmitMedicationGigs = () => {
         return newState;
       });
     } catch (error) {
-      console.error("Error submitting gig request:", error);
-      alert("Failed to submit gig request. Please try again.");
+      console.error("Error submitting order request:", error);
+      alert("Failed to submit order request. Please try again.");
     } finally {
       setSubmittingGig(null);
     }
@@ -387,7 +415,7 @@ const SubmitMedicationGigs = () => {
         >
           <div>
             <h1 className="text-3xl font-extrabold text-green-700 sm:text-4xl mb-2">
-              Submit Medication Gigs
+              Submit Medication Orders
             </h1>
             <p className="text-gray-600">Help patients by providing medication services</p>
           </div>
@@ -414,7 +442,7 @@ const SubmitMedicationGigs = () => {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             </div>
-            <h2 className="text-xl font-bold text-gray-800">How to Submit Your Medication Gigs</h2>
+            <h2 className="text-xl font-bold text-gray-800">How to Submit Your Medication Orders</h2>
           </div>
           
           {patientInfo && (
@@ -443,8 +471,8 @@ const SubmitMedicationGigs = () => {
           <ol className="list-decimal pl-5 space-y-2 text-gray-700">
             <li>Review your medications listed below.</li>
             <li>For each medication, enter the quantity you can provide and your service details.</li>
-            <li>Click "Submit Your Gig" to make your services available to patients.</li>
-            <li>You'll be notified when a patient selects your gig for fulfillment.</li>
+            <li>Click "Submit Your Order" to make your services available to patients.</li>
+            <li>You'll be notified when a patient selects your order for fulfillment.</li>
           </ol>
         </motion.div>
 
@@ -547,7 +575,7 @@ const SubmitMedicationGigs = () => {
                 <svg className="h-8 w-8 text-white mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
                 </svg>
-                <h2 className="text-white text-2xl font-bold">Available Medications for Your Gigs</h2>
+                <h2 className="text-white text-2xl font-bold">Available Medications for Your Orders</h2>
               </div>
               
               <div className="space-y-4">
@@ -575,7 +603,7 @@ const SubmitMedicationGigs = () => {
                               )}
                               {submittedGigs[med.id] && (
                                 <span className="ml-3 text-xs bg-green-200 text-green-800 px-2 py-1 rounded-full">
-                                  Gig Submitted
+                                  Order Submitted
                                 </span>
                               )}
                             </h3>
@@ -628,7 +656,7 @@ const SubmitMedicationGigs = () => {
                               <svg className="h-5 w-5 text-green-600 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                               </svg>
-                              Gig Submitted
+                              Order Submitted
                             </h4>
                             <div className="space-y-4">
                               <div className="grid grid-cols-2 gap-3">
@@ -673,7 +701,7 @@ const SubmitMedicationGigs = () => {
                                   <svg className="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                   </svg>
-                                  Edit Gig Details
+                                  Edit Order Details
                                 </button>
                               </div>
                             </div>
@@ -682,15 +710,31 @@ const SubmitMedicationGigs = () => {
                           <div className="bg-gradient-to-br from-blue-50 to-sky-50 p-6 rounded-lg lg:w-2/5 border border-blue-100 shadow-md">
                             <h4 className="text-lg font-semibold text-blue-800 mb-4 border-b border-blue-100 pb-2 flex items-center">
                               <svg className="h-5 w-5 text-blue-600 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                               </svg>
-                              Submit Your Gig
+                              Submit Your Order
                             </h4>
                             <div className="space-y-4">
                               <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-1 flex items-center">
                                   <svg className="h-4 w-4 text-gray-600 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14" />
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                                  </svg>
+                                  Pharmacy Name
+                                </label>
+                                <input
+                                  type="text"
+                                  value={pharmacyName}
+                                  onChange={(e) => setPharmacyName(e.target.value)}
+                                  placeholder="Enter your pharmacy name"
+                                  className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+                                  required
+                                />
+                              </div>
+                              <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1 flex items-center">
+                                  <svg className="h-4 w-4 text-gray-600 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                                   </svg>
                                   Quantity You Can Provide
                                 </label>
@@ -797,7 +841,7 @@ const SubmitMedicationGigs = () => {
                                     Submitting...
                                   </span>
                                 ) : (
-                                  "Submit Your Gig"
+                                  "Submit Your Order"
                                 )}
                               </button>
                             </div>

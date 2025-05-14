@@ -3,8 +3,29 @@ import Link from "next/link";
 //import Header from "../../components/Header/page";
 import Footer from "../../components/footer/page";
 import Header from "../../components/Header/page";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 export default function HomePharma() {
+  const handleLogout = () => {
+    // Clear all cookies
+    document.cookie.split(";").forEach((c) => {
+      document.cookie = c
+        .replace(/^ +/, "")
+        .replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
+    });
+
+    // Clear storage
+    localStorage.clear();
+    sessionStorage.clear();
+
+    // Show message
+    toast.success("Logged out successfully");
+
+    // Hard redirect
+    window.location.href = "/";
+  };
+
   return (
     <div
       className="min-h-screen flex flex-col relative"
@@ -16,7 +37,7 @@ export default function HomePharma() {
       }}
     >
       <div className="absolute inset-0 bg-white/50 z-0"></div>
-
+      <ToastContainer />
       <Header className="relative z-10" />
 
       <main className="flex flex-col md:flex-row flex-grow items-center justify-around p-4 md:p-12 relative z-10">
@@ -52,6 +73,63 @@ export default function HomePharma() {
           </div>
         </div>
       </main>
+
+      {/* Bottom Controls - Logout Button */}
+      <div className="bottom-right-controls">
+        <button onClick={handleLogout} className="logout-btn">
+          Logout
+        </button>
+      </div>
+
+      <style jsx>{`
+        .bottom-right-controls {
+          position: fixed;
+          bottom: 20px;
+          right: 80px;
+          display: flex;
+          flex-direction: column;
+          gap: 12px;
+          align-items: flex-end;
+          z-index: 998;
+        }
+        
+        .logout-btn {
+          background: linear-gradient(135deg, #ef4444, #dc2626);
+          color: white;
+          padding: 16px 32px;
+          border-radius: 50px;
+          border: none;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.3s ease;
+          box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          font-size: 1.1rem;
+          width: 180px;
+          justify-content: center;
+        }
+        
+        .logout-btn:hover {
+          background: linear-gradient(135deg, #dc2626, #b91c1c);
+          transform: translateY(-2px);
+          box-shadow: 0 6px 12px rgba(239, 68, 68, 0.4);
+        }
+
+        @media (max-width: 768px) {
+          .bottom-right-controls {
+            gap: 10px;
+            right: 20px;
+          }
+          
+          .logout-btn {
+            padding: 14px 28px;
+            font-size: 1rem;
+            width: 160px;
+          }
+        }
+      `}</style>
 
       {/* <Footer className="relative z-10" />*/}
     </div>

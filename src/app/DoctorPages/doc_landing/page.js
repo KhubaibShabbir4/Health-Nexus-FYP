@@ -5,12 +5,43 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Header from "../../components/Header/page";
 import { motion } from "framer-motion";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 
 const DoctorLanding = () => {
   const [doctor, setDoctor] = useState({});
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+
+  // Effect for one-time page refresh
+  useEffect(() => {
+    const hasRefreshed = sessionStorage.getItem('docLandingRefreshed');
+    if (!hasRefreshed) {
+      // Set flag before refreshing to prevent infinite loops
+      sessionStorage.setItem('docLandingRefreshed', 'true');
+      window.location.reload();
+    }
+  }, []);
+
+  const handleLogout = () => {
+    // Clear all cookies
+    document.cookie.split(";").forEach((c) => {
+      document.cookie = c
+        .replace(/^ +/, "")
+        .replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
+    });
+
+    // Clear storage
+    localStorage.clear();
+    sessionStorage.clear();
+
+    // Show message
+    toast.success("Logged out successfully");
+
+    // Hard redirect
+    window.location.href = "/";
+  };
 
   const getDoctor = async () => {
     try {
@@ -51,6 +82,7 @@ const DoctorLanding = () => {
         backgroundBlendMode: 'overlay'
       }}
     >
+      <ToastContainer />
       <Header />
       {loading && (
         <div className="z-50 fixed top-0 left-0 w-full h-full bg-black backdrop-blur-sm bg-opacity-70 flex justify-center items-center">
@@ -106,6 +138,63 @@ const DoctorLanding = () => {
           </div>
         </div>
       </main>
+
+      {/* Bottom Controls - Logout Button */}
+      <div className="bottom-right-controls">
+        <button onClick={handleLogout} className="logout-btn">
+          Logout
+        </button>
+      </div>
+
+      <style jsx>{`
+        .bottom-right-controls {
+          position: fixed;
+          bottom: 20px;
+          right: 80px;
+          display: flex;
+          flex-direction: column;
+          gap: 12px;
+          align-items: flex-end;
+          z-index: 998;
+        }
+        
+        .logout-btn {
+          background: linear-gradient(135deg, #ef4444, #dc2626);
+          color: white;
+          padding: 16px 32px;
+          border-radius: 50px;
+          border: none;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.3s ease;
+          box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          font-size: 1.1rem;
+          width: 180px;
+          justify-content: center;
+        }
+        
+        .logout-btn:hover {
+          background: linear-gradient(135deg, #dc2626, #b91c1c);
+          transform: translateY(-2px);
+          box-shadow: 0 6px 12px rgba(239, 68, 68, 0.4);
+        }
+
+        @media (max-width: 768px) {
+          .bottom-right-controls {
+            gap: 10px;
+            right: 20px;
+          }
+          
+          .logout-btn {
+            padding: 14px 28px;
+            font-size: 1rem;
+            width: 160px;
+          }
+        }
+      `}</style>
     </div>
   );
 };

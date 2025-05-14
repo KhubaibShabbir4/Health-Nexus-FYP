@@ -303,7 +303,7 @@ export default function NGOHome() {
                 <button
                   onClick={() => {
                     localStorage.removeItem("ngoUser");
-                    router.push("/NGO/login");
+                    router.push("/NGOS/login");
                   }}
                   className="px-6 py-3 text-base bg-red-600 text-white rounded-lg hover:bg-red-700 transition-all flex items-center gap-2"
                 >

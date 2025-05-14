@@ -16,9 +16,9 @@ export default function Footer() {
     <>
       <footer className="footer">
         <div className="container">
-          <div className="row">
+          <div className="footer-content">
             {/* Company Column */}
-            <div className="footer-col">
+            <div className="footer-section">
               <h4>Company</h4>
               <ul>
                 <li>
@@ -37,7 +37,7 @@ export default function Footer() {
             </div>
 
             {/* Get Help Column */}
-            <div className="footer-col">
+            <div className="footer-section">
               <h4>Get Help</h4>
               <ul>
                 <li>
@@ -53,7 +53,7 @@ export default function Footer() {
             </div>
 
             {/* Follow Us Column */}
-            <div className="footer-col">
+            <div className="footer-section">
               <h4>Follow Us</h4>
               <div className="social-links">
                 <a href="#">
@@ -70,6 +70,9 @@ export default function Footer() {
                 </a>
               </div>
             </div>
+          </div>
+          <div className="copyright">
+            <p>© {new Date().getFullYear()} Last of US. All rights reserved.</p>
           </div>
         </div>
       </footer>
@@ -90,49 +93,54 @@ export default function Footer() {
 
         .footer {
           width: 100%;
-          background-color: #1a1e23; /* Darker background for better contrast */
-          padding: 40px 0 30px; /* More top padding, less bottom */
+          background-color: #1a1e23;
+          padding: 40px 0 30px;
           color: #ffffff;
           text-align: center;
           position: relative;
           left: 0;
           bottom: 0;
-          box-shadow: 0 -5px 15px rgba(0, 0, 0, 0.1); /* Subtle shadow at the top */
+          box-shadow: 0 -5px 15px rgba(0, 0, 0, 0.1);
         }
 
         .container {
           width: 100%;
-          max-width: 800px;     /* or whatever your page’s main container is */
-          padding: 0 20px;      /* a little side-padding so it doesn’t stick to the edges */
-          margin: 0 auto;       /* centers the container */
+          max-width: 1100px;
+          padding: 0 20px;
+          margin: 0 auto;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
         }
 
-        .row {
+        .footer-content {
           display: flex;
-          flex-direction: row;
           justify-content: center;
           align-items: flex-start;
-          gap: 50px; /* Increased gap for better separation between columns */
           flex-wrap: wrap;
+          gap: 60px;
+          margin-bottom: 30px;
+          width: 100%;
         }
 
-        .footer-col {
+        .footer-section {
           flex: 0 0 auto;
-          /* width: 160px; */ /* Removed fixed width */
+          min-width: 160px;
+          max-width: 220px;
           text-align: center;
         }
 
-        .footer-col h4 {
+        .footer-section h4 {
           font-size: 1.25rem;
-          font-weight: 700; /* Bolder headings */
+          font-weight: 700;
           margin-bottom: 20px;
-          color: #4ade80; /* Green color to match the site theme */
+          color: #4ade80;
           text-align: center;
           position: relative;
-          padding-bottom: 10px; /* Space for the underline */
+          padding-bottom: 10px;
         }
 
-        .footer-col h4::after {
+        .footer-section h4::after {
           content: '';
           position: absolute;
           left: 50%;
@@ -140,10 +148,10 @@ export default function Footer() {
           transform: translateX(-50%);
           width: 50px;
           height: 2px;
-          background-color: #4ade80; /* Underline with the same green color */
+          background-color: #4ade80;
         }
 
-        .footer-col ul {
+        .footer-section ul {
           list-style: none;
           padding: 0;
           margin: 0;
@@ -152,23 +160,23 @@ export default function Footer() {
           align-items: center;
         }
 
-        .footer-col ul li {
+        .footer-section ul li {
           margin-bottom: 12px;
           width: 100%;
           text-align: center;
         }
 
-        .footer-col ul li a {
+        .footer-section ul li a {
           text-decoration: none;
-          color: #d1d5db; /* Lighter gray for better readability */
+          color: #d1d5db;
           font-size: 0.95rem;
           transition: all 0.3s ease;
           padding: 2px 0;
         }
 
-        .footer-col ul li a:hover {
+        .footer-section ul li a:hover {
           color: #ffffff;
-          transform: translateY(-2px); /* Slight upward movement on hover */
+          transform: translateY(-2px);
         }
 
         .social-links {
@@ -176,15 +184,15 @@ export default function Footer() {
           justify-content: center;
           flex-wrap: wrap;
           margin-top: 5px;
+          gap: 12px;
         }
 
         .social-links a {
           color: #d1d5db;
-          background-color: rgba(255, 255, 255, 0.1); /* Subtle background */
+          background-color: rgba(255, 255, 255, 0.1);
           border-radius: 50%;
           width: 36px;
           height: 36px;
-          margin: 0 8px;
           transition: all 0.3s ease;
           display: flex;
           align-items: center;
@@ -193,30 +201,28 @@ export default function Footer() {
 
         .social-links a:hover {
           color: #ffffff;
-          background-color: #4ade80; /* Green background on hover */
-          transform: translateY(-3px); /* Slight upward movement */
-          box-shadow: 0 5px 15px rgba(74, 222, 128, 0.4); /* Glow effect */
+          background-color: #4ade80;
+          transform: translateY(-3px);
+          box-shadow: 0 5px 15px rgba(74, 222, 128, 0.4);
         }
 
-        .social-links .social-icon {
-          font-size: 18px;
+        .copyright {
+          margin-top: 20px;
+          color: #9ca3af;
+          font-size: 0.9rem;
         }
 
         /* Responsive adjustments */
         @media (max-width: 768px) {
-          .container {
-            width: 80%;
-          }
-          
-          .row {
+          .footer-content {
             flex-direction: column;
             align-items: center;
-            gap: 35px;
+            gap: 40px;
           }
           
-          .footer-col {
+          .footer-section {
             width: 100%;
-            max-width: 220px;
+            max-width: 280px;
           }
           
           .footer {
