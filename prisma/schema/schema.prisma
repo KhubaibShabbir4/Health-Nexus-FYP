@@ -313,6 +313,7 @@ model Notification {
   id                   Int      @id @default(autoincrement())
   user_id              Int
   notification_content String
+  medicationName       String
   isRead               Boolean  @default(false)
   patient              patients @relation(fields: [user_id], references: [patient_id])
 }
