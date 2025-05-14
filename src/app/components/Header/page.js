@@ -54,13 +54,22 @@ export default function Header() {
     if (dropdownVisible) setDropdownVisible(false);
   };
 
+  const scrollToMission = (e) => {
+    e.preventDefault();
+    const missionSection = document.getElementById('mission');
+    if (missionSection) {
+      missionSection.scrollIntoView({ behavior: 'smooth' });
+    }
+    setMobileMenuOpen(false);
+  };
+
   return (
     <header className={`${styles.header} ${scrolled ? styles.scrolled : ""}`}>
       <div className={styles.container}>
         {/* Logo - Extreme Left */}
         <div className={styles.logoContainer}>
           <Link href="/" className={styles.logoLink}>
-            <div className="relative w-[60px] h-[60px]">
+            <div className="relative w-[65px] h-[65px] flex items-center">
               <Image
                 src="/images/logo.png"
                 alt="Health Nexus"
@@ -96,7 +105,7 @@ export default function Header() {
             <Link href="/" className={styles.navLink} onClick={() => setMobileMenuOpen(false)}>
               Home
             </Link>
-            <Link href="/about" className={styles.navLink} onClick={() => setMobileMenuOpen(false)}>
+            <Link href="#mission" className={styles.navLink} onClick={scrollToMission}>
               About
             </Link>
             <Link href="/contact" className={styles.navLink} onClick={() => setMobileMenuOpen(false)}>
@@ -113,7 +122,7 @@ export default function Header() {
                 <Link href="/patient/login" className={styles.dropdownLink} onClick={() => setMobileMenuOpen(false)}>
                   Patient
                 </Link>
-                <Link href="/NGO/login" className={styles.dropdownLink} onClick={() => setMobileMenuOpen(false)}>
+                <Link href="/NGOS/login" className={styles.dropdownLink} onClick={() => setMobileMenuOpen(false)}>
                   NGO
                 </Link>
                 <Link href="/Doctor/login" className={styles.dropdownLink} onClick={() => setMobileMenuOpen(false)}>

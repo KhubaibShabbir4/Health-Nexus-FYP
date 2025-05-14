@@ -109,8 +109,8 @@ model CaseStatus {
 }
 
 model GigDetails {
-  id                 Int      @id @default(autoincrement())
-  createdAt          DateTime @default(now())
+  id                 Int          @id @default(autoincrement())
+  createdAt          DateTime     @default(now())
   availability       String
   deliveryPreference String
   medicationId       String
@@ -130,6 +130,7 @@ model patients {
   gender              String
   time_slot           String
   appointment_date    String
+  Notification        Notification[]
   pendingAppointments PendingAppointment[]
   prescriptions       Prescription[]
 }
@@ -196,16 +197,16 @@ model Medication {
 }
 
 model Prescription {
-  id                Int      @id @default(autoincrement())
+  id                Int          @id @default(autoincrement())
   user_id           Int
   Medicines         String
   Tests             String
   Operations        String
   ExtraInstructions String
-  createdAt         DateTime @default(now()) 
+  createdAt         DateTime     @default(now())
   appointment_id    Int?
-  gigs             GigDetails[]
-  patient          patients    @relation(fields: [user_id], references: [patient_id])
+  gigs              GigDetails[]
+  patient           patients     @relation(fields: [user_id], references: [patient_id])
 }
 
 model AssistanceRequest {
@@ -306,6 +307,14 @@ model NGOMonthlyDonation {
   @@unique([ngoId, month])
   @@index([month])
   @@index([ngoId])
+}
+
+model Notification {
+  id                   Int      @id @default(autoincrement())
+  user_id              Int
+  notification_content String
+  isRead               Boolean  @default(false)
+  patient              patients @relation(fields: [user_id], references: [patient_id])
 }
 
 model NGOMonthlyPatient {
