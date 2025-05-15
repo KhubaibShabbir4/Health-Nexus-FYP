@@ -66,6 +66,15 @@ const BookAppointmentPage = () => {
     getDoctors();
   }, []);
 
+  // Add page refresh on initial load
+  useEffect(() => {
+    const hasRefreshed = sessionStorage.getItem('hasRefreshed');
+    if (!hasRefreshed) {
+      sessionStorage.setItem('hasRefreshed', 'true');
+      window.location.reload();
+    }
+  }, []);
+
   const validateForm = () => {
     const newErrors = {};
     

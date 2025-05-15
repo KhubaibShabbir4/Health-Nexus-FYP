@@ -18,6 +18,8 @@ export default function NgoGivingLoan() {
   const [selectedStatus, setSelectedStatus] = useState("");
   const [responseMessages, setResponseMessages] = useState({});
   const [searchTerm, setSearchTerm] = useState("");
+  const [processedRequestIds, setProcessedRequestIds] = useState(new Set());
+  const [amountError, setAmountError] = useState("");
 
   // Triggered by "Under Review", "Declined", or "Accepted" buttons
   const handleStatusUpdate = (status, request) => {
@@ -32,25 +34,54 @@ export default function NgoGivingLoan() {
     }
   };
 
+  // Function to calculate remaining amount
+  const calculateRemainingAmount = (request) => {
+    const totalExpenditure = request.totalExpenditure || 0;
+    const selfFinance = request.selfFinance || 0;
+    const ngoAmount = request.ngoAmount || 0;
+    return Math.max(totalExpenditure - selfFinance - ngoAmount, 0);
+  };
+
+  // Function to validate loan amount
+  const validateLoanAmount = (amount, request) => {
+    const totalExpenditure = request.totalExpenditure || 0;
+    const selfFinance = request.selfFinance || 0;
+    const remainingAmount = totalExpenditure - selfFinance - parseFloat(amount);
+    
+    if (remainingAmount < 0) {
+      setAmountError(`Invalid amount. The remaining amount would be negative (Rs ${remainingAmount}). Please enter a valid amount.`);
+      return false;
+    }
+    setAmountError("");
+    return true;
+  };
+
   // Sending the reason (and/or NGO amount) to the server
   const sendReason = async () => {
     if (!selectedCase || !selectedStatus) return;
 
     try {
       // Validate inputs before sending
-      if (selectedStatus === "Accepted" && (!ngoAmount || parseFloat(ngoAmount) <= 0)) {
-        setResponseMessages((prev) => ({
-          ...prev,
-          error: "Please enter a valid loan amount.",
-        }));
-        setTimeout(() => {
-          setResponseMessages((prev) => {
-            const newMessages = { ...prev };
-            delete newMessages.error;
-            return newMessages;
-          });
-        }, 7000);
-        return;
+      if (selectedStatus === "Accepted") {
+        if (!ngoAmount || parseFloat(ngoAmount) <= 0) {
+          setResponseMessages((prev) => ({
+            ...prev,
+            error: "Please enter a valid loan amount.",
+          }));
+          setTimeout(() => {
+            setResponseMessages((prev) => {
+              const newMessages = { ...prev };
+              delete newMessages.error;
+              return newMessages;
+            });
+          }, 7000);
+          return;
+        }
+
+        // Validate that the remaining amount won't be negative
+        if (!validateLoanAmount(ngoAmount, selectedCase)) {
+          return;
+        }
       }
 
       const res = await fetch("/api/auth/update-request-status", {
@@ -70,6 +101,9 @@ export default function NgoGivingLoan() {
         console.error("API Error:", data);
         throw new Error(data.error || "Failed to update status");
       }
+
+      // Add the processed request ID to our set
+      setProcessedRequestIds(prev => new Set([...prev, selectedCase.id]));
 
       // Success message with status-specific prefix
       let statusIcon = "✅";
@@ -119,6 +153,7 @@ export default function NgoGivingLoan() {
       setNgoAmount("");
       setSelectedCase(null);
       setSelectedStatus("");
+      setAmountError("");
     }
   };
 
@@ -144,14 +179,6 @@ export default function NgoGivingLoan() {
 
     fetchRequests();
   }, []);
-
-  // Function to calculate remaining amount
-  const calculateRemainingAmount = (request) => {
-    const totalExpenditure = request.totalExpenditure || 0;
-    const selfFinance = request.selfFinance || 0;
-    const ngoAmount = request.ngoAmount || 0;
-    return Math.max(totalExpenditure - selfFinance - ngoAmount, 0);
-  };
 
   // Filter cases based on search term
   const filteredCases = cases.filter(request => 
@@ -486,11 +513,26 @@ export default function NgoGivingLoan() {
               <input
                 type="number"
                 id="ngoAmount"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500"
+                className={`w-full px-3 py-2 border ${amountError ? 'border-red-500' : 'border-gray-300'} rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500`}
                 placeholder="Enter amount"
                 value={ngoAmount}
-                onChange={(e) => setNgoAmount(e.target.value)}
+                onChange={(e) => {
+                  setNgoAmount(e.target.value);
+                  if (e.target.value) {
+                    validateLoanAmount(e.target.value, selectedCase);
+                  } else {
+                    setAmountError("");
+                  }
+                }}
               />
+              {amountError && (
+                <p className="mt-1 text-sm text-red-600">{amountError}</p>
+              )}
+              <div className="mt-2 text-sm text-gray-600">
+                <p>Total Expenditure: Rs {selectedCase?.totalExpenditure || 0}</p>
+                <p>Self Finance: Rs {selectedCase?.selfFinance || 0}</p>
+                <p>Remaining Amount: Rs {calculateRemainingAmount(selectedCase)}</p>
+              </div>
             </div>
             <div className="mb-4">
               <label htmlFor="acceptReason" className="block text-sm font-medium text-gray-700 mb-1">
@@ -513,6 +555,7 @@ export default function NgoGivingLoan() {
                   setShowCompletedModal(false);
                   setReason("");
                   setNgoAmount("");
+                  setAmountError("");
                 }}
               >
                 Cancel
@@ -521,6 +564,7 @@ export default function NgoGivingLoan() {
                 type="button"
                 className="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
                 onClick={sendReason}
+                disabled={!!amountError}
               >
                 Confirm
               </button>

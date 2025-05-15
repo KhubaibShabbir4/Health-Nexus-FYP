@@ -19,32 +19,37 @@ export default function NgoLogin() {
     setError("");
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError("");
-    setSuccess("");
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  setError("");
+  setSuccess("");
 
-    try {
-      const response = await fetch(API_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(ngo),
-      });
+  try {
+    const response = await fetch(API_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(ngo),
+    });
 
-      const data = await response.json();
-      if (response.ok) {
-        setSuccess("Login successful! Redirecting...");
-        setTimeout(() => {
-          router.push("/NGOS/NGO_home");  // Redirect to NGO dashboard
-        }, 2000);
-      } else {
-        setError(data.error || "Invalid credentials");
-      }
-    } catch (error) {
-      console.error("Login Error:", error);
-      setError("Something went wrong. Please try again.");
+    const data = await response.json();
+    if (response.ok) {
+      // Save NGO user info to localStorage here:
+      // Assuming API returns the NGO user data in 'data' object
+      localStorage.setItem("ngoUser", JSON.stringify(data));
+
+      setSuccess("Login successful! Redirecting...");
+      setTimeout(() => {
+        router.push("/NGOS/NGO_home");  // Redirect to NGO dashboard
+      }, 2000);
+    } else {
+      setError(data.error || "Invalid credentials");
     }
-  };
+  } catch (error) {
+    console.error("Login Error:", error);
+    setError("Something went wrong. Please try again.");
+  }
+};
+
 
   return (
     <div className="login-container">

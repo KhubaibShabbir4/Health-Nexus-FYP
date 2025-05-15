@@ -1,0 +1,140 @@
+/**
+ * @jest-environment jsdom
+ */
+
+import React from "react";
+import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import RequestAssistance from "./page"; // Adjust path as needed
+import '@testing-library/jest-dom/extend-expect';
+
+// Mock next/navigation useRouter
+jest.mock("next/navigation", () => ({
+  useRouter: () => ({
+    push: jest.fn(),
+  }),
+}));
+
+// Mock react-toastify (optional, if you want to suppress toasts in tests)
+jest.mock("react-toastify", () => ({
+  ToastContainer: () => <div />,
+  toast: {
+    error: jest.fn(),
+    success: jest.fn(),
+  },
+  Bounce: jest.fn(),
+}));
+
+// Mock fetch globally
+beforeEach(() => {
+  global.fetch = jest.fn();
+});
+
+afterEach(() => {
+  jest.resetAllMocks();
+});
+
+describe("RequestAssistance component", () => {
+  test("renders form fields", async () => {
+    // Mock GET user API success
+    fetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({ patient: { patient_id: "user123" } }),
+    });
+
+    render(<RequestAssistance />);
+
+    // Wait for userId state to be set (fetch call)
+    await waitFor(() => expect(fetch).toHaveBeenCalledWith("/api/auth/getUser", expect.any(Object)));
+
+    // Check inputs exist
+    expect(screen.getByPlaceholderText(/describe your health condition/i)).toBeInTheDocument();
+    expect(screen.getByRole("combobox")).toBeInTheDocument();
+    expect(screen.getByLabelText(/upload the medical report/i)).toBeInTheDocument();
+    expect(screen.getByPlaceholderText(/additional message/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/total expenditure/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/self finance/i)).toBeInTheDocument();
+
+    // Submit button
+    expect(screen.getByRole("button", { name: /submit request/i })).toBeInTheDocument();
+  });
+
+  test("shows validation errors if form submitted empty", async () => {
+    fetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({ patient: { patient_id: "user123" } }),
+    });
+
+    render(<RequestAssistance />);
+
+    // Wait for fetch user
+    await waitFor(() => expect(fetch).toHaveBeenCalled());
+
+    fireEvent.click(screen.getByRole("button", { name: /submit request/i }));
+
+    expect(await screen.findByText(/medical condition is required/i)).toBeInTheDocument();
+    expect(screen.getByText(/assistance type is required/i)).toBeInTheDocument();
+    expect(screen.getByText(/medical report is required/i)).toBeInTheDocument();
+    expect(screen.getByText(/total expenditure is required/i)).toBeInTheDocument();
+    expect(screen.getByText(/self finance is required/i)).toBeInTheDocument();
+  });
+
+  test("submits form successfully", async () => {
+    fetch
+      // First fetch: getUser API
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ patient: { patient_id: "user123" } }),
+      })
+      // Second fetch: form submission API
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ message: "Request submitted successfully!" }),
+      });
+
+    render(<RequestAssistance />);
+
+    await waitFor(() => expect(fetch).toHaveBeenCalledWith("/api/auth/getUser", expect.any(Object)));
+
+    // Fill in fields
+    fireEvent.change(screen.getByPlaceholderText(/describe your health condition/i), {
+      target: { value: "Test condition" },
+    });
+
+    fireEvent.change(screen.getByRole("combobox"), {
+      target: { value: "MEDICATION" },
+    });
+
+    // Mock file input
+    const file = new File(["dummy content"], "report.pdf", { type: "application/pdf" });
+    const fileInput = screen.getByLabelText(/upload the medical report/i);
+    Object.defineProperty(fileInput, "files", {
+      value: [file],
+    });
+    fireEvent.change(fileInput);
+
+    fireEvent.change(screen.getByLabelText(/total expenditure/i), {
+      target: { value: "Rs 1000" },
+    });
+
+    fireEvent.change(screen.getByLabelText(/self finance/i), {
+      target: { value: "Rs 500" },
+    });
+
+    fireEvent.change(screen.getByPlaceholderText(/additional message/i), {
+      target: { value: "Extra info" },
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: /submit request/i }));
+
+    await waitFor(() => {
+      expect(fetch).toHaveBeenCalledTimes(2);
+      expect(fetch).toHaveBeenCalledWith(
+        "/api/auth/requestAssistance",
+        expect.objectContaining({
+          method: "POST",
+          body: expect.any(FormData),
+        }),
+      );
+    });
+  });
+});
