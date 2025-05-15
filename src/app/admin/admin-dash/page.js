@@ -1,11 +1,23 @@
 'use client';
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Header from "../../components/Header/page"; // Import the AdminHeader component
 import './page.css';
 
 export default function AdminDashboard() {
   const [showDropdown, setShowDropdown] = useState(false);
+
+  useEffect(() => {
+    // Check if this is the first load
+    const hasRefreshed = localStorage.getItem('hasRefreshed');
+    
+    if (!hasRefreshed) {
+      // Set the flag in localStorage
+      localStorage.setItem('hasRefreshed', 'true');
+      // Refresh the page
+      window.location.reload();
+    }
+  }, []); // Empty dependency array means this runs once on mount
 
   return (
     <>
@@ -29,7 +41,7 @@ export default function AdminDashboard() {
             </Link>
 
             <Link href="/admin/affordable-gigs" className="link">
-              Select Affordable Gigs
+              Pharmacies Orders
             </Link>
 
             {/* Dropdown Menu for "Want to register?" */}

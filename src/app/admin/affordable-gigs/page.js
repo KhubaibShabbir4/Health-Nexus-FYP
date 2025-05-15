@@ -86,7 +86,7 @@ export default function AffordableGigs() {
             <div className="w-20 h-20 border-4 border-green-200 rounded-full animate-spin"></div>
             <div className="w-20 h-20 border-4 border-green-500 rounded-full animate-spin absolute top-0 left-0 border-t-transparent"></div>
           </div>
-          <p className="mt-6 text-xl font-medium text-gray-600">Loading gigs...</p>
+          <p className="mt-6 text-xl font-medium text-gray-600">Loading Orders...</p>
         </div>
       </div>
     );
@@ -129,14 +129,12 @@ export default function AffordableGigs() {
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
               <h1 className="text-4xl font-bold bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text text-transparent">
-                Affordable Gigs Selection
+                Orders Completed by Pharmacies  
               </h1>
-              <p className="mt-2 text-gray-600">
-                Compare and select the most affordable gigs for patients
-              </p>
+            
             </div>
             <Link
-              href="/admin/dashboard"
+              href="/admin/admin-dash"
               className="flex items-center px-6 py-3 bg-gradient-to-r from-green-700 to-green-800 text-white rounded-xl hover:from-green-600 hover:to-green-700 transition-all duration-300 shadow-md hover:shadow-lg self-start md:self-center"
             >
               <svg
@@ -231,21 +229,10 @@ export default function AffordableGigs() {
                           {gig.pharmacyName}
                         </h2>
                         <p className="text-green-100">
-                          Gig #{gig.id} • Submitted{' '}
+                          Order # {gig.id} • Submitted{' '}
                           {new Date(gig.createdAt).toLocaleDateString()}
                         </p>
                       </div>
-                    </div>
-                    <div
-                      className={`px-4 py-2 rounded-full ${
-                        gig.status === 'Selected'
-                          ? 'bg-green-100 text-green-800'
-                          : gig.status === 'Rejected'
-                          ? 'bg-red-100 text-red-800'
-                          : 'bg-yellow-100 text-yellow-800'
-                      }`}
-                    >
-                      {gig.status}
                     </div>
                   </div>
                 </div>

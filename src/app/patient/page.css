@@ -50,7 +50,7 @@
   font-weight: 700;
   color: #047857;
   letter-spacing: 1px;
-  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.1);
+  text-shadow: 1px 1px 3px rgba(218, 216, 216, 0.1);
 }
 
 /* Description */
@@ -93,6 +93,11 @@
   background: linear-gradient(90deg, #059669, #047857);
   transform: scale(1.05);
   box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+}
+
+/* Link text color */
+.link span {
+  color: white;
 }
 
 /* Header Styling */
