@@ -56,7 +56,7 @@ export default function NGOHome() {
     if (typeof window !== 'undefined') {
       const urlParams = new URLSearchParams(window.location.search);
       const hasRefreshed = urlParams.get('refreshed');
-      
+
       if (!hasRefreshed) {
         urlParams.set('refreshed', 'true');
         const newUrl = `${window.location.pathname}?${urlParams.toString()}`;
@@ -69,21 +69,22 @@ export default function NGOHome() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const storedUser = localStorage.getItem("ngoUser");
-        if (!storedUser) {
+        const storedUserRaw = localStorage.getItem("ngoUser");
+        if (!storedUserRaw) {
           console.error("No NGO user found");
+          router.push("/NGOS/login");
           return;
         }
 
-        const userData = JSON.parse(storedUser);
-        console.log("Logged in NGO:", userData);
-        setNgo(userData);
+        const storedUser = JSON.parse(storedUserRaw);
+        // Extract nested ngo property
+        const ngoData = storedUser.ngo || storedUser;
+
+        setNgo(ngoData);
 
         // Fetch impact data
-        const impactResponse = await fetch(`/api/auth/getImpact?ngoId=${userData.id}`);
+        const impactResponse = await fetch(`/api/auth/getImpact?ngoId=${ngoData.id}`);
         const impactData = await impactResponse.json();
-        
-        console.log("Impact API Response:", impactData);
 
         if (impactData.message) {
           console.error("Impact API Error:", impactData.message);
@@ -98,17 +99,14 @@ export default function NGOHome() {
         }
 
         // Fetch monthly statistics
-        const statsResponse = await fetch(`/api/auth/getMonthlyStats?ngoId=${userData.id}`);
+        const statsResponse = await fetch(`/api/auth/getMonthlyStats?ngoId=${ngoData.id}`);
         const statsData = await statsResponse.json();
-        
-        console.log("Monthly Stats API Response:", statsData);
 
         if (statsData.message) {
           console.error("Monthly Stats API Error:", statsData.message);
         } else {
           setMonthlyData(statsData);
         }
-
       } catch (err) {
         console.error("Error fetching data:", err);
         setImpactValues([0, 0, 0, 0]);
@@ -118,7 +116,7 @@ export default function NGOHome() {
     };
 
     fetchData();
-  }, []);
+  }, [router]);
 
   // Pie Chart Config
   const pieData = {
@@ -259,7 +257,7 @@ export default function NGOHome() {
   };
 
   return (
-    <div 
+    <div
       className="min-h-screen flex flex-col bg-gray-100 relative"
       style={{
         backgroundImage: "url('/images/NGOdash.jpg')",
@@ -298,7 +296,7 @@ export default function NGOHome() {
                   onClick={() => router.push("/NGOS/Ngo_givingLoan")}
                   className="px-6 py-3 text-base bg-green-600 text-white rounded-lg hover:bg-green-700 transition-all flex items-center gap-2"
                 >
-                  <span>View Assistance Requests</span>
+                  <span>View Appointments</span>
                 </button>
                 <button
                   onClick={() => {
